@@ -1,0 +1,16 @@
+{
+  "author": "theostanton",
+  "name": "parastats/webhooks",
+  "version": "0.1.0",
+  "main": "../dist/webhooks/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "typescript": "^5.8.3"
+  }
+}

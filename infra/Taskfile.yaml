@@ -1,0 +1,14 @@
+version: "3"
+
+tasks:
+  plan:
+    dir: infra/
+    desc: Plan
+    cmds:
+      - terraform plan
+
+  apply:
+    dir: infra/
+    desc: Apply
+    cmds:
+      - terraform apply -auto-approve

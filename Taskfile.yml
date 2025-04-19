@@ -1,0 +1,12 @@
+version: "3"
+
+includes:
+  infra: ./infra
+  webhooks: ./webhooks
+
+tasks:
+  deploy:
+    desc: Deploy
+    cmds:
+      - task: webhooks:build
+      - task: infra:apply

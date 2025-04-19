@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the webhooks
+    dir: webhooks
+    sources:
+      - src/**/*.ts
+    generates:
+      - ../dist/webhooks/index.js
+    cmds:
+      - npm run build
