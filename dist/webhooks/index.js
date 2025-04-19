@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.webhookHandler = void 0;
 const webhookHandler = (req, res) => {
     console.log("Received webhook:", req.body);
+    console.log("Received webhook:", JSON.stringify(req.body));
     if (req.query['hub.mode'] == 'subscribe') {
         handleChallenge(req, res);
     }

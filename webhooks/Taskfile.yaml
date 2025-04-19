@@ -10,3 +10,8 @@ tasks:
       - ../dist/webhooks/index.js
     cmds:
       - npm run build
+
+  view-logs:
+    desc: View log
+    cmds:
+      - open https://console.cloud.google.com/run/detail/us-east1/parastats-webhooks/logs?authuser=1&project=para-stats

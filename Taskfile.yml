@@ -1,8 +1,11 @@
 version: "3"
 
+dotenv: [ 'webhooks/.env' ]
+
 includes:
   infra: ./infra
   webhooks: ./webhooks
+  db: ./database
 
 tasks:
   deploy:

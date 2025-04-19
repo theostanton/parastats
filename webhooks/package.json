@@ -7,7 +7,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "express": "^5.0.1"
+    "express": "^5.0.1",
+    "dotenv": "^16.4.7",
+    "ts-postgres": "^2.0.4"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",

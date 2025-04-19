@@ -4,7 +4,6 @@ data "archive_file" "webhooks" {
   output_path = "${path.module}/../dist/webhooks.zip"
 }
 
-
 resource "google_storage_bucket" "webhooks" {
   name          = "parastats-webhooks-${random_id.bucket_suffix.hex}"
   location      = "US"
@@ -25,6 +24,10 @@ resource "google_cloudfunctions2_function" "webhooks" {
   name     = "parastats-webhooks"
   location = local.region
   build_config {
+    environment_variables = {
+      DATABASE_USER     = google_sql_user.webhooks.name
+      DATABASE_PASSWORD = google_sql_user.webhooks.password
+    }
     runtime     = "nodejs20"
     entry_point = "webhookHandler"
     source {
@@ -47,6 +50,26 @@ resource "google_cloud_run_v2_service_iam_binding" "webhooks" {
   location = local.region
   role     = "roles/run.invoker"
   members = ["allUsers"]
+}
+
+locals {
+  webhhoks_env_file_variables = {
+    DATABASE_HOST     = google_sql_database_instance.instance.public_ip_address
+    DATABASE_NAME     = google_sql_database.database.name
+    DATABASE_PORT     = 5432
+    DATABASE_USER     = google_sql_user.webhooks.name
+    DATABASE_PASSWORD = random_password.database.result
+    DATABASE_CONNECTION_URL = "postgresql://${google_sql_user.webhooks.name}:${google_sql_user.webhooks.password}@${google_sql_database_instance.instance.public_ip_address}:5432/${google_sql_database.database.name}"
+  }
+}
+
+resource "local_file" "webhook_envs" {
+  content = join("\n", flatten([
+    for key, value in local.webhhoks_env_file_variables :[
+      "${key}=${value}"
+    ]
+  ]))
+  filename = "${path.module}/../webhooks/.env"
 }
 
 output "webhooks_function_url" {
