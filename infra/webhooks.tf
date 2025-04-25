@@ -37,6 +37,7 @@ resource "google_cloudfunctions2_function" "webhooks" {
       }
     }
   }
+
   service_config {
     available_memory   = "128Mi"
     timeout_seconds    = 60
@@ -44,6 +45,17 @@ resource "google_cloudfunctions2_function" "webhooks" {
     max_instance_count = 1
   }
 }
+
+# resource "google_cloud_run_domain_mapping" "webhooks" {
+#   name     = "webhooks.parastats.info"
+#   location = google_cloudfunctions2_function.webhooks.location
+#   metadata {
+#     namespace = local.project_id
+#   }
+#   spec {
+#     route_name = google_cloudfunctions2_function.webhooks.name
+#   }
+# }
 
 resource "google_cloud_run_v2_service_iam_binding" "webhooks" {
   name     = google_cloudfunctions2_function.webhooks.name
@@ -73,5 +85,5 @@ resource "local_file" "webhook_envs" {
 }
 
 output "webhooks_function_url" {
-  value = google_cloudfunctions2_function.webhooks.service_config[0].uri
+  value = google_cloudfunctions2_function.webhooks.service_config[0].gcf_uri
 }
