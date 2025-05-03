@@ -1,0 +1,10 @@
+{
+  "author": "theostanton",
+  "name": "parastats/webhooks",
+  "version": "0.1.0",
+  "dependencies": {
+    "express": "^5.0.1",
+    "axios": "^1.8.4",
+    "ts-postgres": "^2.0.4"
+  }
+}

@@ -40,3 +40,4 @@ override.tf.json
 terraform.rc
 
 node_modules/
+/requests/http-client.private.env.json

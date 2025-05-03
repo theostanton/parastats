@@ -1,4 +1,4 @@
-import {getDatabase} from "./index";
+import {getDatabase} from "./client";
 import {Success, Failed, Result} from "../model";
 
 export namespace users {

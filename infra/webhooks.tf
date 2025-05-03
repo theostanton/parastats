@@ -20,14 +20,16 @@ resource "google_storage_bucket_object" "webhooks_zip" {
   source = data.archive_file.webhooks.output_path
 }
 
+
 resource "google_cloudfunctions2_function" "webhooks" {
   name     = "parastats-webhooks"
   location = local.region
+
+  timeouts {
+    create = "10m"
+    update = "10m"
+  }
   build_config {
-    environment_variables = {
-      DATABASE_USER     = google_sql_user.webhooks.name
-      DATABASE_PASSWORD = google_sql_user.webhooks.password
-    }
     runtime     = "nodejs20"
     entry_point = "webhookHandler"
     source {
@@ -43,19 +45,16 @@ resource "google_cloudfunctions2_function" "webhooks" {
     timeout_seconds    = 60
     ingress_settings   = "ALLOW_ALL"
     max_instance_count = 1
+    environment_variables = {
+      DATABASE_USER     = google_sql_user.webhooks.name
+      DATABASE_PASSWORD = google_sql_user.webhooks.password
+      DATABASE_HOST     = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
+      DATABASE_NAME     = google_sql_database.database.name
+      CLIENT_ID         = local.CLIENT_ID
+      CLIENT_SECRET     = local.CLIENT_SECRET
+    }
   }
 }
-
-# resource "google_cloud_run_domain_mapping" "webhooks" {
-#   name     = "webhooks.parastats.info"
-#   location = google_cloudfunctions2_function.webhooks.location
-#   metadata {
-#     namespace = local.project_id
-#   }
-#   spec {
-#     route_name = google_cloudfunctions2_function.webhooks.name
-#   }
-# }
 
 resource "google_cloud_run_v2_service_iam_binding" "webhooks" {
   name     = google_cloudfunctions2_function.webhooks.name
@@ -65,19 +64,21 @@ resource "google_cloud_run_v2_service_iam_binding" "webhooks" {
 }
 
 locals {
-  webhhoks_env_file_variables = {
-    DATABASE_HOST     = google_sql_database_instance.instance.public_ip_address
-    DATABASE_NAME     = google_sql_database.database.name
-    DATABASE_PORT     = 5432
-    DATABASE_USER     = google_sql_user.webhooks.name
-    DATABASE_PASSWORD = random_password.database.result
+  webhhoks_variables = {
+    DATABASE_HOST           = google_sql_database_instance.instance.public_ip_address
+    DATABASE_NAME           = google_sql_database.database.name
+    DATABASE_PORT           = 5432
+    DATABASE_USER           = google_sql_user.webhooks.name
+    DATABASE_PASSWORD       = random_password.database.result
     DATABASE_CONNECTION_URL = "postgresql://${google_sql_user.webhooks.name}:${google_sql_user.webhooks.password}@${google_sql_database_instance.instance.public_ip_address}:5432/${google_sql_database.database.name}"
+    CLIENT_ID               = local.CLIENT_ID
+    CLIENT_SECRET           = local.CLIENT_SECRET
   }
 }
 
 resource "local_file" "webhook_envs" {
   content = join("\n", flatten([
-    for key, value in local.webhhoks_env_file_variables :[
+    for key, value in local.webhhoks_variables :[
       "${key}=${value}"
     ]
   ]))

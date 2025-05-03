@@ -1,0 +1,14 @@
+### Hello
+POST {{parastats_base_url}}
+User-Agent: insomnia/11.0.2
+Content-Type: application/json
+
+{
+  "Hello": "world!"
+}
+
+### Convert code
+POST {{parastats_base_url}}?code=123
+User-Agent: insomnia/11.0.2
+Content-Type: application/json
+

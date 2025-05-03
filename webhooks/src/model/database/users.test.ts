@@ -1,7 +1,8 @@
 import {expect, it, test} from "vitest";
-import {end, generateContainer} from "./index";
+import {end} from "./client";
 import {users} from "./users";
 import {Success} from "../model";
+import {generateContainer} from "./generateContainer.test";
 
 test('Test insert() / get() / getToken()', async () => {
 

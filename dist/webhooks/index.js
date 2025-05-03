@@ -1,26 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.webhookHandler = webhookHandler;
-const index_1 = require("./database/index");
+const handleCode_1 = require("./executables/handleCode");
+const handleChallenge_1 = require("./executables/handleChallenge");
+const client_1 = require("./model/database/client");
+// noinspection JSUnusedGlobalSymbols
 async function webhookHandler(req, res) {
-    console.log("Received webhook:", req.body);
-    console.log("Received webhook:", JSON.stringify(req.body));
+    console.log("Received webhook body=", req.body);
     if (req.query['code']) {
-        handleCode(req, res);
+        await (0, handleCode_1.handleCode)(req, res);
     }
     else if (req.query['hub.mode'] == 'subscribe') {
-        handleChallenge(req, res);
+        await (0, handleChallenge_1.handleChallenge)(req, res);
     }
     else {
-        const client = await (0, index_1.getDatabase)();
+        const client = await (0, client_1.getDatabase)();
         const rows = await client.query("SELECT * FROM users");
         const users = [...rows];
-        res.status(200).send({ status: "OK", users: users });
+        res.status(200).send({ status: "OK!!!", users: users });
     }
-}
-function handleChallenge(req, res) {
-    res.status(200).send({ 'hub.challenge': req.query['hub.challenge'] });
-}
-function handleCode(req, res) {
-    //https://webhooks.parastats.info/?state=&code=dc9f4bba26200268407d872afe1a0e6dd0cbe650&scope=read,activity:write,activity:read_all,read_all
 }

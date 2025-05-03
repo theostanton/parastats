@@ -1,16 +1,11 @@
-import {Client, connect} from "ts-postgres";
-import {config} from "dotenv";
 import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/postgresql";
-import {users} from "./users";
-
-config()
-
-let client: Client
+import {connect} from "ts-postgres";
+import {setClient} from "./client";
 
 export async function generateContainer(): Promise<StartedPostgreSqlContainer> {
 
     const container = await new PostgreSqlContainer().start();
-    client = await connect({
+    const client = await connect({
         host: container.getHost(),
         database: container.getDatabase(),
         user: container.getUsername(),
@@ -36,22 +31,7 @@ export async function generateContainer(): Promise<StartedPostgreSqlContainer> {
                                     primary key
                         );`)
 
+    setClient(client)
 
     return container
-}
-
-export async function end() {
-    await client.end()
-}
-
-export async function getDatabase(): Promise<Client> {
-    if (!client) {
-        client = await connect({
-            host: process.env.DATABASE_HOST,
-            database: process.env.DaTABASE_NAME,
-            user: process.env.DATABASE_USER,
-            password: process.env.DATABASE_PASSWORD,
-        })
-    }
-    return client
 }

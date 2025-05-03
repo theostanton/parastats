@@ -1,5 +1,6 @@
 import axios, {AxiosHeaders} from "axios";
 import {StravaActivity, StravaActivitySummary, StravaAthlete} from "./model";
+import {extractWing} from "../utils";
 
 export function getClient(token: string): StravaApi {
     return new StravaApi(token);
@@ -22,11 +23,17 @@ export class StravaApi {
     async fetchWingedActivities(): Promise<StravaActivity[]> {
         const response = await axios.get<StravaActivitySummary[]>('https://www.strava.com/api/v3/activities', {headers: this.headers});
         const relevantActivityIds = response.data.filter(activity => activity.type === 'KiteSurf' || activity.type === "Workout").map(activity => activity.id);
-        return await Promise.all(relevantActivityIds
+        const activities: (StravaActivity | null)[] = await Promise.all(relevantActivityIds
             .map(async (activityId) => {
                 const result = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {headers: this.headers});
-                return result.data;
+                const activity = result.data;
+                if (extractWing(activity.description) == null) {
+                    return null;
+                }
+                return activity
             }))
+
+        return activities.filter(activity => activity != null) as StravaActivity[];
 
     }
 

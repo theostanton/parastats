@@ -1,0 +1,3 @@
+# Strava - Get self
+GET {{strava_api_url}}/athlete
+Authorization: Bearer {{strava_user_access_token}}

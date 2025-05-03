@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StravaApi = void 0;
 exports.getClient = getClient;
 const axios_1 = __importStar(require("axios"));
+const utils_1 = require("../utils");
 function getClient(token) {
     return new StravaApi(token);
 }
@@ -51,11 +52,16 @@ class StravaApi {
     async fetchWingedActivities() {
         const response = await axios_1.default.get('https://www.strava.com/api/v3/activities', { headers: this.headers });
         const relevantActivityIds = response.data.filter(activity => activity.type === 'KiteSurf' || activity.type === "Workout").map(activity => activity.id);
-        return await Promise.all(relevantActivityIds
+        const activities = await Promise.all(relevantActivityIds
             .map(async (activityId) => {
             const result = await axios_1.default.get(`https://www.strava.com/api/v3/activities/${activityId}`, { headers: this.headers });
-            return result.data;
+            const activity = result.data;
+            if ((0, utils_1.extractWing)(activity.description) == null) {
+                return null;
+            }
+            return activity;
         }));
+        return activities.filter(activity => activity != null);
     }
 }
 exports.StravaApi = StravaApi;

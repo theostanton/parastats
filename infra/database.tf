@@ -11,7 +11,7 @@ resource "google_sql_database_instance" "instance" {
   settings {
     availability_type = "ZONAL"
     ip_configuration {
-      ipv4_enabled = true
+      ipv4_enabled                                  = true
       authorized_networks {
         name  = "Chamonix"
         value = "83.204.51.218/32"

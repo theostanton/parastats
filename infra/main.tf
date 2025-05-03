@@ -37,3 +37,13 @@ resource "google_project_service" "cloud_functions" {
 resource "google_project_service" "cloud_build" {
   service = "cloudbuild.googleapis.com"
 }
+
+resource "google_project_service" "vpcaccess" {
+  service = "vpcaccess.googleapis.com"
+}
+
+locals {
+  envs          = {for tuple in regexall("(.*)=(.*)", file(".env")) : tuple[0] => sensitive(tuple[1])}
+  CLIENT_ID     = local.envs["CLIENT_ID"]
+  CLIENT_SECRET = local.envs["CLIENT_SECRET"]
+}

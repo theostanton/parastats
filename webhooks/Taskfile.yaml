@@ -6,10 +6,13 @@ tasks:
     dir: webhooks
     sources:
       - src/**/*.ts
+      - exclude: src/**/*.test.ts
     generates:
-      - ../dist/webhooks/index.js
+      - ../dist/webhooks/
     cmds:
+      - rm -r ../dist/webhooks/*
       - npm run build
+      - cp package.prod.json ../dist/webhooks/package.json
 
   view-logs:
     desc: View log

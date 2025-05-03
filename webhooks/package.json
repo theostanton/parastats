@@ -2,7 +2,7 @@
   "author": "theostanton",
   "name": "parastats/webhooks",
   "version": "0.1.0",
-  "main": "../dist/webhooks/index.js",
+  "main": "./index.js",
   "scripts": {
     "build": "tsc"
   },
