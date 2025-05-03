@@ -3,6 +3,7 @@ import {end} from "./client";
 import {users} from "./users";
 import {Success} from "../model";
 import {generateContainer} from "./generateContainer.test";
+import {UserRow} from "./model";
 
 test('Test insert() / get() / getToken()', async () => {
 

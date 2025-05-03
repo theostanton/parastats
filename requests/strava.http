@@ -1,3 +1,7 @@
-# Strava - Get self
+### Strava - Get self
 GET {{strava_api_url}}/athlete
+Authorization: Bearer {{strava_user_access_token}}
+
+### Strava - Get activities
+GET {{strava_api_url}}/activities?per_page=200
 Authorization: Bearer {{strava_user_access_token}}

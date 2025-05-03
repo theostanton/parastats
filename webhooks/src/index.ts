@@ -2,6 +2,7 @@ import {Request, Response} from "express";
 import {handleCode} from "./executables/handleCode";
 import {handleChallenge} from "./executables/handleChallenge";
 import {getDatabase} from "./model/database/client";
+import {UserRow} from "./model/database/model";
 
 // noinspection JSUnusedGlobalSymbols
 export async function webhookHandler(req: Request, res: Response): Promise<void> {
@@ -12,11 +13,7 @@ export async function webhookHandler(req: Request, res: Response): Promise<void>
     } else if (req.query['hub.mode'] == 'subscribe') {
         await handleChallenge(req, res);
     } else {
-        const client = await getDatabase()
-        const rows = await client.query<UserRow>("SELECT * FROM users")
-        const users: UserRow[] = [...rows]
-
-        res.status(200).send({status: "OK!!!", users: users});
+        res.status(200).send({status: "OK", hello: "world"});
     }
 }
 

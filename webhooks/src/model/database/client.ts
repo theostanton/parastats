@@ -12,7 +12,7 @@ export async function end() {
 }
 
 export async function getDatabase(): Promise<Client> {
-    if (!client) {
+    if (!client || client.closed) {
         console.log("Connecting client")
         client = await connect({
             host: process.env.DATABASE_HOST,

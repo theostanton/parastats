@@ -16,13 +16,30 @@ async function default_1(token) {
                 VALUES ($1, $2, $3)
                 ON CONFLICT (user_id)
                     DO UPDATE SET first_name = $4,
-                                  token = $5;`, [athlete.id, athlete.firstname, token, athlete.firstname, token]);
+                                  token      = $5;`, [athlete.id, athlete.firstname, token, athlete.firstname, token]);
+    console.log(`Inserted user ${result.rows[0]}`);
     // Fetch activities
-    const wingedActivities = await api.fetchWingedActivities();
+    const fetchWingedActivitiesResult = await api.fetchWingedActivities();
+    if (!fetchWingedActivitiesResult.success) {
+        return {
+            success: false,
+            message: `fetchWingedActivities failed: ${fetchWingedActivitiesResult.error}`
+        };
+    }
+    const wingedActivities = fetchWingedActivitiesResult.value;
+    console.log(`Got ${wingedActivities.length} winged activities`);
     // Convert to ActivityRows
-    const activityRows = await convertStravaActivities(athlete.id, wingedActivities);
+    const activityRows = convertStravaActivities(athlete.id, wingedActivities);
+    console.log(`Got ${activityRows.length} activity rows`);
     // Insert winged activities to activities
-    await (0, activities_1.insertActivities)(activityRows);
+    const insertActivitiesResult = await (0, activities_1.insertActivities)(activityRows);
+    if (!insertActivitiesResult.success) {
+        return {
+            success: false,
+            message: `insertActivities failed: ${insertActivitiesResult.error}`
+        };
+    }
+    console.log(`Inserted ${activityRows.length} activity rows`);
     // Edit recent activities
     //TODO
     return {
@@ -30,7 +47,7 @@ async function default_1(token) {
         message: `Inserted ${athlete.firstname} wingedActivities=${wingedActivities.length}`
     };
 }
-async function convertStravaActivities(userId, stravaActivities) {
+function convertStravaActivities(userId, stravaActivities) {
     return stravaActivities.map(stravaActivity => {
         const matches = stravaActivity.description
             .split("\n")
@@ -41,12 +58,16 @@ async function convertStravaActivities(userId, stravaActivities) {
             return null;
         }
         const wing = matches[0];
-        return {
+        const result = {
             user_id: userId,
             activity_id: stravaActivity.id,
             distance_meters: stravaActivity.distance,
             duration_sec: stravaActivity.elapsed_time,
-            wing: wing
+            wing: wing,
+            start_date: stravaActivity.start_date,
+            description: stravaActivity.description,
+            description_status: "todo"
         };
+        return result;
     }).filter(activity => activity != null);
 }

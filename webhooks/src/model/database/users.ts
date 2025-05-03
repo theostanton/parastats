@@ -1,5 +1,6 @@
 import {getDatabase} from "./client";
 import {Success, Failed, Result} from "../model";
+import {UserRow} from "./model";
 
 export namespace users {
     export async function insert(user: UserRow): Promise<void> {

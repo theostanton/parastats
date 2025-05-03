@@ -2,6 +2,8 @@ import {StravaApi} from "../model/stravaApi";
 import {getDatabase} from "../model/database/client";
 import {StravaActivity} from "../model/stravaApi/model";
 import {insertActivities} from "../model/database/activities";
+import {isFailed} from "../model/model";
+import {ActivityRow, UserRow} from "../model/database/model";
 
 export type InitialiseUserResult = {
     success: boolean,
@@ -28,16 +30,30 @@ export default async function (token: string): Promise<InitialiseUserResult> {
     console.log(`Inserted user ${result.rows[0]}`)
 
     // Fetch activities
-    const wingedActivities = await api.fetchWingedActivities()
+    const fetchWingedActivitiesResult = await api.fetchWingedActivities()
+
+    if (!fetchWingedActivitiesResult.success) {
+        return {
+            success: false,
+            message: `fetchWingedActivities failed: ${fetchWingedActivitiesResult.error}`
+        }
+    }
+    const wingedActivities = fetchWingedActivitiesResult.value
     console.log(`Got ${wingedActivities.length} winged activities`)
 
     // Convert to ActivityRows
-    const activityRows = await convertStravaActivities(athlete.id, wingedActivities)
+    const activityRows = convertStravaActivities(athlete.id, wingedActivities)
     console.log(`Got ${activityRows.length} activity rows`)
 
     // Insert winged activities to activities
-    await insertActivities(activityRows)
-    console.log(`OInserted ${activityRows.length} activity rows`)
+    const insertActivitiesResult = await insertActivities(activityRows)
+    if (!insertActivitiesResult.success) {
+        return {
+            success: false,
+            message: `insertActivities failed: ${insertActivitiesResult.error}`
+        }
+    }
+    console.log(`Inserted ${activityRows.length} activity rows`)
 
     // Edit recent activities
     //TODO
@@ -49,7 +65,7 @@ export default async function (token: string): Promise<InitialiseUserResult> {
 
 }
 
-export async function convertStravaActivities(userId: number, stravaActivities: StravaActivity[]): Promise<ActivityRow[]> {
+export function convertStravaActivities(userId: number, stravaActivities: StravaActivity[]): ActivityRow[] {
     return stravaActivities.map<ActivityRow | null>(stravaActivity => {
 
         const matches = stravaActivity.description
@@ -63,12 +79,16 @@ export async function convertStravaActivities(userId: number, stravaActivities: 
         }
         const wing = matches[0]
 
-        return {
+        const result: ActivityRow = {
             user_id: userId,
             activity_id: stravaActivity.id,
             distance_meters: stravaActivity.distance,
             duration_sec: stravaActivity.elapsed_time,
-            wing: wing
+            wing: wing,
+            start_date: stravaActivity.start_date,
+            description: stravaActivity.description,
+            description_status: "todo"
         }
+        return result
     }).filter(activity => activity != null)
 }

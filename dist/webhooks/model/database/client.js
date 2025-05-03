@@ -12,7 +12,7 @@ async function end() {
     await client.end();
 }
 async function getDatabase() {
-    if (!client) {
+    if (!client || client.closed) {
         console.log("Connecting client");
         client = await (0, ts_postgres_1.connect)({
             host: process.env.DATABASE_HOST,

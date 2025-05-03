@@ -41,3 +41,5 @@ terraform.rc
 
 node_modules/
 /requests/http-client.private.env.json
+/dist/
+/webhooks/.task/
