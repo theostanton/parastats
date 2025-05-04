@@ -1,6 +1,8 @@
 import {TaskResult, isWingActivityTask, TaskBody} from "../model";
 import {activities} from "../../model/database/activities";
 import {generateStats} from "./updateActivityDescription";
+import {StravaApi} from "../../model/stravaApi";
+import {users} from "../../model/database/users";
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isWingActivityTask(task)) {
@@ -42,7 +44,21 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     console.log()
 
     // Update Strava Activity description
-    //TODO
+    const userResult = await users.get(activityRow.user_id)
+    if (!userResult.success) {
+        return {
+            success: false,
+            message: `Couldn't get user for userId=${activityRow.user_id}`
+        }
+    }
+    const stravaApi = new StravaApi(userResult.value.token)
+    const updateDescriptionResult = await stravaApi.updateDescription(activityRow.activity_id, wingedDescription)
+    if (!updateDescriptionResult.success) {
+        return {
+            success: false,
+            message: updateDescriptionResult.error
+        }
+    }
 
     // if success store updated else store failed
     const updateResult = await activities.updateDescription(task.activityId, wingedDescription, "done")

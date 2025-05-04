@@ -1,10 +1,12 @@
 {
   "author": "theostanton",
-  "name": "parastats/webhooks",
+  "name": "parastats-functions",
   "version": "0.1.0",
   "main": "./index.js",
   "scripts": {
-    "build": "tsc"
+    "buildProd": "tsc",
+    "startDev": "rimraf build && tsc -p dev/dev.tsconfig.json && nodemon --config dev/nodemon.json --inspect src/local.ts",
+    "startDockerDev": "nodemon --config development/nodemon.json --inspect=0.0.0.0:9229 src/index.ts"
   },
   "dependencies": {
     "express": "^5.0.1",
@@ -14,6 +16,9 @@
     "@google-cloud/tasks": "^6.0.1"
   },
   "devDependencies": {
+    "ts-node": "^10.9.2",
+    "nodemon": "^3.1.10",
+    "rimraf": "^6.0.1",
     "@types/express": "^5.0.1",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1",

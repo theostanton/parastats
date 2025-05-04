@@ -1,0 +1,22 @@
+### Hello functions
+GET http://localhost:3000
+Content-Type: application/json
+
+
+### FetchAllActivities
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "name": "FetchAllActivities",
+  "userId": 4142500
+}
+
+### WingActivity
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "name": "WingActivity",
+  "activityId": 14152663851
+}

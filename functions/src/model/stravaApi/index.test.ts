@@ -17,7 +17,7 @@ beforeAll(async () => {
 
 test('Test fetchWingedActivities', async () => {
     const api = new StravaApi(token)
-    const result = await api.fetchWingedActivities()
+    const result = await api.fetchWingedActivityIds()
     expect(result.success).toEqual(true)
     if (result.success) {
         expect(result.value.length).toEqual(5)

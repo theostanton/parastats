@@ -2,6 +2,8 @@ import axios, {AxiosHeaders} from "axios";
 import {StravaActivity, StravaActivitySummary, StravaAthlete} from "./model";
 import {extractWing} from "../utils";
 import {failed, Result, success} from "../model";
+import {getDatabase} from "../database/client";
+import * as stream from "node:stream";
 
 export function getClient(token: string): StravaApi {
     return new StravaApi(token);
@@ -10,10 +12,13 @@ export function getClient(token: string): StravaApi {
 export class StravaApi {
 
     headers: AxiosHeaders;
+    token: string;
 
     constructor(token: string) {
+        this.token = token
         this.headers = new AxiosHeaders();
         this.headers.set('Authorization', `Bearer ${token}`);
+        this.headers.set('Content-Type', `application/json`);
     }
 
     async fetchAthlete(): Promise<StravaAthlete> {
@@ -21,9 +26,32 @@ export class StravaApi {
         return response.data
     }
 
-    async fetchWingedActivities(limit: number = 1): Promise<Result<StravaActivity[]>> {
+    async updateDescription(activityId: number, description: string): Promise<Result<void>> {
+        console.log(`Update description ${activityId} to ${description} this.headers=${this.headers}`);
         try {
+            const url = `https://www.strava.com/api/v3/activities/${activityId}`;
+            console.log(`url=${url}`)
+            const response = await axios.put<void>(url,
+                {
+                    description: description
+                },
+                {
+                    headers: this.headers,
+                }
+            );
+            if (response.status === 200) {
+                return success(undefined)
+            } else {
+                return failed(`updateDescription failed status=${response.status} ${response}`);
+            }
+        } catch (error) {
+            return failed(`updateDescription failed error=${error}`)
+        }
+    }
 
+    async fetchWingedActivityIds(limit: number = 100, ignoreActivityIds: number[] = []): Promise<Result<number[]>> {
+        console.log(`fetchWingedActivityIds() limit=${100} ignoreActivityIds=${ignoreActivityIds}`);
+        try {
             let relevantActivityIds: number[] = []
             let moreToFetch = true
             let page = 1
@@ -39,40 +67,22 @@ export class StravaApi {
                 });
                 const relevantActivityIdsToAppend = response.data.filter(activity => activity.type === 'KiteSurf' || activity.type === "Workout").map(activity => activity.id);
                 console.log(`Got page=${page} activities=${response.data.length} relevantActivityIds=${relevantActivityIdsToAppend.length}`);
-                relevantActivityIds.push(...relevantActivityIdsToAppend);
+                relevantActivityIdsToAppend.forEach((relevantActivityId) => {
+
+                    const shouldIgnore = ignoreActivityIds.filter(ignoreActivityId => relevantActivityId == ignoreActivityId).length > 0
+
+                    if (shouldIgnore) {
+                        console.log(`Skipping relevantActivityId=${relevantActivityId}`)
+                    } else {
+                        console.log(`Appending relevantActivityId=${relevantActivityId}`)
+                        relevantActivityIds.push(relevantActivityId);
+                    }
+                })
                 moreToFetch = response.data.length == 200
                 page++
             }
 
-            console.log("relevantActivityIds.length=", relevantActivityIds.length);
-            const activities: StravaActivity[] = []
-            for (const activityId of relevantActivityIds) {
-                const result = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {headers: this.headers});
-                const activity = result.data;
-                if (extractWing(activity.description)) {
-                    console.log(`Appending`);
-                    activities.push(activity)
-                } else {
-                    console.log(`Skipped`);
-                }
-            }
-
-            // const activities: (StravaActivity | null)[] = await Promise.all(relevantActivityIds
-            //     .map(async (activityId) => {
-            //         console.log(`Fetching description for ${activityId}`);
-            //         const result = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {headers: this.headers});
-            //         const activity = result.data;
-            //         if (extractWing(activity.description) == null) {
-            //             console.log(`Description for ${activityId} is not winged`);
-            //             return null;
-            //         }
-            //         console.log(`Description for ${activityId} is winged`);
-            //         return activity
-            //     }))
-
-            console.log(`Got ${activities.length} winged activities`);
-
-            return success(activities.filter(activity => activity != null));
+            return success(relevantActivityIds)
         } catch (err) {
             // @ts-ignore
             return failed(err.toString())

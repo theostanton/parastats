@@ -1,6 +1,6 @@
 {
   "author": "theostanton",
-  "name": "parastats/functions",
+  "name": "parastats-functions",
   "version": "0.1.0",
   "dependencies": {
     "express": "^5.0.1",

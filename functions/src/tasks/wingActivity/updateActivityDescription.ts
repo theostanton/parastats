@@ -8,7 +8,7 @@ export type AggregationResult = {
 }
 
 export function formatAggregationResult(result: AggregationResult): string {
-    return `${elapsedTime(result.total_duration_sec)} over ${result.count} ${result.count == 1 ? "flight" : "flights"}`
+    return `${result.count} ${result.count == 1 ? "flight" : "flights"} / ${elapsedTime(result.total_duration_sec)}`
 }
 
 function elapsedTime(duration_secs: number): string {
@@ -27,10 +27,15 @@ export async function generateStats(activityRow: ActivityRow): Promise<string> {
     const allTime = await getAllTimeAggregationResult(activityRow)
     const sameYear = await getSameYearAggregationResult(activityRow)
 
-    return `🪂 ${activityRow.wing}
-This wing ${formatAggregationResult(allTimeWing)}
-${activityRow.start_date.getFullYear()} ${formatAggregationResult(sameYear)}
-All time ${formatAggregationResult(allTime)}
+    const wingPrefix = `🪂 ${activityRow.wing}`
+    const yearPrefix = `${activityRow.start_date.getFullYear()}`
+    const allTimePrefix = "All Time"
+
+    const maxLength = 2 + Math.max(wingPrefix.length, yearPrefix.length, allTimePrefix.length)
+
+    return `${wingPrefix.padEnd(maxLength, " ")}${formatAggregationResult(allTimeWing)}
+${yearPrefix.padEnd(maxLength, " ")}  ${formatAggregationResult(sameYear)}
+${allTimePrefix.padEnd(maxLength, " ")}  ${formatAggregationResult(allTime)}
 🌐 parastats.info`
 }
 
