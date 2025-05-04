@@ -23,12 +23,16 @@ export async function tasksHandler(req: Request, res: Response): Promise<void> {
     const task: TaskBody = req.body;
 
     if (!task.name) {
-        res.status(400).send(`No task name provided in body=${JSON.stringify(req.body)}`);
+        const errorMessage = `No task name provided in body=${JSON.stringify(req.body)}`
+        console.error(errorMessage);
+        res.status(400).send(errorMessage);
         return
     }
 
     if (!taskHandlers.hasOwnProperty(task.name)) {
-        res.status(400).send(`No task handler for ${task.name}`);
+        const errorMessage = `No task handler for ${task.name}`
+        console.error(errorMessage)
+        res.status(400).send(errorMessage);
         return
     }
     const taskHandler = taskHandlers[task.name];
@@ -38,7 +42,7 @@ export async function tasksHandler(req: Request, res: Response): Promise<void> {
         console.log(`${task.name} succeeded for body=${JSON.stringify(task)}`);
         res.status(200).send({status: "OK", task: task.name});
     } else {
-        console.log(`${task.name} failed. Message=${result.message}`);
+        console.error(`${task.name} failed. Message=${result.message}`);
         res.status(500).send({status: "Failed", task: task.name, message: result.message});
     }
 

@@ -21,7 +21,7 @@ export class StravaApi {
         return response.data
     }
 
-    async fetchWingedActivities(limit: number = 20): Promise<Result<StravaActivity[]>> {
+    async fetchWingedActivities(limit: number = 1): Promise<Result<StravaActivity[]>> {
         try {
 
             let relevantActivityIds: number[] = []

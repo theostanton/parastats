@@ -1,6 +1,6 @@
 import {isFetchAllActivitiesTask, TaskBody, TaskResult} from "../model";
 import {StravaApi} from "../../model/stravaApi";
-import {insertActivities} from "../../model/database/activities";
+import {upsertActivities} from "../../model/database/activities";
 import {convertStravaActivities} from "./convertStravaActivities";
 import {users} from "../../model/database/users";
 
@@ -42,7 +42,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     console.log(`Got ${activityRows.length} activity rows`)
 
     // Insert winged activities to activities
-    const insertActivitiesResult = await insertActivities(activityRows)
+    const insertActivitiesResult = await upsertActivities(activityRows)
     if (!insertActivitiesResult.success) {
         return {
             success: false,

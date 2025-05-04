@@ -1,6 +1,6 @@
 import {getDatabase} from "./client";
 import {Failed, failed, Result, Success, success} from "../model";
-import {ActivityRow, UserRow} from "./model";
+import {ActivityRow} from "./model";
 
 export namespace activities {
     export async function get(activityId: number): Promise<Result<ActivityRow>> {
@@ -24,22 +24,36 @@ export namespace activities {
     }
 }
 
-export async function insertActivities(activities: ActivityRow[]): Promise<Result<void>> {
+export async function upsertActivities(activities: ActivityRow[]): Promise<Result<void>> {
     const database = await getDatabase()
     try {
 
         for await (const activity of activities) {
             console.log(`Inserting ${JSON.stringify(activity)}`)
             await database.query(`
-                        insert into activities(user_id, activity_id, wing, duration_sec, distance_meters, start_date,
+                        insert into activities(user_id,
+                                               activity_id,
+                                               wing,
+                                               duration_sec,
+                                               distance_meters,
+                                               start_date,
                                                description)
                         values ($1, $2, $3, $4, $5, $6, $7)
                         on conflict(activity_id)
-                            do nothing;
+                            do update set wing=$8,
+                                          duration_sec=$9,
+                                          distance_meters=$10,
+                                          start_date=$11,
+                                          description=$12;
                 `,
                 [
                     activity.user_id,
                     activity.activity_id,
+                    activity.wing,
+                    activity.duration_sec,
+                    activity.distance_meters,
+                    activity.start_date,
+                    activity.description,
                     activity.wing,
                     activity.duration_sec,
                     activity.distance_meters,

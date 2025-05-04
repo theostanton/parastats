@@ -2,7 +2,7 @@ import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/p
 import {connect} from "ts-postgres";
 import {setClient} from "./client";
 import {ActivityRow, UserRow} from "./model";
-import {insertActivities} from "./activities";
+import {upsertActivities} from "./activities";
 import {users} from "./users";
 import insert = users.insert;
 
@@ -51,7 +51,7 @@ export async function generateContainer(users: UserRow[] = [], activities: Activ
     for (const user of users) {
         await insert(user);
     }
-    const result = await insertActivities(activities)
+    const result = await upsertActivities(activities)
 
     return container
 }

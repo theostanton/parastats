@@ -9,8 +9,8 @@ resource "google_cloud_tasks_queue" "fetch_activities" {
     sampling_ratio = 1.0
   }
   rate_limits {
-    max_concurrent_dispatches = 1
-    max_dispatches_per_second = 0.001
+    max_concurrent_dispatches = 2
+    max_dispatches_per_second = 1
   }
 }
 
@@ -27,7 +27,7 @@ resource "google_cloud_tasks_queue" "wing_activity" {
   }
 
   rate_limits {
-    max_concurrent_dispatches = 1
+    max_concurrent_dispatches = 2
     max_dispatches_per_second = 1
   }
 }

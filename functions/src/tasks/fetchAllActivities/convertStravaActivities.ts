@@ -21,7 +21,7 @@ export function convertStravaActivities(userId: number, stravaActivities: Strava
             distance_meters: stravaActivity.distance,
             duration_sec: stravaActivity.elapsed_time,
             wing: wing,
-            start_date: stravaActivity.start_date,
+            start_date: new Date(stravaActivity.start_date),
             description: stravaActivity.description,
             description_status: "todo"
         }
