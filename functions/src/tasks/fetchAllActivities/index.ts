@@ -1,8 +1,9 @@
 import {isFetchAllActivitiesTask, TaskBody, TaskResult} from "../model";
 import {StravaApi} from "../../model/stravaApi";
-import {upsertActivities} from "../../model/database/activities";
 import {convertStravaActivities} from "./convertStravaActivities";
 import {users} from "../../model/database/users";
+import {activities} from "../../model/database/activities";
+import upsertActivities = activities.upsertActivities;
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isFetchAllActivitiesTask(task)) {

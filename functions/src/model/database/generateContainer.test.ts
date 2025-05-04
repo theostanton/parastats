@@ -2,9 +2,10 @@ import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/p
 import {connect} from "ts-postgres";
 import {setClient} from "./client";
 import {ActivityRow, UserRow} from "./model";
-import {upsertActivities} from "./activities";
 import {users} from "./users";
 import insert = users.insert;
+import {activities} from "./activities";
+import upsertActivities = activities.upsertActivities;
 
 export async function generateContainer(users: UserRow[] = [], activities: ActivityRow[] = []): Promise<StartedPostgreSqlContainer> {
 
