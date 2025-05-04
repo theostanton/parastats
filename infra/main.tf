@@ -1,6 +1,6 @@
 locals {
   project_id = "para-stats"
-  region     = "us-east1"
+  region     = "europe-west1"
 }
 
 provider "google" {
@@ -21,12 +21,18 @@ resource "google_service_account" "function-sa" {
   project      = local.project_id
 }
 
-resource "google_project_service" "cloud_run_api" {
+
+resource "google_project_service" "cloudtasks" {
+  service = "cloudtasks.googleapis.com"
+  project = local.project_id
+}
+
+resource "google_project_service" "cloud_run" {
   service = "run.googleapis.com"
   project = local.project_id
 }
 
-resource "google_project_service" "compute_api" {
+resource "google_project_service" "compute" {
   service = "compute.googleapis.com"
 }
 

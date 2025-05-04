@@ -1,15 +1,15 @@
 version: "3"
 
-dotenv: [ 'webhooks/.env' ]
+dotenv: [ 'functions/.env' ]
 
 includes:
   infra: ./infra
-  webhooks: ./webhooks
+  functions: ./functions
   db: ./database
 
 tasks:
   deploy:
     desc: Deploy
     cmds:
-      - task: webhooks:build
+      - task: functions:build
       - task: infra:apply

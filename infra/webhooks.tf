@@ -1,26 +1,3 @@
-data "archive_file" "webhooks" {
-  type        = "zip"
-  source_dir  = "${path.module}/../dist/webhooks"
-  output_path = "${path.module}/../dist/webhooks.zip"
-}
-
-resource "google_storage_bucket" "webhooks" {
-  name          = "parastats-webhooks-${random_id.bucket_suffix.hex}"
-  location      = "US"
-  force_destroy = true
-}
-
-resource "random_id" "bucket_suffix" {
-  byte_length = 4
-}
-
-resource "google_storage_bucket_object" "webhooks_zip" {
-  name   = "webhook-function-${data.archive_file.webhooks.output_md5}.zip"
-  bucket = google_storage_bucket.webhooks.name
-  source = data.archive_file.webhooks.output_path
-}
-
-
 resource "google_cloudfunctions2_function" "webhooks" {
   name     = "parastats-webhooks"
   location = local.region
@@ -31,11 +8,11 @@ resource "google_cloudfunctions2_function" "webhooks" {
   }
   build_config {
     runtime     = "nodejs20"
-    entry_point = "webhookHandler"
+    entry_point = "webhooksHandler"
     source {
       storage_source {
-        bucket = google_storage_bucket.webhooks.name
-        object = google_storage_bucket_object.webhooks_zip.name
+        bucket = google_storage_bucket.functions.name
+        object = google_storage_bucket_object.functions_zip.name
       }
     }
   }
@@ -45,14 +22,9 @@ resource "google_cloudfunctions2_function" "webhooks" {
     timeout_seconds    = 60
     ingress_settings   = "ALLOW_ALL"
     max_instance_count = 1
-    environment_variables = {
-      DATABASE_USER     = google_sql_user.webhooks.name
-      DATABASE_PASSWORD = google_sql_user.webhooks.password
-      DATABASE_HOST     = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
-      DATABASE_NAME     = google_sql_database.database.name
-      CLIENT_ID         = local.CLIENT_ID
-      CLIENT_SECRET     = local.CLIENT_SECRET
-    }
+    environment_variables = merge(local.functions_variables, {
+      DATABASE_HOST = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
+    })
   }
 }
 
@@ -63,28 +35,6 @@ resource "google_cloud_run_v2_service_iam_binding" "webhooks" {
   members = ["allUsers"]
 }
 
-locals {
-  webhhoks_variables = {
-    DATABASE_HOST           = google_sql_database_instance.instance.public_ip_address
-    DATABASE_NAME           = google_sql_database.database.name
-    DATABASE_PORT           = 5432
-    DATABASE_USER           = google_sql_user.webhooks.name
-    DATABASE_PASSWORD       = random_password.database.result
-    DATABASE_CONNECTION_URL = "postgresql://${google_sql_user.webhooks.name}:${google_sql_user.webhooks.password}@${google_sql_database_instance.instance.public_ip_address}:5432/${google_sql_database.database.name}"
-    CLIENT_ID               = local.CLIENT_ID
-    CLIENT_SECRET           = local.CLIENT_SECRET
-  }
-}
-
-resource "local_file" "webhook_envs" {
-  content = join("\n", flatten([
-    for key, value in local.webhhoks_variables :[
-      "${key}=${value}"
-    ]
-  ]))
-  filename = "${path.module}/../webhooks/.env"
-}
-
 output "webhooks_function_url" {
-  value = google_cloudfunctions2_function.webhooks.service_config[0].gcf_uri
+  value = google_cloudfunctions2_function.webhooks.url
 }

@@ -27,8 +27,8 @@ resource "google_sql_database" "database" {
   instance = google_sql_database_instance.instance.name
 }
 
-resource "google_sql_user" "webhooks" {
-  name     = "webhooks"
+resource "google_sql_user" "functions" {
+  name     = "functions"
   instance = google_sql_database_instance.instance.name
   password = random_password.database.result
 }

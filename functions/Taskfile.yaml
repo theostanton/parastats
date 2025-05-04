@@ -1,0 +1,25 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the functions
+    dir: functions
+    sources:
+      - src/**/*.ts
+      - exclude: src/**/*.test.ts
+    generates:
+      - ../dist/functions/
+    cmds:
+      - rm -rf ../dist/functions/*
+      - npm run build
+      - cp package.prod.json ../dist/functions/package.json
+
+  webhooks:logs:
+    desc: View webhooks logs
+    cmds:
+      - open https://console.cloud.google.com/run/detail/us-east1/parastats-webhooks/logs?authuser=1&project=para-stats
+
+  tasks:logs:
+    desc: View tasks logs
+    cmds:
+      - open https://console.cloud.google.com/run/detail/us-east1/parastats-tasks/logs?authuser=1&project=para-stats
