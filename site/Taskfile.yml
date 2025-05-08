@@ -1,0 +1,14 @@
+version: "3"
+
+tasks:
+  docker:build:
+    desc: Build the image
+    dir: site
+    cmds:
+      - docker build -f prod.Dockerfile -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:latest --platform linux/amd64 .
+
+  docker:push:
+    desc: Push the image
+    dir: site
+    cmds:
+      - docker push europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:latest

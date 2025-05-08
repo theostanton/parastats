@@ -1,71 +1,35 @@
-resource "google_storage_bucket" "site" {
-  name                        = "parastats.info"
-  location                    = "EU"
-  force_destroy               = true
-  uniform_bucket_level_access = true
+resource "google_cloud_run_v2_service" "site" {
+  name     = "site"
+  location = local.region
+  ingress  = "INGRESS_TRAFFIC_ALL"
 
-  website {
-    main_page_suffix = "index.html"
-    not_found_page   = "index.html"
+  deletion_protection = false # set to true to prevent destruction of the resource
+
+  connection {
+    port = 80
+  }
+
+  template {
+    containers {
+      image = "europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:latest"
+    }
   }
 }
 
-resource "google_storage_bucket_iam_member" "public_rule" {
-  bucket = google_storage_bucket.site.name
-  role   = "roles/storage.objectViewer"
-  member = "allUsers"
-}
-
-resource "google_storage_bucket_object" "indexpage" {
-  name         = "index.html"
-  source       = "../dist/site/index.html"
-  content_type = "text/html"
-  bucket       = google_storage_bucket.site.id
-}
-
-
-
-# Create backend bucket
-resource "google_compute_backend_bucket" "site_backend" {
-  name        = "site-backend"
-  bucket_name = google_storage_bucket.site.name
-  enable_cdn  = true
-}
-
-# Create HTTPS certificate
-resource "google_compute_managed_ssl_certificate" "ssl_cert" {
-  name = "parastats-cert"
-
-  managed {
-    domains = ["parastats.info"]
+resource "google_cloud_run_domain_mapping" "site" {
+  name     = "parastats.info"
+  location = google_cloud_run_v2_service.site.location
+  metadata {
+    namespace = local.project_id
+  }
+  spec {
+    route_name = google_cloud_run_v2_service.site.name
   }
 }
 
-# Global URL map
-resource "google_compute_url_map" "static_map" {
-  name            = "static-map"
-  default_service = google_compute_backend_bucket.site_backend.id
-}
-
-# Target HTTPS proxy
-resource "google_compute_target_https_proxy" "https_proxy" {
-  name             = "static-https-proxy"
-  ssl_certificates = [google_compute_managed_ssl_certificate.ssl_cert.id]
-  url_map          = google_compute_url_map.static_map.id
-}
-
-# Global forwarding rule for HTTPS
-resource "google_compute_global_forwarding_rule" "https_forwarding" {
-  name        = "https-forwarding-rule"
-  target      = google_compute_target_https_proxy.https_proxy.id
-  port_range  = "443"
-  ip_protocol = "TCP"
-
-  load_balancing_scheme = "EXTERNAL"
-  # address               = google_compute_global_address.site_ip.address
-}
-
-# Reserve a static global IP
-resource "google_compute_global_address" "site_ip" {
-  name = "static-site-ip"
+resource "google_cloud_run_v2_service_iam_binding" "site" {
+  name     = google_cloud_run_v2_service.site.name
+  location = local.region
+  role     = "roles/run.invoker"
+  members = ["allUsers"]
 }

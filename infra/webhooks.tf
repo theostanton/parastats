@@ -8,7 +8,7 @@ resource "google_cloudfunctions2_function" "webhooks" {
   }
   build_config {
     runtime     = "nodejs20"
-    entry_point = "webhooksHandler"
+    entry_point = "webhooks"
     source {
       storage_source {
         bucket = google_storage_bucket.functions.name

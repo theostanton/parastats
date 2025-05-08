@@ -42,7 +42,7 @@ resource "google_cloudfunctions2_function" "tasks" {
   }
   build_config {
     runtime     = "nodejs20"
-    entry_point = "tasksHandler"
+    entry_point = "tasks"
     source {
       storage_source {
         bucket = google_storage_bucket.functions.name

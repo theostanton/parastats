@@ -6,6 +6,7 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - DEBUG=${DEBUG}
+      - API_URL=api
     volumes:
       - ./site/src:/app/src
       - ./site/public:/app/public
@@ -39,6 +40,10 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - PORT=${WEBHOOKS_PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
     volumes:
       - ./functions/src:/app/src
     expose:
@@ -92,6 +97,3 @@ services:
 
 volumes:
   database:
-
-networks:
-  db:

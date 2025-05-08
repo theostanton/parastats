@@ -15,6 +15,5 @@ app.get('/', jsonParser, async (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`DATABASE_HOST=${process.env.DATABASE_HOST} DATABASE_USERNAME=${process.env.DATABASE_USER}`);
     console.log(`API is running on port ${PORT}`);
 });

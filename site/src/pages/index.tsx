@@ -1,70 +1,66 @@
 import Head from "next/head";
-import Image from "next/image";
 import styles from "../styles/Home.module.css";
+import {GetServerSideProps, InferGetServerSidePropsType} from "next";
+import {ParastatsApi} from "../api";
+import {User} from "../model/User";
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next app</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+type Props = {
+    success: boolean
+    user: User | undefined
+}
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">ParaStats</a> on Docker Compose!
-        </h1>
+export const getServerSideProps = (async () => {
+    console.log('getServerSideProps()')
+    // Fetch data from external API
+    const api = new ParastatsApi("blah")
+    const [data, error] = await api.getSelf()
+    if (error) {
+        return {
+            props: {
+                success: false,
+                user: undefined
+            }
+        }
+    } else {
+        return {
+            props: {
+                success: true,
+                user: data
+            }
 
-        <p className={styles.description}>
-          Get started by editing{" "}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
+        }
+    }
+}) satisfies GetServerSideProps<Props>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+export default function Home(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    console.log(`props=${JSON.stringify(props)}`)
+    return (
+        <div className={styles.container}>
+            <Head>
+                <title>Parastats</title>
+                <link rel="icon" href="/favicon.ico"/>
+            </Head>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+            <main className={styles.main}>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+                <h1 className={styles.title}>
+                    Welcome to ParaStats.
+                </h1>
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+                <p className={styles.description}>
+                    {props.success ? `${props.user.first_name}` : `Failed`}
+                    <a className={styles.connectButton}
+                       href="https://www.strava.com/oauth/authorize?client_id=155420&redirect_uri=https%3A%2F%2Fwebhooks.parastats.info&response_type=code&approval_prompt=force&scope=read_all,activity:write,activity:read_all">
+                        Connect with Strava
+                    </a>
+                </p>
+            </main>
+
+            <footer className={styles.footer}>
+                <a href="https://theo.dev">
+                    Build by theo.dev
+                </a>
+            </footer>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{" "}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }

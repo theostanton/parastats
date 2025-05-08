@@ -5,6 +5,7 @@ dotenv: [ 'functions/.env' ]
 includes:
   infra: ./infra
   functions: ./functions
+  site: ./site
   db: ./database
 
 tasks:
@@ -12,6 +13,8 @@ tasks:
     desc: Deploy
     cmds:
       - task: functions:build
+      - task: site:docker:build
+      - task: site:docker:push
       - task: infra:apply
 
 

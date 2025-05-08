@@ -63,6 +63,21 @@
   text-align: center;
 }
 
+.connectButton {
+  padding: 15px 30px;
+  font-size: 18px;
+  background-color: #fc4c02;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.connectButton:hover {
+  background-color: #e54400;
+}
+
+
 .description {
   line-height: 1.5;
   font-size: 1.5rem;

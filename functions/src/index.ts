@@ -1,14 +1,14 @@
 import {Request, Response} from "express";
-import webhooks from "./webhooks";
-import tasks from "./tasks";
+import webhooksHandler from "./webhooks";
+import tasksHandler from "./tasks";
 
 // noinspection JSUnusedGlobalSymbols
-export async function webhooksHandler(req: Request, res: Response): Promise<void> {
-    await webhooks(req, res);
+export async function webhooks(req: Request, res: Response): Promise<void> {
+    await webhooksHandler(req, res);
 }
 
 // noinspection JSUnusedGlobalSymbols
-export async function tasksHandler(req: Request, res: Response): Promise<void> {
-    await tasks(req, res);
+export async function tasks(req: Request, res: Response): Promise<void> {
+    await tasksHandler(req, res);
 }
 
