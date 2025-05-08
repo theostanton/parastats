@@ -44,3 +44,4 @@ node_modules/
 /dist/
 /functions/.task/
 site/.next
+.task
