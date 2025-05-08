@@ -43,3 +43,4 @@ node_modules/
 /requests/http-client.private.env.json
 /dist/
 /functions/.task/
+site/.next
