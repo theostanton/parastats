@@ -45,3 +45,4 @@ node_modules/
 /functions/.task/
 site/.next
 .task
+/infra/.terraform/
