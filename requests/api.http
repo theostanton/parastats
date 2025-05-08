@@ -1,0 +1,3 @@
+### Hello API
+GET {{parastats_api_base_url}}
+Content-Type: application/json

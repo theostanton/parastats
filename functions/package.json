@@ -5,8 +5,9 @@
   "main": "./index.js",
   "scripts": {
     "buildProd": "tsc",
-    "startDev": "rimraf build && tsc -p dev/dev.tsconfig.json && nodemon --config dev/nodemon.json --inspect src/local.ts",
-    "startDockerDev": "nodemon --config development/nodemon.json --inspect=0.0.0.0:9229 src/index.ts"
+    "devApi": "tsc -p dev.tsconfig.json && nodemon --inspect src/api/dev.ts",
+    "devTasks": "tsc -p dev.tsconfig.json && nodemon --inspect src/tasks/dev.ts",
+    "devWebhooks": "tsc -p dev.tsconfig.json && nodemon --inspect src/webhooks/dev.ts"
   },
   "dependencies": {
     "express": "^5.0.1",

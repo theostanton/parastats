@@ -1,0 +1,97 @@
+services:
+  site:
+    container_name: site
+    build:
+      context: ./site
+      dockerfile: dev.Dockerfile
+    environment:
+      - DEBUG=${DEBUG}
+    volumes:
+      - ./site/src:/app/src
+      - ./site/public:/app/public
+    restart: always
+    ports:
+      - ${SITE_PORT}:3000
+
+  tasks:
+    container_name: tasks
+    build:
+      context: ./functions
+      dockerfile: dev.Dockerfile
+    environment:
+      - PORT=${TASKS_PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+    volumes:
+      - ./functions/src:/app/src
+    expose:
+      - '${TASKS_PORT}'
+    ports:
+      - ${TASKS_PORT}:${TASKS_PORT}
+    command: npm run devTasks
+
+  webhooks:
+    container_name: webhooks
+    build:
+      context: ./functions
+      dockerfile: dev.Dockerfile
+    environment:
+      - PORT=${WEBHOOKS_PORT}
+    volumes:
+      - ./functions/src:/app/src
+    expose:
+      - '${WEBHOOKS_PORT}'
+    ports:
+      - ${WEBHOOKS_PORT}:${WEBHOOKS_PORT}
+    command: npm run devWebhooks
+
+  api:
+    container_name: api
+    build:
+      context: ./functions
+      dockerfile: dev.Dockerfile
+    environment:
+      - PORT=${API_PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+    volumes:
+      - ./functions/src:/app/src
+    expose:
+      - '${API_PORT}'
+    ports:
+      - ${API_PORT}:${API_PORT}
+    command: npm run devApi
+
+  database:
+    image: postgres
+    restart: always
+    container_name: database
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - '5432:5432'
+#    volumes:
+#      - database:/var/lib/postgresql/data/
+    command:
+      - 'postgres'
+      - '-c'
+      - 'wal_level=logical'
+      - '-c'
+      - 'max_wal_senders=10'
+      - '-c'
+      - 'max_replication_slots=10'
+      - '-c'
+      - 'log_error_verbosity=TERSE'
+
+
+volumes:
+  database:
+
+networks:
+  db:

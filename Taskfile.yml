@@ -13,3 +13,9 @@ tasks:
     cmds:
       - task: functions:build
       - task: infra:apply
+
+
+  local-build:
+    desc: Compose Build
+    cmds:
+      - docker compose  --env-file .env -f compose.yaml build

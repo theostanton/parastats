@@ -1,0 +1,11 @@
+{
+  "verbose": true,
+  "restartable": "rs",
+  "legacyWatch": true,
+  "ignore": [".git", "node_modules", "build", "dev"],
+  "watch": ["src/**/*.ts"],
+  "execMap": {
+    "ts": "node -r ts-node/register --nolazy --inspect=0.0.0.0:9229"
+  },
+  "ext": "ts,js"
+}
