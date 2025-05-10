@@ -86,7 +86,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
             storedActivities.push(stravaActivity)
             console.log(`Appended ${storedActivities.length}/${wingedActivityIds.length}`);
         } else {
-            console.log(`Skipped description=${stravaActivity.description}`);
+            console.log(`Skipped id=${stravaActivity.id} title=${stravaActivity.name} description=${stravaActivity.description}`);
         }
     }
 

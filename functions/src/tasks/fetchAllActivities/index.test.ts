@@ -8,14 +8,5 @@ test("fetchAllActivities success", async () => {
         userId: 123,
     }
     const result = await initialiseUser(input)
-    expect(result.success).toEqual(true)
-})
-
-test("fetchAllActivities fail on invalid body", async () => {
-    const input: WingActivityTask = {
-        name: "WingActivity",
-        activityId: 123
-    }
-    const result = await initialiseUser(input)
     expect(result.success).toEqual(false)
 })

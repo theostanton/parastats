@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "main": "./index.js",
   "scripts": {
+    "test": "vitest run",
     "buildProd": "tsc",
     "devApi": "tsc -p dev.tsconfig.json && nodemon --inspect src/api/dev.ts",
     "devTasks": "tsc -p dev.tsconfig.json && nodemon --inspect src/tasks/dev.ts",

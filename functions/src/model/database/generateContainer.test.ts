@@ -6,6 +6,7 @@ import {users} from "./users";
 import insert = users.insert;
 import {activities} from "./activities";
 import upsertActivities = activities.upsertActivities;
+import {test} from "vitest";
 
 export async function generateContainer(users: UserRow[] = [], activities: ActivityRow[] = []): Promise<StartedPostgreSqlContainer> {
 
@@ -56,3 +57,6 @@ export async function generateContainer(users: UserRow[] = [], activities: Activ
 
     return container
 }
+
+
+test.skip("", {})

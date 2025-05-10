@@ -49,8 +49,8 @@ export class StravaApi {
         }
     }
 
-    async fetchWingedActivityIds(limit: number = 100, ignoreActivityIds: number[] = []): Promise<Result<number[]>> {
-        console.log(`fetchWingedActivityIds() limit=${100} ignoreActivityIds=${ignoreActivityIds}`);
+    async fetchWingedActivityIds(limit: number = 10000, ignoreActivityIds: number[] = []): Promise<Result<number[]>> {
+        console.log(`fetchWingedActivityIds() limit=${limit} ignoreActivityIds=${ignoreActivityIds}`);
         try {
             let relevantActivityIds: number[] = []
             let moreToFetch = true
@@ -65,20 +65,22 @@ export class StravaApi {
                     params,
                     headers: this.headers
                 });
-                const relevantActivityIdsToAppend = response.data.filter(activity => activity.type === 'KiteSurf' || activity.type === "Workout").map(activity => activity.id);
+                const relevantActivityIdsToAppend = response.data.filter(activity => activity.type === 'Kitesurf' || activity.type === "Workout").map(activity => activity.id);
                 console.log(`Got page=${page} activities=${response.data.length} relevantActivityIds=${relevantActivityIdsToAppend.length}`);
-                relevantActivityIdsToAppend.forEach((relevantActivityId) => {
+                let didIgnore = false
+                relevantActivityIdsToAppend.forEach((relevantActivityId, index) => {
 
                     const shouldIgnore = ignoreActivityIds.filter(ignoreActivityId => relevantActivityId == ignoreActivityId).length > 0
 
                     if (shouldIgnore) {
-                        console.log(`Skipping relevantActivityId=${relevantActivityId}`)
+                        // didIgnore = true
+                        console.log(`${index + 1}/${relevantActivityIdsToAppend.length} Ignoring relevantActivityId=${relevantActivityId}`)
                     } else {
-                        console.log(`Appending relevantActivityId=${relevantActivityId}`)
+                        console.log(`${index + 1}/${relevantActivityIdsToAppend.length} Appending relevantActivityId=${relevantActivityId}`)
                         relevantActivityIds.push(relevantActivityId);
                     }
                 })
-                moreToFetch = response.data.length == 200
+                moreToFetch = !didIgnore && response.data.length == 200
                 page++
             }
 

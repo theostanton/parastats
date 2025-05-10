@@ -38,7 +38,7 @@ const userRow2: UserRow = {
 const user1activity1wing1: ActivityRow = {
     user_id: userRow1.user_id,
     activity_id: randomBigInt(),
-    start_date: new Date(2025,1),
+    start_date: new Date(2025, 1),
     wing: "One",
     description: "🪂 One",
     description_status: "todo",
@@ -48,7 +48,7 @@ const user1activity1wing1: ActivityRow = {
 const user2activity1wing1: ActivityRow = {
     user_id: userRow2.user_id,
     activity_id: randomBigInt(),
-    start_date: new Date(2025,2),
+    start_date: new Date(2025, 2),
     wing: "One",
     description: "Some description",
     description_status: "todo",
@@ -58,7 +58,7 @@ const user2activity1wing1: ActivityRow = {
 const user1activity2wing2: ActivityRow = {
     user_id: userRow1.user_id,
     activity_id: randomBigInt(),
-    start_date: new Date(2025,3),
+    start_date: new Date(2025, 3),
     wing: "Two",
     description: "Some description\n🪂 Two",
     description_status: "done",
@@ -68,7 +68,7 @@ const user1activity2wing2: ActivityRow = {
 const user1activity3wing1: ActivityRow = {
     user_id: userRow1.user_id,
     activity_id: randomBigInt(),
-    start_date: new Date(2025,4),
+    start_date: new Date(2025, 4),
     wing: "One",
     description: "Some description\n🪂 One\nThis wing Xmin over Y flights\nThis year 1h 15min over 3 flights\nAll time 1h 15min over 3 flights\n🌐 parastats.info",
     description_status: "done",
@@ -78,7 +78,7 @@ const user1activity3wing1: ActivityRow = {
 const user1activity4wing1: ActivityRow = {
     user_id: userRow1.user_id,
     activity_id: randomBigInt(),
-    start_date: new Date(2025,5),
+    start_date: new Date(2025, 5),
     wing: "One",
     description: "Some description",
     description_status: "todo",
@@ -88,7 +88,7 @@ const user1activity4wing1: ActivityRow = {
 const user2activity2wing1: ActivityRow = {
     user_id: userRow2.user_id,
     activity_id: randomBigInt(),
-    start_date: new Date(2025,6),
+    start_date: new Date(2025, 6),
     wing: "One",
     description: "Some description",
     description_status: "todo",
@@ -184,70 +184,82 @@ test('getSameYearAggregationResult() - User 1 Activity 3', async () => {
 })
 
 //formatAggregationResult()
-test('formatAggregationResult() - 5 mins 1 flight', () => {
+test('formatAggregationResult() - 1 flight / 5min', () => {
     const result: AggregationResult = {
         count: 1,
         total_duration_sec: 60 * 5,
         total_distance_meters: 0
     }
     const actual = formatAggregationResult(result)
-    expect(actual).toEqual("5min over 1 flight")
+    expect(actual).toEqual("1 flight / 5min")
 })
 
-test('formatAggregationResult() - 5 mins 2 flights', () => {
+test('formatAggregationResult() - 2 flights / 5min', () => {
     const result: AggregationResult = {
         count: 2,
         total_duration_sec: 60 * 5,
         total_distance_meters: 0
     }
     const actual = formatAggregationResult(result)
-    expect(actual).toEqual("5min over 2 flights")
+    expect(actual).toEqual("2 flights / 5min")
 })
 
-test('formatAggregationResult() - 1 hour 5 mins 2 flights', () => {
+test('formatAggregationResult() - 2 flights / 1h 5min', () => {
     const result: AggregationResult = {
         count: 2,
         total_duration_sec: 60 * 60 + 60 * 5,
         total_distance_meters: 0
     }
     const actual = formatAggregationResult(result)
-    expect(actual).toEqual("1h 5min over 2 flights")
+    expect(actual).toEqual("2 flights / 1h 5min")
 })
 
-test('formatAggregationResult() - 1 hour 59 mins 2 flights', () => {
+test('formatAggregationResult() - 2 flights / 1h 59min', () => {
     const result: AggregationResult = {
         count: 2,
         total_duration_sec: 60 * 60 + 60 * 59,
         total_distance_meters: 0
     }
     const actual = formatAggregationResult(result)
-    expect(actual).toEqual("1h 59min over 2 flights")
+    expect(actual).toEqual("2 flights / 1h 59min")
 })
 
-test('formatAggregationResult() - 2 hours 0min 2 flights', () => {
+test('formatAggregationResult() - 2 flights / 2h 0min ', () => {
     const result: AggregationResult = {
         count: 2,
         total_duration_sec: 2 * 60 * 60,
         total_distance_meters: 0
     }
     const actual = formatAggregationResult(result)
-    expect(actual).toEqual("2h 0min over 2 flights")
+    expect(actual).toEqual("2 flights / 2h 0min")
 })
 
-test('formatAggregationResult() - 2 hours 45 mins 2 flights', () => {
+test('formatAggregationResult() - 2 flights / 2h 45min', () => {
     const result: AggregationResult = {
         count: 2,
         total_duration_sec: 2 * 60 * 60 + 60 * 45,
         total_distance_meters: 0
     }
     const actual = formatAggregationResult(result)
-    expect(actual).toEqual("2h 45min over 2 flights")
+    expect(actual).toEqual("2 flights / 2h 45min")
+})
+
+
+const cases: [input: ActivityRow, expected: string][] = [
+    [user1activity1wing1, "🪂 One 1 flight / 5min \n2025 1 flight / 5min\nAll Time 1 flight / 5min\n🌐 parastats.info"],
+    [user1activity2wing2, "🪂 Two 1 flight / 1h 0min\n2025 2 flights / 1h 5min\nAll Time 2 flights / 1h 5min\n🌐 parastats.info"],
+    [user1activity3wing1, "🪂 One 2 flights / 15min\n2025 3 flights / 1h 15min\nAll Time 3 flights / 1h 15min\n🌐 parastats.info"],
+]
+
+test.each(cases)('generateWingedDescription', async (input, expected) => {
+    const actual = await generateStats(input)
+    expect(actual.replace(/\s/g, '')).toEqual(expected.replace(/\s/g, ''))
 })
 
 //generateWingedDescription()
 test('generateWingedDescription() - User 1 Activity 1', async () => {
     const actual = await generateStats(user1activity1wing1)
-    expect(actual).toEqual("🪂 One\nThis wing 5min over 1 flight\n2025 5min over 1 flight\nAll time 5min over 1 flight\n🌐 parastats.info")
+    expect(actual.replace(/\s/g, '')).toEqual("🪂 One\nThis wing 1 flight / 5min \n2025 1 flight / 5min\nAll time 5min over 1 flight\n🌐 parastats.info")
 })
 
 test('generateWingedDescription() - User 1 Activity 2', async () => {
