@@ -4,11 +4,15 @@ tasks:
   docker:build:
     desc: Build the image
     dir: site
+    sources:
+      - public/**
+      - src/**/*.ts
+      - exclude: src/**/*.test.ts
     cmds:
-      - docker build -f prod.Dockerfile -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:latest --platform linux/amd64 .
+      - docker build -f prod.Dockerfile -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:3 --platform linux/amd64 .
 
   docker:push:
     desc: Push the image
     dir: site
     cmds:
-      - docker push europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:latest
+      - docker push europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:3

@@ -1,5 +1,5 @@
 resource "google_cloudfunctions2_function" "webhooks" {
-  name     = "parastats-webhooks"
+  name     = "webhooks"
   location = local.region
 
   timeouts {
@@ -25,6 +25,17 @@ resource "google_cloudfunctions2_function" "webhooks" {
     environment_variables = merge(local.functions_variables, {
       DATABASE_HOST = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
     })
+  }
+}
+
+resource "google_cloud_run_domain_mapping" "webhooks" {
+  name     = "webhooks.parastats.info"
+  location = google_cloudfunctions2_function.webhooks.location
+  metadata {
+    namespace = local.project_id
+  }
+  spec {
+    route_name = google_cloudfunctions2_function.webhooks.name
   }
 }
 

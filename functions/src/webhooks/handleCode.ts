@@ -5,6 +5,7 @@ import {StravaApi} from "../model/stravaApi";
 import {getDatabase} from "../model/database/client";
 import {UserRow} from "../model/database/model";
 import trigger from "../tasks/trigger";
+import {sign} from "../jwt";
 
 export async function handleCode(req: Request, res: Response) {
     console.log("handleCode code=", req.query['code'])
@@ -47,5 +48,8 @@ export async function handleCode(req: Request, res: Response) {
 
     await trigger({name: "FetchAllActivities", userId: athlete.id})
 
-    res.status(200).send({status: "OK", action: "handleCode"});
+    sign(athlete.id,res)
+
+    res.redirect('https://parastats.info');
+    // res.status(200).send({status: "OK", action: "handleCode"});
 }

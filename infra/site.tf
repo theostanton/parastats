@@ -3,7 +3,7 @@ resource "google_cloud_run_v2_service" "site" {
   location = local.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
-  deletion_protection = false # set to true to prevent destruction of the resource
+  deletion_protection = false
 
   connection {
     port = 80

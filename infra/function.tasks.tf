@@ -33,7 +33,7 @@ resource "google_cloud_tasks_queue" "wing_activity" {
 }
 
 resource "google_cloudfunctions2_function" "tasks" {
-  name     = "parastats-tasks"
+  name     = "tasks"
   location = local.region
 
   timeouts {
@@ -59,6 +59,17 @@ resource "google_cloudfunctions2_function" "tasks" {
     environment_variables = merge(local.functions_variables, {
       DATABASE_HOST = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
     })
+  }
+}
+
+resource "google_cloud_run_domain_mapping" "tasks" {
+  name     = "tasks.parastats.info"
+  location = google_cloudfunctions2_function.tasks.location
+  metadata {
+    namespace = local.project_id
+  }
+  spec {
+    route_name = google_cloudfunctions2_function.tasks.name
   }
 }
 

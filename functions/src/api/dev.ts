@@ -1,18 +1,13 @@
-import express, {Request, Response} from 'express';
-import bodyParser from 'body-parser';
-import handler from ".";
+import {app} from "./index"
 
-const app = express();
-const jsonParser = bodyParser.json()
+import {config} from "dotenv"
 
-if (!process.env.PORT) {
-    throw new Error('PORT environment variable is required');
+config()
+
+if (!process.env.API_PORT) {
+    throw new Error('API_PORT environment variable is required');
 }
-const PORT = process.env.PORT
-
-app.get('/', jsonParser, async (req: Request, res: Response) => {
-    await handler(req, res);
-});
+const PORT = process.env.API_PORT!
 
 app.listen(PORT, () => {
     console.log(`API is running on port ${PORT}`);

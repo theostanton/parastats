@@ -20,7 +20,7 @@ services:
       context: ./functions
       dockerfile: dev.Dockerfile
     environment:
-      - PORT=${TASKS_PORT}
+      - TASKS_PORT=${TASKS_PORT}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -39,7 +39,7 @@ services:
       context: ./functions
       dockerfile: dev.Dockerfile
     environment:
-      - PORT=${WEBHOOKS_PORT}
+      - WEBHOOKS_PORT=${WEBHOOKS_PORT}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -58,7 +58,7 @@ services:
       context: ./functions
       dockerfile: dev.Dockerfile
     environment:
-      - PORT=${API_PORT}
+      - API_PORT=${API_PORT}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}

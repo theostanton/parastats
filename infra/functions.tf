@@ -4,6 +4,10 @@ data "archive_file" "functions" {
   output_path = "${path.module}/../dist/functions.zip"
 }
 
+resource "random_id" "session_secret" {
+  byte_length = 16
+}
+
 resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
@@ -22,6 +26,7 @@ resource "google_storage_bucket_object" "functions_zip" {
 
 locals {
   functions_variables = {
+    SESSION_SECRET            = random_id.session_secret.b64_std
     DATABASE_HOST             = google_sql_database_instance.instance.public_ip_address
     DATABASE_NAME             = google_sql_database.database.name
     DATABASE_PORT             = 5432

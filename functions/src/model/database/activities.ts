@@ -23,6 +23,26 @@ export namespace activities {
         }
     }
 
+    export async function getAll(userId: number): Promise<Result<ActivityRow[]>> {
+        const database = await getDatabase()
+        const result = await database.query<ActivityRow>(`
+            select user_id,
+                   activity_id,
+                   wing,
+                   duration_sec,
+                   distance_meters,
+                   start_date,
+                   description_status,
+                   description
+            from activities
+            where user_id = $1`, [userId])
+        if (result.rows) {
+            return success([...result])
+        } else {
+            return failed(`Failed to getAll for userId=${userId}`)
+        }
+    }
+
     export async function updateDescription(activityId: number, description: string, descriptionStatus: DescriptionStatus): Promise<Result<void>> {
         const database = await getDatabase()
 

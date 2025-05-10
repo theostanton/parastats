@@ -4,7 +4,7 @@ Content-Type: application/json
 
 
 ### FetchAllActivities
-POST http://localhost:3000/tasks
+GET localhost:8008
 Content-Type: application/json
 
 {
@@ -13,10 +13,10 @@ Content-Type: application/json
 }
 
 ### WingActivity
-POST http://localhost:3000/tasks
+GET localhost:8008
 Content-Type: application/json
 
 {
   "name": "WingActivity",
-  "activityId": 14152663851
+  "activityId": 14432764863
 }
