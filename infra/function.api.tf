@@ -45,7 +45,3 @@ resource "google_cloud_run_domain_mapping" "api" {
     route_name = google_cloudfunctions2_function.api.name
   }
 }
-
-output "api_function_url" {
-  value = google_cloudfunctions2_function.api.url
-}

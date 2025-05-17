@@ -12,7 +12,7 @@ export default function Home() {
             <main className={styles.main}>
 
                 <h1 className={styles.title}>
-                    Welcome to ParaStats.
+                    Welcome to ParaStats
                 </h1>
 
                 <h2>Coming soon...</h2>

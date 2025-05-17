@@ -1,0 +1,10 @@
+{
+  "name": "@theostanton/parastats",
+  "author": "theostanton",
+  "private": true,
+  "workspaces": [
+    "common",
+    "functions",
+    "site"
+  ]
+}

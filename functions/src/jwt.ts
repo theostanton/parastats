@@ -4,16 +4,22 @@ import {users} from "./model/database/users";
 import {UserRow} from "./model/database/model";
 import {failed, Result, success} from "./model/model";
 
-export function sign(userId: number, res: Response): string {
-    console.log(`sign process.env.SESSION_SECRET=${process.env.SESSION_SECRET}`)
-    const jwtToken = jwt.sign(
+export function generateJwt(userId: number): string {
+    console.log(`generateJwt process.env.SESSION_SECRET=${process.env.SESSION_SECRET}`)
+    return jwt.sign(
         {sub: userId, typ: 'session'},
         process.env.SESSION_SECRET!,
         {expiresIn: '2h', algorithm: 'HS256'}
     );
 
+}
+
+export function sign(userId: number, res: Response): string {
+    console.log(`sign process.env.SESSION_SECRET=${process.env.SESSION_SECRET}`)
+
+    const jwtToken = generateJwt(userId)
     res.cookie('sid', jwtToken, {
-        domain:"parastats.info",
+        domain: "parastats.info",
         httpOnly: false,
         secure: true,
         sameSite: 'lax',
@@ -29,7 +35,9 @@ export async function verifyJwt(req: Request, res: Response): Promise<Result<Use
 
         const payload = jwt.verify(req.cookies.sid, process.env.SESSION_SECRET!);
         const userId = payload.sub as unknown as number
+        console.log(`verifyJwt userId ${userId}`);
         const result = await users.get(userId);
+        console.log('result',result);
         if (result.success) {
             return success(result.value)
         }

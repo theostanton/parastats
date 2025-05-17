@@ -2,18 +2,22 @@ import express, {Request, Response} from 'express';
 import bodyParser from 'body-parser';
 import handler from "./index";
 
+import {config} from "dotenv"
+
+config()
+
 const app = express();
 const jsonParser = bodyParser.json()
 
-if (!process.env.PORT) {
-    throw new Error('PORT environment variable is required');
+if (!process.env.TASKS_PORT) {
+    throw new Error('TASKS_PORT environment variable is required');
 }
-const PORT = process.env.PORT
+const port = process.env.TASKS_PORT
 
-app.get('/', jsonParser, async (req: Request, res: Response) => {
+app.post('/', jsonParser, async (req: Request, res: Response) => {
     await handler(req, res);
 });
 
-app.listen(PORT, () => {
-    console.log(`Tasks is running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Tasks is running on port ${port}`);
 });

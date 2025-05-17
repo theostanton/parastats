@@ -1,18 +1,53 @@
 version: "3"
 
 tasks:
-  docker:build:
+
+  build:
     desc: Build the image
+    internal: true
+    dir: site
+    cmds:
+      - docker build -f prod.Dockerfile -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:{{.TAG}} --platform linux/amd64 .
+
+  push:
+    desc: Push the image
+    internal: true
+    dir: site
+    requires:
+      vars: [ TAG ]
+    cmds:
+      - docker push europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:{{.TAG}}
+
+  update-version:
+    desc: Update versions in file
+    internal: true
+    dir: site
+    requires:
+      vars: [ TAG ]
+    cmds:
+      - echo "site_tag = \"{{.TAG}}\"" > ../infra/terraform.tfvars
+
+  deploy:
+    desc: Deploy site image
+    vars:
+      TAG: '{{now | unixEpoch}}'
     dir: site
     sources:
       - public/**
       - src/**/*.ts
+      - src/**/*.tsx
+      - common/**/*.ts
       - exclude: src/**/*.test.ts
     cmds:
-      - docker build -f prod.Dockerfile -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:3 --platform linux/amd64 .
-
-  docker:push:
-    desc: Push the image
-    dir: site
-    cmds:
-      - docker push europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:3
+      - task: build
+        vars:
+          TAG:
+            ref: .TAG
+      - task: push
+        vars:
+          TAG:
+            ref: .TAG
+      - task: update-version
+        vars:
+          TAG:
+            ref: .TAG

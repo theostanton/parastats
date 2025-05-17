@@ -2,31 +2,31 @@ import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import {GetServerSideProps, InferGetServerSidePropsType} from "next";
 import {ParastatsApi} from "../api";
-import {User} from "../model/User";
+import {User} from "@model/User";
 
 type Props = {
     success: boolean
-    user: User | undefined
+    user: User | null
 }
 
-export const getServerSideProps = (async () => {
+export const getServerSideProps = (async (context) => {
     if (true) {
         return {
             props: {
                 success: false,
-                user: undefined
+                user: null
             }
         }
     }
     console.log('getServerSideProps()')
     // Fetch data from external API
-    const api = new ParastatsApi("blah")
+    const api = new ParastatsApi(context.req.cookies['sid'])
     const [data, error] = await api.getSelf()
     if (error) {
         return {
             props: {
                 success: false,
-                user: undefined
+                user: null
             }
         }
     } else {

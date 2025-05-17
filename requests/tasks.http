@@ -1,10 +1,10 @@
 ### Hello functions
-GET http://localhost:3000
+GET https://tasks.parastats.info
 Content-Type: application/json
 
 
 ### FetchAllActivities
-GET localhost:8008
+POST localhost:3000
 Content-Type: application/json
 
 {
@@ -13,10 +13,10 @@ Content-Type: application/json
 }
 
 ### WingActivity
-GET localhost:8008
+POST localhost:3000
 Content-Type: application/json
 
 {
   "name": "WingActivity",
-  "activityId": 14432764863
+  "activityId": 14443993504
 }

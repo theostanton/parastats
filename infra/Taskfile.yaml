@@ -5,7 +5,7 @@ tasks:
     dir: infra/
     desc: Plan
     cmds:
-      - terraform plan
+      - terraform plan -var-file=”./site.tfvars”
 
   apply:
     dir: infra/

@@ -52,7 +52,7 @@ resource "google_cloudfunctions2_function" "tasks" {
   }
 
   service_config {
-    available_memory   = "128Mi"
+    available_memory   = "256Mi"
     timeout_seconds    = 60
     ingress_settings   = "ALLOW_ALL"
     max_instance_count = 1

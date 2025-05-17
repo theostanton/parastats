@@ -6,7 +6,7 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - DEBUG=${DEBUG}
-      - API_URL=api
+      - API_URL="http://api:${API_PORT}"
     volumes:
       - ./site/src:/app/src
       - ./site/public:/app/public
@@ -31,7 +31,7 @@ services:
       - '${TASKS_PORT}'
     ports:
       - ${TASKS_PORT}:${TASKS_PORT}
-    command: npm run devTasks
+    command: yarn devTasks
 
   webhooks:
     container_name: webhooks
@@ -50,10 +50,11 @@ services:
       - '${WEBHOOKS_PORT}'
     ports:
       - ${WEBHOOKS_PORT}:${WEBHOOKS_PORT}
-    command: npm run devWebhooks
+    command: yarn devWebhooks
 
   api:
     container_name: api
+    restart: always
     build:
       context: ./functions
       dockerfile: dev.Dockerfile
@@ -63,13 +64,14 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_NAME=${DATABASE_NAME}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - ./functions/src:/app/src
     expose:
       - '${API_PORT}'
     ports:
       - ${API_PORT}:${API_PORT}
-    command: npm run devApi
+    command: yarn devApi
 
   database:
     image: postgres

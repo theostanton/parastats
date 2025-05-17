@@ -11,7 +11,7 @@ resource "google_cloud_run_v2_service" "site" {
 
   template {
     containers {
-      image = "europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:latest"
+      image = "europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:${var.site_tag}"
     }
   }
 }

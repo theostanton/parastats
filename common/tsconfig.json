@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+//    "paths": {
+//      "@model/*": ["./model/*"],
+//      "@database/*": ["./database/*"],
+//    }
+  },
+  "include": ["**/*"]
+}

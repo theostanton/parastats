@@ -1,11 +1,15 @@
 {
   "author": "theostanton",
-  "name": "parastats-functions",
+  "name": "functions",
   "version": "0.1.0",
   "main": "./index.js",
+  "config": {
+    "dirBuild": "../dist/functions",
+    "dirSrc": "./src"
+  },
   "scripts": {
     "test": "vitest run",
-    "buildProd": "tsc",
+    "buildProd": "tsc && tsconfig-replace-paths --project tsconfig.json",
     "devApi": "tsc -p dev.tsconfig.json && nodemon --inspect src/api/dev.ts",
     "devTasks": "tsc -p dev.tsconfig.json && nodemon --inspect src/tasks/dev.ts",
     "devWebhooks": "tsc -p dev.tsconfig.json && nodemon --inspect src/webhooks/dev.ts"
@@ -17,9 +21,11 @@
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
-    "ts-postgres": "^2.0.4"
+    "ts-postgres": "^2.0.4",
+    "@parastats/common": "*"
   },
   "devDependencies": {
+    "tsconfig-replace-paths": "^0.0.14",
     "@testcontainers/postgresql": "^10.24.2",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",

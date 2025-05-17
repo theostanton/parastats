@@ -1,5 +1,6 @@
-### Hello API
+### Get /
 GET {{parastats_api_base_url}}/
+Cookie: sid={{jwt}};
 Content-Type: application/json
 
 ### Get /activities

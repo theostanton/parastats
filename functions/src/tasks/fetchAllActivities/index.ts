@@ -1,12 +1,12 @@
 import {isFetchAllActivitiesTask, TaskBody, TaskResult} from "../model";
 import {StravaApi} from "../../model/stravaApi";
 import {convertStravaActivity} from "./convertStravaActivities";
+import {getDatabase} from "../../model/database/client";
 import {users} from "../../model/database/users";
 import {activities} from "../../model/database/activities";
 import upsertActivities = activities.upsertActivities;
 import {StravaActivity} from "../../model/stravaApi/model";
 import axios, {AxiosHeaders} from "axios";
-import {getDatabase} from "../../model/database/client";
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isFetchAllActivitiesTask(task)) {
@@ -29,6 +29,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     const user = userResult.value
 
     const api = new StravaApi(user.token)
+    console.log(`got api for token=${user.token}`)
 
     // Get existing activity IDs from database
     const database = await getDatabase()

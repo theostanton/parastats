@@ -60,7 +60,3 @@ locals {
   CLIENT_ID     = local.envs["CLIENT_ID"]
   CLIENT_SECRET = local.envs["CLIENT_SECRET"]
 }
-
-output "docker_repository_id" {
-  value = google_artifact_registry_repository.docker.id
-}

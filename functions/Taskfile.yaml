@@ -11,7 +11,7 @@ tasks:
       - ../dist/functions/
     cmds:
       - rm -rf ../dist/functions/*
-      - npm run buildProd
+      - yarn buildProd
       - cp package.prod.json ../dist/functions/package.json
 
   webhooks:logs:

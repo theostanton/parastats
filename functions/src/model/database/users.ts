@@ -9,8 +9,11 @@ export namespace users {
     }
 
     export async function get(userId: number): Promise<Result<UserRow>> {
+        console.log(`users.get() userId=${userId}`);
         const database = await getDatabase()
+        console.log(`database`);
         const result = await database.query<UserRow>("select first_name, token, user_id from users where user_id = $1", [userId])
+        console.log('result',result)
         if (result.rows.length === 1) {
             return new Success(result.rows[0].reify())
         } else {

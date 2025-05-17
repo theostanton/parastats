@@ -24,9 +24,7 @@ export default async function handler(req: Request, res: Response): Promise<void
 }
 
 
-const jsonParser = bodyParser.json({
-
-})
+const jsonParser = bodyParser.json({})
 
 const app = express();
 app.use('/token/', generateToken);
@@ -36,10 +34,10 @@ app.use(async (req, res, next) => {
     const userResult = await verifyJwt(req, res);
     if (userResult.success) {
         console.log(`Verified user=${JSON.stringify(userResult.value)}`);
+        next()
     } else {
         console.log(`Auth failed error=${userResult.error}`)
     }
-    next()
 });
 
 app.use(jsonParser)

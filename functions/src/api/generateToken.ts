@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {extractUserFromJwt, sign} from "../jwt";
+import {extractUserFromJwt, generateJwt, sign} from "../jwt";
 
 export async function generateToken(req: Request, res: Response) {
     const userId = req.query.user_id
@@ -11,7 +11,7 @@ export async function generateToken(req: Request, res: Response) {
         return
     }
 
-    const jwtToken = sign(Number.parseInt(userId as string), res)
+    const jwtToken = generateJwt(Number.parseInt(userId as string))
     res.status(200).json({
         jwtToken: jwtToken
     });
