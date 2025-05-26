@@ -43,6 +43,7 @@ node_modules/
 /requests/http-client.private.env.json
 /dist/
 /functions/.task/
+/functions/dist/
 site/.next
 .task
 /infra/.terraform
