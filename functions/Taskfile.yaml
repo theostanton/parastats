@@ -8,11 +8,11 @@ tasks:
       - src/**/*.ts
       - exclude: src/**/*.test.ts
     generates:
-      - ../dist/functions/
+      - ./dist/
     cmds:
-      - rm -rf ../dist/functions/*
+      - rm -rf ./dist/*
       - yarn buildProd
-      - cp package.prod.json ../dist/functions/package.json
+      - cp package.prod.json dist/package.json
 
   webhooks:logs:
     desc: View webhooks logs

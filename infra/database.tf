@@ -11,10 +11,14 @@ resource "google_sql_database_instance" "instance" {
   settings {
     availability_type = "ZONAL"
     ip_configuration {
-      ipv4_enabled                                  = true
+      ipv4_enabled = true
       authorized_networks {
         name  = "Chamonix"
         value = "83.204.51.218/32"
+      }
+      authorized_networks {
+        name  = "Losserands"
+        value = "81.220.110.158/32"
       }
     }
     tier = data.google_sql_tiers.tiers.tiers[0].tier

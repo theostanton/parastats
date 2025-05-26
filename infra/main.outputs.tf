@@ -11,6 +11,10 @@ locals {
     QUEUE_ID_FETCH_ACTIVITIES = google_cloud_tasks_queue.fetch_activities.id
     QUEUE_ID_WING_ACTIVITY    = google_cloud_tasks_queue.wing_activity.id
     TASKS_URL                 = "https://tasks.parastats.info"
+    SITE_PORT                 = 80
+    TASKS_PORT                = 3000
+    WEBHOOKS_PORT             = 4000
+    API_PORT                  = 81
   }
   compose_variables = {
     SESSION_SECRET              = random_id.session_secret.b64_std
