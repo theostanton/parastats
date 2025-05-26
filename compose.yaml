@@ -21,10 +21,10 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - TASKS_PORT=${TASKS_PORT}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_HOST=${LOCAL_DATABASE_HOST}
+      - DATABASE_USER=${LOCAL_DATABASE_USER}
+      - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
+      - DATABASE_NAME=${LOCAL_DATABASE_NAME}
     volumes:
       - ./functions/src:/app/src
     expose:
@@ -40,10 +40,10 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - WEBHOOKS_PORT=${WEBHOOKS_PORT}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_HOST=${LOCAL_DATABASE_HOST}
+      - DATABASE_USER=${LOCAL_DATABASE_USER}
+      - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
+      - DATABASE_NAME=${LOCAL_DATABASE_NAME}
     volumes:
       - ./functions/src:/app/src
     expose:
@@ -60,11 +60,11 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - API_PORT=${API_PORT}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - SESSION_SECRET=${SESSION_SECRET}
+      - DATABASE_HOST=${LOCAL_DATABASE_HOST}
+      - DATABASE_USER=${LOCAL_DATABASE_USER}
+      - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
+      - DATABASE_NAME=${LOCAL_DATABASE_NAME}
+      - SESSION_SECRET=${LOCAL_SESSION_SECRET}
     volumes:
       - ./functions/src:/app/src
     expose:
@@ -78,13 +78,13 @@ services:
     restart: always
     container_name: database
     environment:
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${LOCAL_DATABASE_USER}
+      - POSTGRES_PASSWORD=${LOCAL_DATABASE_PASSWORD}
+      - POSTGRES_DB=${LOCAL_DATABASE_NAME}
     ports:
       - '5432:5432'
-#    volumes:
-#      - database:/var/lib/postgresql/data/
+    volumes:
+      - database:/var/lib/postgresql/data/
     command:
       - 'postgres'
       - '-c'
