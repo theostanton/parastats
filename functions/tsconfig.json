@@ -6,12 +6,7 @@
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "paths": {
-      "@model/*": [
-        "src/model/*"
-      ]
-    }
+    "skipLibCheck": true
   },
   "ts-node": {
     "transpileOnly": true

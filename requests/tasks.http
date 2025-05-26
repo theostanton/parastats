@@ -1,6 +1,13 @@
 ### Hello functions
-GET https://tasks.parastats.info
+POST {{parastats_tasks_base_url}}
 Content-Type: application/json
+
+{
+  "name": "HelloWorld",
+  "hello": "World"
+}
+
+
 
 
 ### FetchAllActivities

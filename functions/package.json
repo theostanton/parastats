@@ -3,16 +3,11 @@
   "name": "functions",
   "version": "0.1.0",
   "main": "./index.js",
-  "config": {
-    "dirBuild": "dist",
-    "dirSrc": "src"
-  },
   "scripts": {
     "test": "vitest run",
-    "buildDev": "tsc && tsc-alias",
-    "buildProd": "tsc && tsconfig-replace-paths --project tsconfig.json",
-    "devApi": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register -r tsconfig-paths/register src/api/dev.ts",
-    "devTasks": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register -r tsconfig-paths/register src/tasks/dev.ts",
+    "buildProd": "tsc",
+    "devApi": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register src/api/dev.ts",
+    "devTasks": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register src/tasks/dev.ts",
     "devWebhooks": "tsc -p dev.tsconfig.json && nodemon --inspect src/webhooks/dev.ts"
   },
   "dependencies": {
@@ -32,8 +27,6 @@
     "testcontainers": "^10.24.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.1",
-    "tsconfig-paths": "^4.2.0",
-    "tsconfig-replace-paths": "^0.0.14"
+    "vitest": "^3.1.1"
   }
 }

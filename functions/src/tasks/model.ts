@@ -1,5 +1,6 @@
 import fetchAllActivities from "./fetchAllActivities";
 import wingActivity from "./wingActivity";
+import helloWorld from "./helloWorld";
 
 export type TaskResult = TaskSuccess | TaskFailure
 
@@ -12,11 +13,20 @@ export type TaskFailure = {
     message: string
 }
 
-export type TaskBody = FetchAllActivitiesTask | WingActivityTask
+export type TaskBody = FetchAllActivitiesTask | WingActivityTask | HelloWorldTask
 
 export type TaskHandler = (task: TaskBody) => Promise<TaskResult>
 
 export type TaskName = TaskBody['name'];
+
+export type HelloWorldTask = {
+    name: "HelloWorld";
+    hello: string
+}
+
+export function isHelloWorldTask(body: TaskBody): body is HelloWorldTask {
+    return (body as HelloWorldTask).hello !== undefined;
+}
 
 export type FetchAllActivitiesTask = {
     name: "FetchAllActivities";
@@ -39,4 +49,5 @@ export function isWingActivityTask(body: TaskBody): body is WingActivityTask {
 export const taskHandlers: Record<TaskName, TaskHandler> = {
     FetchAllActivities: fetchAllActivities,
     WingActivity: wingActivity,
+    HelloWorld: helloWorld,
 }

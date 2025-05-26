@@ -1,8 +1,8 @@
 import {TaskResult, isWingActivityTask, TaskBody} from "../model";
-import {activities} from "@model/database/activities";
 import {generateStats} from "./updateActivityDescription";
-import {StravaApi} from "@model/stravaApi";
-import {users} from "@model/database/users";
+import {activities} from "../../model/database/activities";
+import {users} from "../../model/database/users";
+import {StravaApi} from "../../model/stravaApi";
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isWingActivityTask(task)) {
