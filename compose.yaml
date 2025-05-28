@@ -6,6 +6,10 @@ services:
       dockerfile: dev.Dockerfile
     environment:
       - DEBUG=${DEBUG}
+      - DATABASE_HOST=${LOCAL_DATABASE_HOST}
+      - DATABASE_USER=${LOCAL_DATABASE_USER}
+      - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
+      - DATABASE_NAME=${LOCAL_DATABASE_NAME}
       - API_URL="http://api:${API_PORT}"
     volumes:
       - ./site/src:/app/src
@@ -64,7 +68,7 @@ services:
       - DATABASE_USER=${LOCAL_DATABASE_USER}
       - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
       - DATABASE_NAME=${LOCAL_DATABASE_NAME}
-      - SESSION_SECRET=${LOCAL_SESSION_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - ./functions/src:/app/src
     expose:

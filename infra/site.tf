@@ -11,7 +11,34 @@ resource "google_cloud_run_v2_service" "site" {
 
   template {
     containers {
+      env {
+        name  = "DATABASE_HOST"
+        value = "/cloudsql/${local.functions_variables.INSTANCE_CONNECTION_NAME}"
+      }
+      env {
+        name  = "DATABASE_NAME"
+        value = local.functions_variables.DATABASE_NAME
+      }
+      env {
+        name  = "DATABASE_USER"
+        value = local.functions_variables.DATABASE_USER
+      }
+      env {
+        name  = "DATABASE_PASSWORD"
+        value = local.functions_variables.DATABASE_PASSWORD
+      }
       image = "europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:${var.site_tag}"
+      volume_mounts {
+        name       = "cloudsql"
+        mount_path = "/cloudsql"
+      }
+    }
+
+    volumes {
+      name = "cloudsql"
+      cloud_sql_instance {
+        instances = [google_sql_database_instance.instance.connection_name]
+      }
     }
   }
 }

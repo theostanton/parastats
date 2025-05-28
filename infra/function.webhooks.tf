@@ -6,6 +6,7 @@ resource "google_cloudfunctions2_function" "webhooks" {
     create = "10m"
     update = "10m"
   }
+
   build_config {
     runtime     = "nodejs20"
     entry_point = "webhooks"

@@ -20,19 +20,29 @@
     "incremental": true,
     "paths": {
       "@model/*": [
-        "./src/model/*"
+        "./src/data/model/*"
       ],
-      "@common/*": [
-        "./common/*"
+      "@database/*": [
+        "./src/data/database/*"
+      ],
+      "@styles/*": [
+        "./src/styles/*"
+      ],
+      "@ui/*": [
+        "./src/ui/*"
       ]
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "plugins": {
+    "name": "next"
+  }
 }

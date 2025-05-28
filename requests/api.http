@@ -13,3 +13,6 @@ GET {{parastats_api_base_url}}/token?user_id=4142500
 Cookie: sid={{jwt}};
 Content-Type: application/json
 
+### Get /takeoff/[slug]
+GET {{parastats_api_base_url}}/takeoff/123
+Content-Type: application/json

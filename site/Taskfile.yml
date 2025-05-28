@@ -7,7 +7,16 @@ tasks:
     internal: true
     dir: site
     cmds:
-      - docker build -f prod.Dockerfile -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:{{.TAG}} --platform linux/amd64 .
+      - |
+        docker build -f prod.Dockerfile \
+        -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:{{.TAG}} \
+        --platform linux/amd64 \
+        --build-arg DATABASE_HOST={{.DATABASE_HOST}} \
+        --build-arg DATABASE_NAME={{.DATABASE_NAME}} \
+        --build-arg DATABASE_PASSWORD={{.DATABASE_PASSWORD}} \
+        --build-arg DATABASE_PORT={{.DATABASE_PORT}} \
+        --build-arg DATABASE_USER={{.DATABASE_USER}} \
+        .
 
   push:
     desc: Push the image
@@ -33,7 +42,7 @@ tasks:
       TAG: '{{now | unixEpoch}}'
     dir: site
     sources:
-      - public/**
+      - ./**
       - src/**/*.ts
       - src/**/*.tsx
       - common/**/*.ts

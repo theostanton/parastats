@@ -6,6 +6,7 @@ import {getSelf} from "./getSelf";
 import {getActivities} from "./getActivities";
 import {getActivity} from "./getActivity";
 import {generateToken} from "./generateToken";
+import {getTakeOff} from "./getTakeOff";
 
 export default async function handler(req: Request, res: Response): Promise<void> {
     console.log("Received api body=", JSON.stringify(req.body));
@@ -28,6 +29,8 @@ const jsonParser = bodyParser.json({})
 
 const app = express();
 app.use('/token/', generateToken);
+app.use(jsonParser)
+app.use('/activities/:id', getTakeOff);
 app.use(cookieParser())
 app.use(async (req, res, next) => {
     console.log(`verifying req.cookies.sid=${req.cookies.sid}`)
@@ -40,7 +43,6 @@ app.use(async (req, res, next) => {
     }
 });
 
-app.use(jsonParser)
 app.use('/activities', getActivities);
 app.use('/activities/:id', getActivity);
 app.use(getSelf);

@@ -68,17 +68,18 @@ export class StravaApi {
                 const relevantActivityIdsToAppend = response.data.filter(activity => activity.type === 'Kitesurf' || activity.type === "Workout").map(activity => activity.id);
                 console.log(`Got page=${page} activities=${response.data.length} relevantActivityIds=${relevantActivityIdsToAppend.length}`);
                 let didIgnore = false
-                relevantActivityIdsToAppend.forEach((relevantActivityId, index) => {
-
+                relevantActivityIdsToAppend.some((relevantActivityId, index) => {
                     const shouldIgnore = ignoreActivityIds.filter(ignoreActivityId => relevantActivityId == ignoreActivityId).length > 0
 
                     if (shouldIgnore) {
-                        // didIgnore = true
+                        didIgnore = true
                         console.log(`${index + 1}/${relevantActivityIdsToAppend.length} Ignoring relevantActivityId=${relevantActivityId}`)
                     } else {
                         console.log(`${index + 1}/${relevantActivityIdsToAppend.length} Appending relevantActivityId=${relevantActivityId}`)
                         relevantActivityIds.push(relevantActivityId);
                     }
+
+                    return didIgnore;
                 })
                 moreToFetch = !didIgnore && response.data.length == 200
                 page++

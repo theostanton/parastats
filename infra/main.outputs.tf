@@ -1,6 +1,7 @@
 locals {
   functions_variables = {
     SESSION_SECRET            = random_id.session_secret.b64_std
+    INSTANCE_CONNECTION_NAME  = google_sql_database_instance.instance.connection_name
     DATABASE_HOST             = google_sql_database_instance.instance.public_ip_address
     DATABASE_NAME             = google_sql_database.database.name
     DATABASE_PORT             = 5432
@@ -27,9 +28,9 @@ locals {
     CLIENT_SECRET               = local.CLIENT_SECRET
     TASKS_URL                   = "https://tasks.parastats.info"
     LOCAL_DATABASE_HOST         = "database"
-    LOCAL_DATABASE_USER         = "local"
+    LOCAL_DATABASE_USER         = "functions"
     LOCAL_DATABASE_PASSWORD     = "password"
-    LOCAL_DATABASE_NAME         = "database"
+    LOCAL_DATABASE_NAME         = "local"
     SITE_PORT                   = 80
     TASKS_PORT                  = 3000
     WEBHOOKS_PORT               = 4000

@@ -11,7 +11,7 @@ Content-Type: application/json
 
 
 ### FetchAllActivities
-POST localhost:3000
+POST {{parastats_tasks_base_url}}
 Content-Type: application/json
 
 {
@@ -20,10 +20,10 @@ Content-Type: application/json
 }
 
 ### WingActivity
-POST localhost:3000
+POST {{parastats_tasks_base_url}}
 Content-Type: application/json
 
 {
   "name": "WingActivity",
-  "activityId": 14443993504
+  "activityId": 14590322465
 }

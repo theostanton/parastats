@@ -1,7 +1,6 @@
 import axios from "axios";
 import {Result} from "@model/Result";
 import {User} from "@model/User";
-import {SomeType} from "@common/model/SomeType";
 
 type BaseResponse = {
     success: boolean
@@ -25,7 +24,6 @@ export class ParastatsApi {
     async getSelf(): Promise<Result<User>> {
         console.log(`getSelf baseUrl=${this.baseUrl}`)
 
-        const some: SomeType = {lol: "lil"}
         const response = await axios.get<GetSelfResponse>(this.baseUrl,
             {
                 withCredentials: true,
