@@ -1,14 +1,14 @@
 import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {connect} from "ts-postgres";
 import {setClient} from "./client";
-import {ActivityRow, UserRow} from "./model";
-import {users} from "./users";
-import insert = users.insert;
-import {activities} from "./activities";
-import upsertActivities = activities.upsertActivities;
+import {ActivityRow, PilotRowFull} from "./model";
+import {Pilots} from "./pilots";
+import insert = Pilots.insert;
+import {Activities} from "./activities";
+import upsertActivities = Activities.upsertActivities;
 import {test} from "vitest";
 
-export async function generateContainer(users: UserRow[] = [], activities: ActivityRow[] = []): Promise<StartedPostgreSqlContainer> {
+export async function generateContainer(users: PilotRowFull[] = [], activities: ActivityRow[] = []): Promise<StartedPostgreSqlContainer> {
 
     const container = await new PostgreSqlContainer().start();
     const client = await connect({
@@ -38,11 +38,13 @@ export async function generateContainer(users: UserRow[] = [], activities: Activ
     `)
 
     await client.query(`
-        create table users
+        create table pilots
         (
-            first_name text,
-            token      text,
-            user_id    integer not null
+            first_name           text,
+            strava_access_token  text,
+            strava_refresh_token text,
+            strava_expires_at    timestamptz,
+            user_id              integer not null
                 constraint users_pk
                     primary key
         );

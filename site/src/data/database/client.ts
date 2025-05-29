@@ -6,7 +6,6 @@ export async function getDatabase(): Promise<Client> {
     console.log(`getDatabase() null||closed=${client?.closed} `)
 
     if (!client || client.closed) {
-        await client?.end()
         console.log(`getDatabase() DATABASE_HOST=${process.env.DATABASE_HOST}`)
         client = await connect({
             host: process.env.DATABASE_HOST,

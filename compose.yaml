@@ -10,6 +10,7 @@ services:
       - DATABASE_USER=${LOCAL_DATABASE_USER}
       - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
       - DATABASE_NAME=${LOCAL_DATABASE_NAME}
+      - SESSION_SECRET=${SESSION_SECRET}
       - API_URL="http://api:${API_PORT}"
     volumes:
       - ./site/src:/app/src

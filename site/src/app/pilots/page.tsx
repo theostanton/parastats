@@ -1,10 +1,14 @@
-import {getTakeOffs} from "@database/takeoffs";
 import {getPilots} from "@database/pilots";
+import styles from "@styles/Page.module.css";
+import {Metadata} from "next";
+import {createMetadata} from "@ui/metadata";
+
+export const metadata: Metadata = createMetadata('Pilots')
 
 export default async function PagePilots() {
     const [pilots, errorMessage] = await getPilots();
     if (pilots) {
-        return <div>
+        return <div className={styles.page}>
             {pilots.map(pilot =>
                 <h3 key={pilot.user_id}><a href={`/pilots/${pilot.user_id}`}>{pilot.first_name}</a></h3>
             )}

@@ -1,20 +1,26 @@
 import axios, {AxiosHeaders} from "axios";
-import {StravaActivity, StravaActivitySummary, StravaAthlete} from "./model";
-import {extractWing} from "../utils";
+import {StravaActivitySummary, StravaAthlete} from "./model";
 import {failed, Result, success} from "../model";
-import {getDatabase} from "../database/client";
-import * as stream from "node:stream";
-
-export function getClient(token: string): StravaApi {
-    return new StravaApi(token);
-}
+import {Pilots} from "../database/pilots";
 
 export class StravaApi {
 
     headers: AxiosHeaders;
     token: string;
 
-    constructor(token: string) {
+    static async fromUserId(userId: number): Promise<StravaApi> {
+        const result = await Pilots.getAccessToken(userId);
+        if (result.success) {
+            return new StravaApi(result.value)
+        }
+        throw Error(`No access token for userId=${userId}`)
+    }
+
+    static fromAccessToken(token: string): StravaApi {
+        return new StravaApi(token)
+    }
+
+    private constructor(token: string) {
         this.token = token
         this.headers = new AxiosHeaders();
         this.headers.set('Authorization', `Bearer ${token}`);

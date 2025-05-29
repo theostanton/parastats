@@ -25,6 +25,9 @@
       "@database/*": [
         "./src/data/database/*"
       ],
+      "@auth/*": [
+        "./src/data/auth/*"
+      ],
       "@styles/*": [
         "./src/styles/*"
       ],

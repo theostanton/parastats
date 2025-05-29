@@ -3,7 +3,7 @@ import {StravaAthlete} from "../model/stravaApi/model";
 import axios from "axios";
 import {StravaApi} from "../model/stravaApi";
 import {getDatabase} from "../model/database/client";
-import {UserRow} from "../model/database/model";
+import {PilotRow} from "../model/database/model";
 import trigger from "../tasks/trigger";
 import {sign} from "../jwt";
 
@@ -11,6 +11,8 @@ export async function handleCode(req: Request, res: Response) {
     console.log("handleCode code=", req.query['code'])
     type Response = {
         access_token: string,
+        refresh_token: string,
+        expires_at: number,
         athlete: StravaAthlete
     }
 
@@ -28,28 +30,35 @@ export async function handleCode(req: Request, res: Response) {
     console.log("handleCode body=")
     console.log(body)
 
-    const token = body.access_token
-    const api = new StravaApi(token)
+    const {access_token, refresh_token, expires_at} = body
+    const api = StravaApi.fromAccessToken(access_token)
     const database = await getDatabase()
 
     // Fetch profile
     const athlete = await api.fetchAthlete()
 
     // Save profile to `user` table
-    const result = await database.query<UserRow>(`
-                INSERT INTO users (user_id, first_name, token)
-                VALUES ($1, $2, $3)
+    let expiresAtDate = new Date(expires_at * 1000);
+    await database.query<PilotRow>(`
+                INSERT INTO pilots (user_id,
+                                    first_name,
+                                    strava_access_token,
+                                    strava_refresh_token,
+                                    strava_expires_at)
+                VALUES ($1, $2, $3, $4, $5)
                 ON CONFLICT (user_id)
-                    DO UPDATE SET first_name = $4,
-                                  token      = $5;`,
-        [athlete.id, athlete.firstname, token, athlete.firstname, token]
+                    DO UPDATE SET first_name           = $6,
+                                  strava_access_token  = $7,
+                                  strava_refresh_token = $8,
+                                  strava_expires_at    = $9;`,
+        [athlete.id, athlete.firstname, access_token, refresh_token, expiresAtDate,
+            athlete.firstname, access_token, refresh_token, expiresAtDate]
     )
-    console.log(`Inserted user ${result.rows[0]}`)
+    console.log(`Inserted user`)
 
     await trigger({name: "FetchAllActivities", userId: athlete.id})
 
-    sign(athlete.id,res)
+    sign(athlete.id, res)
 
-    res.redirect('https://parastats.info');
-    // res.status(200).send({status: "OK", action: "handleCode"});
+    res.redirect('https://parastats.info/welcome');
 }

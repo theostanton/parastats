@@ -1,6 +1,7 @@
 import {getPilot} from "@database/pilots";
 import {getActivitiesForPilot} from "@database/activities";
 import Activity from "@ui/Activity";
+import styles from "@styles/Page.module.css";
 
 export default async function PagePilot({params}: {
     params: Promise<{ user_id: number }>
@@ -16,7 +17,7 @@ export default async function PagePilot({params}: {
         return <h1>activitiesErrorMessage={activitiesErrorMessage}</h1>
     }
 
-    return <div>
+    return <div className={styles.page}>
         <h1>{pilot.first_name}</h1>
         {activities.map(activity => <Activity key={activity.activity_id} activity={activity}/>)}
     </div>

@@ -12,6 +12,10 @@ resource "google_cloud_run_v2_service" "site" {
   template {
     containers {
       env {
+        name  = "SESSION_SECRET"
+        value = local.functions_variables.SESSION_SECRET
+      }
+      env {
         name  = "DATABASE_HOST"
         value = "/cloudsql/${local.functions_variables.INSTANCE_CONNECTION_NAME}"
       }

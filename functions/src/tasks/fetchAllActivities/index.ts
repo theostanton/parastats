@@ -2,9 +2,9 @@ import {isFetchAllActivitiesTask, TaskBody, TaskResult} from "../model";
 import {StravaApi} from "../../model/stravaApi";
 import {convertStravaActivity} from "./convertStravaActivities";
 import {getDatabase} from "../../model/database/client";
-import {users} from "../../model/database/users";
-import {activities} from "../../model/database/activities";
-import upsertActivities = activities.upsertActivities;
+import {Pilots} from "../../model/database/pilots";
+import {Activities} from "../../model/database/activities";
+import upsertActivities = Activities.upsertActivities;
 import {StravaActivity} from "../../model/stravaApi/model";
 import axios, {AxiosHeaders} from "axios";
 
@@ -19,7 +19,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     console.log(`Gonna initialise user for userId=${task.userId}`)
 
     // Get user from database
-    const userResult = await users.get(task.userId)
+    const userResult = await Pilots.get(task.userId)
     if (!userResult.success) {
         return {
             success: false,
@@ -28,8 +28,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     }
     const user = userResult.value
 
-    const api = new StravaApi(user.token)
-    console.log(`got api for token=${user.token}`)
+    const api = await StravaApi.fromUserId(user.user_id)
 
     // Get existing activity IDs from database
     const database = await getDatabase()
@@ -38,8 +37,8 @@ export default async function (task: TaskBody): Promise<TaskResult> {
         select a.activity_id as activity_id
         from activities as a
                  inner join users as u
-                            on a.user_id = u.user_id and u.token = $1
-    `, [user.token])
+                            on a.user_id = u.user_id and u.user_id = $1
+    `, [user.user_id])
 
     const existingActivityIds: number[] = [...existingActivityIdsResult].map(a => a.activity_id);
 
@@ -61,7 +60,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
 
     const headers = new AxiosHeaders();
-    headers.set('Authorization', `Bearer ${user.token}`);
+    headers.set('Authorization', `Bearer ${api.token}`);
     for (const activityId of wingedActivityIds) {
         const result = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {headers: headers});
 

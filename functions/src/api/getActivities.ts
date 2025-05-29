@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {extractUserFromJwt} from "../jwt";
-import {activities} from "../model/database/activities";
+import {Activities} from "../model/database/activities";
 
 export async function getActivities(req: Request, res: Response) {
 
@@ -8,7 +8,7 @@ export async function getActivities(req: Request, res: Response) {
     const user = await extractUserFromJwt(req)
     console.log("getActivities user=", user)
 
-    const result = await activities.getAll(user.user_id)
+    const result = await Activities.getAll(user.user_id)
     console.log("getActivities result=", result)
 
     if (result.success) {

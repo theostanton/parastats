@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import {Request, Response} from "express";
-import {users} from "./model/database/users";
-import {UserRow} from "./model/database/model";
+import {Pilots} from "./model/database/pilots";
+import {PilotRow} from "./model/database/model";
 import {failed, Result, success} from "./model/model";
 
 export function generateJwt(userId: number): string {
@@ -9,7 +9,7 @@ export function generateJwt(userId: number): string {
     return jwt.sign(
         {sub: userId, typ: 'session'},
         process.env.SESSION_SECRET!,
-        {expiresIn: '2h', algorithm: 'HS256'}
+        {expiresIn: '7d', algorithm: 'HS256'}
     );
 
 }
@@ -29,15 +29,20 @@ export function sign(userId: number, res: Response): string {
     return jwtToken
 }
 
-export async function verifyJwt(req: Request, res: Response): Promise<Result<UserRow>> {
+export async function verifyJwt(req: Request, res: Response): Promise<Result<PilotRow>> {
+
+    if (!process.env.SESSION_SECRET?.length) {
+        throw Error('Session Secret required');
+    }
+
     try {
         console.log(`verifyJwt`);
 
         const payload = jwt.verify(req.cookies.sid, process.env.SESSION_SECRET!);
         const userId = payload.sub as unknown as number
         console.log(`verifyJwt userId ${userId}`);
-        const result = await users.get(userId);
-        console.log('result',result);
+        const result = await Pilots.get(userId);
+        console.log('result', result);
         if (result.success) {
             return success(result.value)
         }
@@ -48,10 +53,10 @@ export async function verifyJwt(req: Request, res: Response): Promise<Result<Use
     return failed("401")
 }
 
-export async function extractUserFromJwt(req: Request): Promise<UserRow> {
+export async function extractUserFromJwt(req: Request): Promise<PilotRow> {
     const payload = jwt.verify(req.cookies.sid, process.env.SESSION_SECRET!);
     const userId = payload.sub as unknown as number
-    const result = await users.get(userId);
+    const result = await Pilots.get(userId);
     if (result.success) {
         return result.value
     }

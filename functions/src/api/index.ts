@@ -17,10 +17,6 @@ export default async function handler(req: Request, res: Response): Promise<void
     }
     const user = verifyResult.value
 
-    // const database = await getDatabase();
-    // const result = await database.query<UserRow>("SELECT * FROM users")
-    // const users = [...result];
-
     res.status(200).send({"status": "OK", "hello": user.first_name});
 }
 

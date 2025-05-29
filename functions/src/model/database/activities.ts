@@ -2,7 +2,7 @@ import {getDatabase} from "./client";
 import {Failed, failed, Result, Success, success} from "../model";
 import {ActivityRow, DescriptionStatus} from "./model";
 
-export namespace activities {
+export namespace Activities {
     export async function get(activityId: number): Promise<Result<ActivityRow>> {
         const database = await getDatabase()
         const result = await database.query<ActivityRow>(`

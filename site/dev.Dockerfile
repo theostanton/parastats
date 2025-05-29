@@ -20,4 +20,4 @@ COPY tsconfig.json .
 # Note: Don't expose ports here, Compose will handle that for us
 
 # Start Next.js in development mode based on the preferred package manager
-CMD yarn dev
+CMD yarn dev --turbopack

@@ -1,0 +1,30 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    height: 70px;
+}
+
+.space {
+    flex: 1;
+}
+
+.navItem {
+    padding: 1em 2em;
+    height: 70px;
+    justify-content: center;
+    align-self: end;
+}
+
+.navItem:hover {
+    background: #dddddd;
+    cursor: pointer;
+}
+
+.navText {
+    margin: auto;
+    text-align: center;
+}
+
+.navText:hover {
+    color: #666666;
+}

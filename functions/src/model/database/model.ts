@@ -1,7 +1,12 @@
-export type UserRow = {
+export type PilotRow = {
     user_id: number
     first_name: string
-    token: string
+}
+
+export type PilotRowFull = PilotRow & {
+    strava_access_token: string
+    strava_refresh_token: string
+    strava_expires_at: Date
 }
 
 export type DescriptionStatus = "todo" | "failed" | "done";

@@ -1,7 +1,7 @@
 import {TaskResult, isWingActivityTask, TaskBody} from "../model";
 import {generateStats} from "./updateActivityDescription";
-import {activities} from "../../model/database/activities";
-import {users} from "../../model/database/users";
+import {Activities} from "../../model/database/activities";
+import {Pilots} from "../../model/database/pilots";
 import {StravaApi} from "../../model/stravaApi";
 
 export default async function (task: TaskBody): Promise<TaskResult> {
@@ -15,7 +15,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     console.log(`Gonna wing activity for activityId=${task.activityId}`)
 
     // Fetch ActivityRow
-    const result = await activities.get(task.activityId)
+    const result = await Activities.get(task.activityId)
     if (!result.success) {
         return {
             success: false,
@@ -47,14 +47,14 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     console.log()
 
     // Update Strava Activity description
-    const userResult = await users.get(activityRow.user_id)
+    const userResult = await Pilots.get(activityRow.user_id)
     if (!userResult.success) {
         return {
             success: false,
             message: `Couldn't get user for userId=${activityRow.user_id}`
         }
     }
-    const stravaApi = new StravaApi(userResult.value.token)
+    const stravaApi = await StravaApi.fromUserId(userResult.value.user_id)
     const updateDescriptionResult = await stravaApi.updateDescription(activityRow.activity_id, wingedDescription)
     if (!updateDescriptionResult.success) {
         return {
@@ -64,7 +64,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     }
 
     // if success store updated else store failed
-    const updateResult = await activities.updateDescription(task.activityId, wingedDescription, "done")
+    const updateResult = await Activities.updateDescription(task.activityId, wingedDescription, "done")
     if (!updateResult.success) {
         return {
             success: false,

@@ -1,13 +1,13 @@
 import axios from "axios";
 import {Result} from "@model/Result";
-import {User} from "@model/User";
+import {Pilot} from "@model/Pilot";
 
 type BaseResponse = {
     success: boolean
 }
 
 type GetSelfResponse = BaseResponse & {
-    user: User | undefined
+    user: Pilot | undefined
 }
 
 export class ParastatsApi {
@@ -21,7 +21,7 @@ export class ParastatsApi {
     // baseUrl = process.env.API_URL;
     baseUrl = "http://api:81";
 
-    async getSelf(): Promise<Result<User>> {
+    async getSelf(): Promise<Result<Pilot>> {
         console.log(`getSelf baseUrl=${this.baseUrl}`)
 
         const response = await axios.get<GetSelfResponse>(this.baseUrl,
@@ -40,7 +40,7 @@ export class ParastatsApi {
         }
     }
 
-    async getActivities(): Promise<Result<User>> {
+    async getActivities(): Promise<Result<Pilot>> {
         console.log(`getActivities baseUrl=${this.baseUrl}`)
         const response = await axios.get<GetSelfResponse>(`${this.baseUrl}/activities`,
             {

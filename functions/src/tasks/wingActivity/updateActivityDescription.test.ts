@@ -2,7 +2,7 @@ import {afterAll, afterEach, beforeAll, beforeEach, expect, it, test} from "vite
 import {generateContainer} from "../../model/database/generateContainer.test";
 import {StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {end} from "../../model/database/client";
-import {ActivityRow, UserRow} from "../../model/database/model";
+import {ActivityRow, PilotRow} from "../../model/database/model";
 import {
     AggregationResult,
     formatAggregationResult, generateStats,
@@ -25,12 +25,12 @@ function randomDuration(): number {
 
 let container: StartedPostgreSqlContainer
 
-const userRow1: UserRow = {
+const userRow1: PilotRow = {
     user_id: randomBigInt(),
     first_name: "First",
     token: "token1"
 }
-const userRow2: UserRow = {
+const userRow2: PilotRow = {
     user_id: randomBigInt(),
     first_name: "Second",
     token: "token2"
