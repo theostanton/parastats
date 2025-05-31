@@ -1,64 +1,116 @@
 import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {connect} from "ts-postgres";
 import {setClient} from "./client";
-import {ActivityRow, PilotRowFull} from "./model";
-import {Pilots} from "./pilots";
-import insert = Pilots.insert;
-import {Activities} from "./activities";
-import upsertActivities = Activities.upsertActivities;
+import {FlightRow, Landing, PilotRowFull, Takeoff} from "./model";
+import {Pilots} from "./Pilots";
 import {test} from "vitest";
+import {Flights} from "./flights";
+import {Takeoffs} from "./Takeoffs";
+import {Landings} from "./Landings";
+import * as fs from "node:fs";
+import {Mocks} from "./Mocks.test";
 
-export async function generateContainer(users: PilotRowFull[] = [], activities: ActivityRow[] = []): Promise<StartedPostgreSqlContainer> {
 
-    const container = await new PostgreSqlContainer().start();
-    const client = await connect({
-        host: container.getHost(),
-        database: container.getDatabase(),
-        user: container.getUsername(),
-        password: container.getPassword(),
-        port: container.getPort(),
-    })
+export namespace TestContainer {
+    import userRow1 = Mocks.userRow1;
 
-    await client.query(`create type description_status as enum ('todo', 'done', 'failed');`)
-
-    await client.query(`
-        create table activities
-        (
-            user_id            bigint                                                not null,
-            activity_id        bigint                                                not null
-                constraint activities_pk
-                    primary key,
-            wing               text                                                  not null,
-            duration_sec       integer                                               not null,
-            distance_meters    integer                                               not null,
-            start_date         timestamp with time zone                              not null,
-            description_status description_status default 'todo'::description_status not null,
-            description        text                                                  not null
-        );
-    `)
-
-    await client.query(`
-        create table pilots
-        (
-            first_name           text,
-            strava_access_token  text,
-            strava_refresh_token text,
-            strava_expires_at    timestamptz,
-            user_id              integer not null
-                constraint users_pk
-                    primary key
-        );
-    `)
-
-    setClient(client)
-
-    for (const user of users) {
-        await insert(user);
+    export async function generateEmpty(): Promise<StartedPostgreSqlContainer> {
+        return generateContainer()
     }
-    const result = await upsertActivities(activities)
 
-    return container
+    export async function generateFromMocks(): Promise<StartedPostgreSqlContainer> {
+        return generateContainer(
+            [Mocks.userRow1, Mocks.userRow2],
+            [
+                Mocks.user1activity1wing1,
+                Mocks.user2activity1wing1,
+                Mocks.user1activity2wing2,
+                Mocks.user1activity3wing1,
+                Mocks.user1activity4wing1,
+                Mocks.user2activity2wing1
+            ],
+            [
+                Mocks.planpraz,
+                Mocks.forclaz
+            ],
+            [
+                Mocks.leSavoy,
+                Mocks.planpraz
+            ]
+        )
+
+    }
+
+    export async function generateCustom(pilots: PilotRowFull[] = [],
+                                         flights: FlightRow[] = [],
+                                         takeoffs: Takeoff[] = [],
+                                         landings: Landing[] = []
+    ): Promise<StartedPostgreSqlContainer> {
+        return generateCustom(pilots, flights, takeoffs, landings)
+    }
+
+    async function generateContainer(
+        pilots: PilotRowFull[] = [],
+        flights: FlightRow[] = [],
+        takeoffs: Takeoff[] = [],
+        landings: Landing[] = []
+    ): Promise<StartedPostgreSqlContainer> {
+
+        const container = await new PostgreSqlContainer("postgres")
+            .start();
+
+        console.log(`port=${container.getPort()}`)
+        const client = await connect({
+            host: container.getHost(),
+            database: container.getDatabase(),
+            user: container.getUsername(),
+            password: container.getPassword(),
+            port: container.getPort(),
+        })
+
+        const scriptsDir = './src/model/database/scripts/';
+        const createFlightsSql = fs.readFileSync(scriptsDir + 'create_flights.sql', 'utf8');
+        const createPilotsSql = fs.readFileSync(scriptsDir + 'create_pilots.sql', 'utf8');
+        const createTakeoffsLandingsSql = fs.readFileSync(scriptsDir + 'create_takeoffs_landings.sql', 'utf8');
+
+
+        const queries: string[] = [
+            ...createFlightsSql.split(";;;"),
+            ...createPilotsSql.split(";;;"),
+            ...createTakeoffsLandingsSql.split(";;;"),
+        ]
+
+        for await (const query of queries) {
+            try {
+                await client.query(query)
+            } catch (error) {
+                console.error(`Failed to execute query: ${query}`);
+                throw error
+            }
+        }
+
+        setClient(client)
+
+        for (const pilot of pilots) {
+            await Pilots.insert(pilot);
+        }
+        const flightsResult = await Flights.upsert(flights)
+        if (flightsResult.success == false) {
+            throw new Error(`Failed to upsert flights error=${flightsResult.error}`);
+        }
+        await Takeoffs.upsert(takeoffs)
+        await Landings.upsert(landings)
+
+
+        return container
+    }
 }
 
 
-test.skip("", {})
+test("generateEmpty()", async () => {
+    await TestContainer.generateEmpty()
+})
+
+test("generateFromMocks()", async () => {
+    await TestContainer.generateFromMocks()
+})

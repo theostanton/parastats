@@ -1,8 +1,8 @@
 import {TaskResult, isWingActivityTask, TaskBody} from "../model";
 import {generateStats} from "./updateActivityDescription";
-import {Activities} from "../../model/database/activities";
-import {Pilots} from "../../model/database/pilots";
+import {Pilots} from "../../model/database/Pilots";
 import {StravaApi} from "../../model/stravaApi";
+import {Flights} from "../../model/database/flights";
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isWingActivityTask(task)) {
@@ -12,23 +12,27 @@ export default async function (task: TaskBody): Promise<TaskResult> {
         }
     }
 
-    console.log(`Gonna wing activity for activityId=${task.activityId}`)
+    console.log(`Gonna wing activity for activityId=${task.flightId}`)
 
     // Fetch ActivityRow
-    const result = await Activities.get(task.activityId)
+    const result = await Flights.get(task.flightId)
     if (!result.success) {
         return {
             success: false,
-            message: `No activity rows for activityId=${task.activityId}`
+            message: `No activity rows for activityId=${task.flightId}`
         }
     }
     const activityRow = result.value
 
-
-    // const type: SomeType = {lol: "lil"}
-
     // Generate stats
     const stats = await generateStats(activityRow)
+
+    if (stats == null) {
+        console.log("Skipping because stats==null")
+        return {
+            success: true,
+        }
+    }
 
     // Check description is already winged
     const alreadyWinged = activityRow.description.includes("🌐 parastats.info")
@@ -47,15 +51,15 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     console.log()
 
     // Update Strava Activity description
-    const userResult = await Pilots.get(activityRow.user_id)
+    const userResult = await Pilots.get(activityRow.pilot_id)
     if (!userResult.success) {
         return {
             success: false,
-            message: `Couldn't get user for userId=${activityRow.user_id}`
+            message: `Couldn't get user for userId=${activityRow.pilot_id}`
         }
     }
-    const stravaApi = await StravaApi.fromUserId(userResult.value.user_id)
-    const updateDescriptionResult = await stravaApi.updateDescription(activityRow.activity_id, wingedDescription)
+    const stravaApi = await StravaApi.fromUserId(userResult.value.pilot_id)
+    const updateDescriptionResult = await stravaApi.updateDescription(activityRow.pilot_id, wingedDescription)
     if (!updateDescriptionResult.success) {
         return {
             success: false,
@@ -64,7 +68,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     }
 
     // if success store updated else store failed
-    const updateResult = await Activities.updateDescription(task.activityId, wingedDescription, "done")
+    const updateResult = await Flights.updateDescription(task.flightId, wingedDescription, "done")
     if (!updateResult.success) {
         return {
             success: false,

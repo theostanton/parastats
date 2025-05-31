@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
-import {extractUserFromJwt} from "../jwt";
+import {extractPilotFromJwt} from "../jwt";
 
 export async function getSelf(req: Request, res: Response) {
-    const user = await extractUserFromJwt(req)
+    const user = await extractPilotFromJwt(req)
     res.status(200).json({user});
 }

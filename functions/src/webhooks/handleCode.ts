@@ -40,13 +40,13 @@ export async function handleCode(req: Request, res: Response) {
     // Save profile to `user` table
     let expiresAtDate = new Date(expires_at * 1000);
     await database.query<PilotRow>(`
-                INSERT INTO pilots (user_id,
+                INSERT INTO pilots (pilot_id,
                                     first_name,
                                     strava_access_token,
                                     strava_refresh_token,
                                     strava_expires_at)
                 VALUES ($1, $2, $3, $4, $5)
-                ON CONFLICT (user_id)
+                ON CONFLICT (pilot_id)
                     DO UPDATE SET first_name           = $6,
                                   strava_access_token  = $7,
                                   strava_refresh_token = $8,
@@ -56,7 +56,7 @@ export async function handleCode(req: Request, res: Response) {
     )
     console.log(`Inserted user`)
 
-    await trigger({name: "FetchAllActivities", userId: athlete.id})
+    await trigger({name: "FetchAllActivities", pilotId: athlete.id})
 
     sign(athlete.id, res)
 

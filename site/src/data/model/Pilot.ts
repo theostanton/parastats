@@ -1,4 +1,5 @@
 export type Pilot = {
     first_name: string,
-    user_id: number
+    pilot_id: StravaAthleteId
 }
+export type StravaAthleteId = number

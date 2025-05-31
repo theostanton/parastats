@@ -1,33 +1,33 @@
 import {expect, test} from "vitest";
 import {end} from "./client";
-import {Pilots} from "./pilots";
+import {Pilots} from "./Pilots";
 import {Success} from "../model";
-import {generateContainer} from "./generateContainer.test";
 import {PilotRow, PilotRowFull} from "./model";
+import {TestContainer} from "./generateContainer.test";
 
 test('Test insert() / get() / getToken()', async () => {
 
-    const container = await generateContainer()
+    const container = await TestContainer.generateEmpty()
 
     const expiresAt = new Date(2000, 1, 2, 3, 4)
 
-    const user: PilotRowFull = {
-        user_id: 123,
+    const pilot: PilotRowFull = {
+        pilot_id: 123,
         strava_access_token: "access_token",
         strava_refresh_token: "refresh_token",
         strava_expires_at: expiresAt,
         first_name: "Some name"
     }
 
-    await Pilots.insert(user)
+    await Pilots.insert(pilot)
 
-    const userResult = await Pilots.getFull(user.user_id)
+    const userResult = await Pilots.getFull(pilot.pilot_id)
     expect(userResult).toBeInstanceOf(Success<PilotRow>)
-    expect(userResult).toStrictEqual(new Success(user))
+    expect(userResult).toStrictEqual(new Success(pilot))
 
-    const tokenResult = await Pilots.getAccessToken(user.user_id)
+    const tokenResult = await Pilots.getAccessToken(pilot.pilot_id)
     expect(userResult).toBeInstanceOf(Success<string>)
-    expect(tokenResult).toStrictEqual(new Success(user.strava_access_token))
+    expect(tokenResult).toStrictEqual(new Success(pilot.strava_access_token))
 
     await end()
     await container.stop()

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google-cloud/tasks": "^6.0.1",
+    "@googlemaps/polyline-codec": "^1.0.28",
     "axios": "^1.8.4",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
@@ -21,10 +22,10 @@
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^10.24.2",
+    "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/cookie-parser": "^1.4.8",
-    "testcontainers": "^10.24.2",
+    "testcontainers": "^11.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"

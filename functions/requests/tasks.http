@@ -16,7 +16,7 @@ Content-Type: application/json
 
 {
   "name": "FetchAllActivities",
-  "userId": 4142500
+  "pilotId": 4142500
 }
 
 ### WingActivity

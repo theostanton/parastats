@@ -1,6 +1,8 @@
 import fetchAllActivities from "./fetchAllActivities";
 import wingActivity from "./wingActivity";
 import helloWorld from "./helloWorld";
+import {FlightRow} from "../model/database/model";
+import {StravaActivityId} from "../model/stravaApi/model";
 
 export type TaskResult = TaskSuccess | TaskFailure
 
@@ -30,20 +32,20 @@ export function isHelloWorldTask(body: TaskBody): body is HelloWorldTask {
 
 export type FetchAllActivitiesTask = {
     name: "FetchAllActivities";
-    userId: number
+    pilotId: number
 }
 
 export function isFetchAllActivitiesTask(body: TaskBody): body is FetchAllActivitiesTask {
-    return (body as FetchAllActivitiesTask).userId !== undefined;
+    return (body as FetchAllActivitiesTask).pilotId !== undefined;
 }
 
 export type WingActivityTask = {
     name: "WingActivity";
-    activityId: number
+    flightId: StravaActivityId
 }
 
 export function isWingActivityTask(body: TaskBody): body is WingActivityTask {
-    return (body as WingActivityTask).activityId !== undefined;
+    return (body as WingActivityTask).flightId !== undefined;
 }
 
 export const taskHandlers: Record<TaskName, TaskHandler> = {

@@ -1,17 +1,18 @@
-import {getActivities} from "@database/activities";
-import Activity from "@ui/Activity";
+import {getFlights} from "@database/flights";
+import Activity from "@ui/FlightItem";
 import styles from "@styles/Page.module.css";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
+import FlightItem from "@ui/FlightItem";
 
 export const metadata: Metadata = createMetadata('Flights')
 
 export default async function PageActivities() {
-    const [activities, errorMessage] = await getActivities();
-    if (activities) {
+    const [flights, errorMessage] = await getFlights();
+    if (flights) {
         return <div className={styles.page}>
-            {activities.map(activity =>
-                <Activity key={activity.activity_id} activity={activity}/>
+            {flights.map(flight =>
+                <FlightItem key={flight.strava_activity_id} flight={flight}/>
             )}
         </div>
     } else {

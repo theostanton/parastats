@@ -3,8 +3,8 @@ import {verifyJwt} from "../jwt";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import {getSelf} from "./getSelf";
-import {getActivities} from "./getActivities";
-import {getActivity} from "./getActivity";
+import {getFlights} from "./getFlights";
+import {getFlight} from "./getFlight";
 import {generateToken} from "./generateToken";
 import {getTakeOff} from "./getTakeOff";
 
@@ -26,7 +26,8 @@ const jsonParser = bodyParser.json({})
 const app = express();
 app.use('/token/', generateToken);
 app.use(jsonParser)
-app.use('/activities/:id', getTakeOff);
+app.use('/takeoffs/:id', getTakeOff);
+app.use('/landings/:id', getTakeOff);
 app.use(cookieParser())
 app.use(async (req, res, next) => {
     console.log(`verifying req.cookies.sid=${req.cookies.sid}`)
@@ -39,8 +40,8 @@ app.use(async (req, res, next) => {
     }
 });
 
-app.use('/activities', getActivities);
-app.use('/activities/:id', getActivity);
+app.use('/flights', getFlights);
+app.use('/flights/:id', getFlight);
 app.use(getSelf);
 
 export {app};

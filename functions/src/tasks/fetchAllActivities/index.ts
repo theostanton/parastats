@@ -1,12 +1,12 @@
 import {isFetchAllActivitiesTask, TaskBody, TaskResult} from "../model";
 import {StravaApi} from "../../model/stravaApi";
-import {convertStravaActivity} from "./convertStravaActivities";
 import {getDatabase} from "../../model/database/client";
-import {Pilots} from "../../model/database/pilots";
-import {Activities} from "../../model/database/activities";
-import upsertActivities = Activities.upsertActivities;
-import {StravaActivity} from "../../model/stravaApi/model";
+import {Pilots} from "../../model/database/Pilots";
+import {Flights} from "../../model/database/flights";
+import {StravaActivity, StravaActivityId} from "../../model/stravaApi/model";
 import axios, {AxiosHeaders} from "axios";
+import {FlightRow} from "../../model/database/model";
+import {StravaActivityToFlightConverter} from "./StravaActivityToFlightConverter";
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isFetchAllActivitiesTask(task)) {
@@ -16,56 +16,56 @@ export default async function (task: TaskBody): Promise<TaskResult> {
         }
     }
 
-    console.log(`Gonna initialise user for userId=${task.userId}`)
+    console.log(`Gonna initialise pilot for pilotId=${task.pilotId}`)
 
-    // Get user from database
-    const userResult = await Pilots.get(task.userId)
-    if (!userResult.success) {
+    // Get pilot from database
+    const pilotResult = await Pilots.get(task.pilotId)
+    if (!pilotResult.success) {
         return {
             success: false,
-            message: `No user with id ${task.userId}`,
+            message: `No pilot with id ${task.pilotId}`,
         }
     }
-    const user = userResult.value
+    const pilot = pilotResult.value
 
-    const api = await StravaApi.fromUserId(user.user_id)
+    const api = await StravaApi.fromUserId(pilot.pilot_id)
 
     // Get existing activity IDs from database
     const database = await getDatabase()
-    type ExistingActivityId = { activity_id: number }
-    const existingActivityIdsResult = await database.query<ExistingActivityId>(`
-        select a.activity_id as activity_id
-        from activities as a
-                 inner join users as u
-                            on a.user_id = u.user_id and u.user_id = $1
-    `, [user.user_id])
+    type ExistingStravaActivityId = Pick<FlightRow, 'strava_activity_id'>
+    console.log('Gonna fetch existingActivityIds')
+    const existingActivityIdsResult = await database.query<ExistingStravaActivityId>(`
+        select f.strava_activity_id as strava_activity_id
+        from flights as f
+        where pilot_id = $1
+    `, [pilot.pilot_id])
+    console.log(`Fetched existingActivityIdsResult=${JSON.stringify(existingActivityIdsResult)}`)
 
-    const existingActivityIds: number[] = [...existingActivityIdsResult].map(a => a.activity_id);
+    const existingActivityIds: StravaActivityId[] = [...existingActivityIdsResult].map(a => a.strava_activity_id);
 
     // Fetch activities
-    const fetchWingedActivityIdsResult = await api.fetchWingedActivityIds(1000, existingActivityIds)
+    const paraglidingActivityIdsResult = await api.fetchParaglidingActivityIds(1000, existingActivityIds)
 
-    if (!fetchWingedActivityIdsResult.success) {
+    if (!paraglidingActivityIdsResult.success) {
         return {
             success: false,
-            message: `fetchWingedActivities failed: ${fetchWingedActivityIdsResult.error}`
+            message: `fetchParaglidingActivityIds failed: ${paraglidingActivityIdsResult.error}`
         }
     }
-    const wingedActivityIds: number[] = fetchWingedActivityIdsResult.value
+    const paraglidingActivityIds: StravaActivityId[] = paraglidingActivityIdsResult.value
 
-    // Process winged activity IDs
+    // Process paragliding activity IDs
     // 1. Fetch full Strava Activity
-    // 2. Store to activities table
-    const storedActivities: StravaActivity[] = []
-
+    // 2. Store to flights table
+    const storedFlights: FlightRow[] = []
 
     const headers = new AxiosHeaders();
     headers.set('Authorization', `Bearer ${api.token}`);
-    for (const activityId of wingedActivityIds) {
+    for (const activityId of paraglidingActivityIds) {
         const result = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {headers: headers});
 
         if (result.status == 429) {
-            let errorMessage = `Got rate limited after ${storedActivities.length} activities`;
+            let errorMessage = `Got rate limited after ${storedFlights.length} activities`;
             console.log(errorMessage);
             return {
                 success: false,
@@ -74,24 +74,22 @@ export default async function (task: TaskBody): Promise<TaskResult> {
         }
 
         const stravaActivity = result.data;
-        const activityRow = convertStravaActivity(user.user_id, stravaActivity)
-        if (activityRow) {
-            const insertActivityResult = await upsertActivities([activityRow])
-            if (!insertActivityResult.success) {
+        const conversionResult = await StravaActivityToFlightConverter.convert(pilot.pilot_id, stravaActivity)
+        if (conversionResult.success) {
+            const flightRow = conversionResult.value
+            const upsertResult = await Flights.upsert([flightRow])
+            if (!upsertResult.success) {
                 return {
                     success: false,
-                    message: `upsertActivities failed for row=${activityRow} error=${insertActivityResult.error}`
+                    message: `Flights.upsert failed for row=${JSON.stringify(flightRow)} error=${upsertResult.error}`
                 }
             }
-            storedActivities.push(stravaActivity)
-            console.log(`Appended ${storedActivities.length}/${wingedActivityIds.length}`);
+            storedFlights.push(flightRow)
+            console.log(`Appended ${storedFlights.length}/${paraglidingActivityIds.length}`);
         } else {
-            console.log(`Skipped id=${stravaActivity.id} title=${stravaActivity.name} description=${stravaActivity.description}`);
+            console.log(`Failed id=${stravaActivity.id} title=${stravaActivity.name} error=${conversionResult.error}`);
         }
     }
-
-    // Once succesful,
-    //TODO
 
     return {
         success: true

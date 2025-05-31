@@ -1,5 +1,10 @@
+import {StravaActivityId, StravaAthleteId} from "../stravaApi/model";
+
+export type LatLng = [lat: number, lng: number]
+export type Polyline = LatLng[]
+
 export type PilotRow = {
-    user_id: number
+    pilot_id: StravaAthleteId
     first_name: string
 }
 
@@ -11,13 +16,31 @@ export type PilotRowFull = PilotRow & {
 
 export type DescriptionStatus = "todo" | "failed" | "done";
 
-export type ActivityRow = {
-    user_id: number
-    activity_id: number
+export type     FlightRow = {
+    pilot_id: StravaAthleteId
+    strava_activity_id: StravaActivityId
     wing: string
     duration_sec: number
     distance_meters: number
     start_date: Date
-    description_status: DescriptionStatus
     description: string
+    polyline: Polyline
+    landing_id: string | undefined
+    takeoff_id: string | undefined
+}
+
+export type Takeoff = {
+    slug: string,
+    name: string,
+    lat: number,
+    lng: number,
+    alt: number
+}
+
+export type Landing = {
+    slug: string,
+    name: string,
+    lat: number,
+    lng: number,
+    alt: number
 }

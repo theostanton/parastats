@@ -10,7 +10,7 @@ export default async function PagePilots() {
     if (pilots) {
         return <div className={styles.page}>
             {pilots.map(pilot =>
-                <h3 key={pilot.user_id}><a href={`/pilots/${pilot.user_id}`}>{pilot.first_name}</a></h3>
+                <h3 key={pilot.pilot_id}><a href={`/pilots/${pilot.pilot_id}`}>{pilot.first_name}</a></h3>
             )}
         </div>
     } else {

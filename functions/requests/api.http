@@ -9,7 +9,7 @@ Cookie: sid={{jwt}};
 Content-Type: application/json
 
 ### Generate token
-GET {{parastats_api_base_url}}/token?user_id=4142500
+GET {{parastats_api_base_url}}/token?pilot_id=4142500
 Cookie: sid={{jwt}};
 Content-Type: application/json
 

@@ -59,7 +59,7 @@ services:
 
   api:
     container_name: api
-    restart: always
+    restart: no
     build:
       context: ./functions
       dockerfile: dev.Dockerfile
@@ -70,6 +70,8 @@ services:
       - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
       - DATABASE_NAME=${LOCAL_DATABASE_NAME}
       - SESSION_SECRET=${SESSION_SECRET}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
     volumes:
       - ./functions/src:/app/src
     expose:
@@ -90,17 +92,6 @@ services:
       - '5432:5432'
     volumes:
       - database:/var/lib/postgresql/data/
-    command:
-      - 'postgres'
-      - '-c'
-      - 'wal_level=logical'
-      - '-c'
-      - 'max_wal_senders=10'
-      - '-c'
-      - 'max_replication_slots=10'
-      - '-c'
-      - 'log_error_verbosity=TERSE'
-
 
 volumes:
   database:

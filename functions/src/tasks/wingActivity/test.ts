@@ -5,7 +5,7 @@ import {FetchAllActivitiesTask, WingActivityTask} from "../model";
 test("wingActivity success", async () => {
     const input: WingActivityTask = {
         name: "WingActivity",
-        activityId: 123,
+        flightId: "123",
     }
     const result = await wingActivity(input)
     expect(result.success).toEqual(true)
@@ -14,7 +14,7 @@ test("wingActivity success", async () => {
 test("wingActivity fail on invalid body", async () => {
     const input: FetchAllActivitiesTask = {
         name: "FetchAllActivities",
-        userId: 123
+        pilotId: 123
     }
     const result = await wingActivity(input)
     expect(result.success).toEqual(false)

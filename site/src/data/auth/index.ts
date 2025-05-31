@@ -1,6 +1,7 @@
 import {failure, Result, success} from "@model/Result";
 import {jwtVerify} from "jose";
 import {cookies} from "next/headers";
+import {StravaAthleteId} from "@model/Pilot";
 
 export namespace Auth {
 
@@ -9,17 +10,17 @@ export namespace Auth {
         console.assert(_cookies.has("sid"), "Is not authed")
     }
 
-    export async function getSelfPilotId(): Promise<number> {
+    export async function getSelfPilotId(): Promise<StravaAthleteId> {
         await assert()
         const _cookies = await cookies();
         const jwt = _cookies.get('sid').value
 
-        const [userId, error] = await verifyJwt(jwt)
+        const [pilotId, error] = await verifyJwt(jwt)
         if (error) {
-            throw new Error("getSelfUserId Failed to get user id")
+            throw new Error("getSelfPilotId Failed to get pilotId")
         }
 
-        return userId
+        return pilotId
     }
 
 

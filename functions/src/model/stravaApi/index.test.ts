@@ -1,6 +1,6 @@
 import {beforeAll, expect, it, test} from "vitest";
 import {StravaApi} from "./index";
-import {Pilots} from "../database/pilots";
+import {Pilots} from "../database/Pilots";
 import getToken = Pilots.getAccessToken;
 
 
@@ -16,8 +16,8 @@ beforeAll(async () => {
 })
 
 test.skip('Test fetchWingedActivities', async () => {
-    const api = StravaApi.fromAccessToken(token)
-    const result = await api.fetchWingedActivityIds()
+    const api = StravaApi.fromAccessToken(token!!)
+    const result = await api.fetchParaglidingActivityIds()
     expect(result.success).toEqual(true)
     if (result.success) {
         expect(result.value.length).toEqual(5)
@@ -25,7 +25,7 @@ test.skip('Test fetchWingedActivities', async () => {
 }, {timeout: 60_000})
 
 test.skip('Test fetchAthlete', async () => {
-    const api = StravaApi.fromAccessToken(token)
+    const api = StravaApi.fromAccessToken(token!!)
 
     const athlete = await api.fetchAthlete()
 

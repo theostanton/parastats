@@ -4,7 +4,7 @@ create table pilots
     strava_access_token  text,
     strava_refresh_token text,
     strava_expires_at    timestamptz,
-    user_id              integer not null
+    pilot_id             text not null
         constraint users_pk
             primary key
-);
+);;;

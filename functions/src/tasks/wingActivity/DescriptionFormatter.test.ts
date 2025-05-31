@@ -5,7 +5,7 @@ import {FetchAllActivitiesTask, WingActivityTask} from "../model";
 test("wingActivity success", async () => {
     const input: WingActivityTask = {
         name: "WingActivity",
-        activityId: 123,
+        flightId: "123",
     }
     const result = await wingActivity(input)
     expect(result.success).toEqual(false)

@@ -1,7 +1,7 @@
 import axios, {AxiosHeaders} from "axios";
-import {StravaActivitySummary, StravaAthlete} from "./model";
+import {StravaActivityId, StravaActivitySummary, StravaAthlete} from "./model";
 import {failed, Result, success} from "../model";
-import {Pilots} from "../database/pilots";
+import {Pilots} from "../database/Pilots";
 
 export class StravaApi {
 
@@ -13,7 +13,7 @@ export class StravaApi {
         if (result.success) {
             return new StravaApi(result.value)
         }
-        throw Error(`No access token for userId=${userId}`)
+        throw new Error(`No access token for userId=${userId}`)
     }
 
     static fromAccessToken(token: string): StravaApi {
@@ -55,10 +55,10 @@ export class StravaApi {
         }
     }
 
-    async fetchWingedActivityIds(limit: number = 10000, ignoreActivityIds: number[] = []): Promise<Result<number[]>> {
+    async fetchParaglidingActivityIds(limit: number = 10000, ignoreActivityIds: StravaActivityId[] = []): Promise<Result<StravaActivityId[]>> {
         console.log(`fetchWingedActivityIds() limit=${limit} ignoreActivityIds=${ignoreActivityIds}`);
         try {
-            let relevantActivityIds: number[] = []
+            let relevantActivityIds: StravaActivityId[] = []
             let moreToFetch = true
             let page = 1
             while (moreToFetch && relevantActivityIds.length < limit) {
@@ -87,7 +87,7 @@ export class StravaApi {
 
                     return didIgnore;
                 })
-                moreToFetch = !didIgnore && response.data.length == 200
+                moreToFetch = response.data.length == 200
                 page++
             }
 

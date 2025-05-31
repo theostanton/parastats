@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import {Request, Response} from "express";
-import {Pilots} from "./model/database/pilots";
+import {Pilots} from "./model/database/Pilots";
 import {PilotRow} from "./model/database/model";
 import {failed, Result, success} from "./model/model";
 
@@ -32,7 +32,7 @@ export function sign(userId: number, res: Response): string {
 export async function verifyJwt(req: Request, res: Response): Promise<Result<PilotRow>> {
 
     if (!process.env.SESSION_SECRET?.length) {
-        throw Error('Session Secret required');
+        throw new Error('Session Secret required');
     }
 
     try {
@@ -53,7 +53,7 @@ export async function verifyJwt(req: Request, res: Response): Promise<Result<Pil
     return failed("401")
 }
 
-export async function extractUserFromJwt(req: Request): Promise<PilotRow> {
+export async function extractPilotFromJwt(req: Request): Promise<PilotRow> {
     const payload = jwt.verify(req.cookies.sid, process.env.SESSION_SECRET!);
     const userId = payload.sub as unknown as number
     const result = await Pilots.get(userId);
