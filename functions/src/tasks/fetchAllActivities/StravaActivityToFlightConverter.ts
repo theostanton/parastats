@@ -1,15 +1,14 @@
 import {StravaActivity, StravaAthleteId} from "../../model/stravaApi/model";
 import {FlightRow, LatLng, Polyline} from "../../model/database/model";
 import {decode, LatLngTuple} from "@googlemaps/polyline-codec";
-import {Takeoffs} from "../../model/database/Takeoffs";
-import {Landings} from "../../model/database/Landings";
 import {Result} from "../../model/model";
+import {Sites} from "../../model/database/Sites";
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 type FlightRowInitial = Optional<FlightRow, 'polyline'>
 type FlightRowGeoData = Pick<FlightRow, 'polyline'>
-type FlightRowLandingTakeOffIds = Pick<FlightRow, 'takeoff_id' | 'landing_id'>
+type FlightRowSiteIds = Pick<FlightRow, 'takeoff_id' | 'landing_id'>
 
 export class StravaActivityToFlightConverter {
     static async convert(pilotId: StravaAthleteId, stravaActivity: StravaActivity): Promise<Result<FlightRow>> {
@@ -43,11 +42,14 @@ export class StravaActivityToFlightConverter {
 
         const geoResult = extractGeoData(stravaActivity)
 
-        if (geoResult.success == false) {
-            return geoResult
+        if (!geoResult.success) {
+            return {
+                success: false,
+                error: `Couldn't extractGeoData error=${geoResult.error}`
+            }
         }
 
-        const takeoffLandingIds = await associateTakeoffLandingIds(geoResult.value.polyline)
+        const takeoffLandingIds = await associateSiteIds(geoResult.value.polyline)
 
         const value: FlightRow = {
             ...initial,
@@ -64,13 +66,13 @@ export class StravaActivityToFlightConverter {
 
 }
 
-export async function associateTakeoffLandingIds(polyline: Polyline): Promise<FlightRowLandingTakeOffIds> {
+export async function associateSiteIds(polyline: Polyline): Promise<FlightRowSiteIds> {
 
     const takeoffPoint = polyline[0]
     const landingPoint = polyline[polyline.length - 1]
 
-    const takeoff_slug: string | null = await Takeoffs.getSlugOfClosest(takeoffPoint)
-    const landing_slug: string | null = await Landings.getSlugOfClosest(landingPoint)
+    const takeoff_slug: string | null = await Sites.getIdOfCloset(takeoffPoint)
+    const landing_slug: string | null = await Sites.getIdOfCloset(landingPoint)
 
     return {
         takeoff_id: takeoff_slug ? takeoff_slug : undefined,

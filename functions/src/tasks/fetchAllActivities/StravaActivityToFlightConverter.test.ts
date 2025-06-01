@@ -1,5 +1,5 @@
 import {expect, test} from "vitest";
-import {StravaActivity, StravaActivityId} from "../../model/stravaApi/model";
+import {StravaActivity, StravaActivityId, StravaAthleteId} from "../../model/stravaApi/model";
 import {StravaActivityToFlightConverter} from "./StravaActivityToFlightConverter";
 import {TestContainer} from "../../model/database/generateContainer.test";
 import {LatLng} from "../../model/database/model";
@@ -9,10 +9,10 @@ test('StravaActivityToFlightConverter.convert() ', async () => {
 
     const container = await TestContainer.generateEmpty()
 
-    const pilotId: StravaActivityId = Math.random()
+    const pilotId: StravaAthleteId = Math.random()
 
     const input: StravaActivity = {
-        id: Math.random(),
+        id: Math.random().toString(),
         name: "Theo",
         distance: Math.random(),
         type: "AlpineSki",

@@ -1,6 +1,5 @@
 import {expect, test} from "vitest";
-import {FetchAllActivitiesTask, WingActivityTask} from "../model";
-import initialiseUser from "./index";
+import initialiseUser, {FetchAllActivitiesTask} from "./index";
 
 test("fetchAllActivities success", async () => {
     const input: FetchAllActivitiesTask = {

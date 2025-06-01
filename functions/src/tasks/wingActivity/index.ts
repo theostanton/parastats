@@ -51,7 +51,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     let wingedDescription: string
     if (alreadyWinged) {
         console.log("Updating")
-        wingedDescription = activityRow.description.replace(/🪂[\s\S]*parastats.info/, stats)
+        wingedDescription = activityRow.description.replace(/(?:[🪂↘️↗️])[\s\S]*parastats.info/, stats)
     } else {
         console.log("Appending")
         wingedDescription = activityRow.description.replace(`🪂 ${activityRow.wing}`, stats)

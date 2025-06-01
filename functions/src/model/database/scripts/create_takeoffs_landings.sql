@@ -7,7 +7,7 @@ create table windsocks
     lat       double precision not null,
     lng       double precision not null,
     alt       integer          not null
-);
+);;;
 
 create type site_type as enum ('Takeoff','Landing');;;
 

@@ -2,6 +2,7 @@ import {expect, test} from "vitest";
 import {TestContainer} from "./generateContainer.test";
 import {Site} from "./model";
 import {Sites} from "./Sites";
+import {Mocks} from "./Mocks.test";
 
 
 test('Sites.upsert() ', async () => {
@@ -28,4 +29,17 @@ test('Sites.upsert() ', async () => {
     expect(upsertResult.success).toEqual(true)
 
     await container.stop()
+})
+
+test('Takeoffs.getSlugOfClosest() ', async () => {
+    const container = await TestContainer.generateEmpty()
+
+    await Sites.upsert([Mocks.planpraz, Mocks.forclaz])
+
+    const result = await Sites.getIdOfCloset(Mocks.home)
+
+    expect(result).toEqual(Mocks.planpraz.slug)
+
+    await container.stop()
+
 })

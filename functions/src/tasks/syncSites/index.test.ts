@@ -1,6 +1,7 @@
 import {expect, test} from "vitest";
-import initialiseUser, {convertToSite, FfvlSite} from "./index";
+import initialiseUser, {convertToSite} from "./index";
 import {Site} from "../../model/database/model";
+import {FfvlSite} from "../../model/ffvlApi";
 
 
 const convertCases: [title: string, input: FfvlSite, expected: Site][] = [
@@ -23,7 +24,8 @@ const convertCases: [title: string, input: FfvlSite, expected: Site][] = [
             type: null,
             polygon: [[1.1, 1.2], [2.1, 2.2], [3.1, 3.2]],
             ffvl_sid: "sid",
-            name: "Some name"
+            name: "Some name",
+            nearest_balise_id: null,
         }
     ],
     [
@@ -35,7 +37,7 @@ const convertCases: [title: string, input: FfvlSite, expected: Site][] = [
             flying_functions_text: null,
             terrain_polygon: undefined,
             suid: "sid",
-            toponym: "Some name",
+            toponym: "Some name"
         },
         {
             slug: "some-name",
@@ -45,12 +47,13 @@ const convertCases: [title: string, input: FfvlSite, expected: Site][] = [
             type: null,
             polygon: null,
             ffvl_sid: "sid",
-            name: "Some name"
+            name: "Some name",
+            nearest_balise_id: null,
         }
     ]
 ]
 
 test.each(convertCases)('convertToSite(%s)', (_, input, expected) => {
-    const actual = convertToSite(input)
+    const actual = convertToSite(input, [])
     expect(actual).toEqual(expected)
 })

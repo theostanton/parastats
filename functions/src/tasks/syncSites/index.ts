@@ -6,27 +6,10 @@ import {Windsocks} from "../../model/database/Windsocks";
 
 import getDistance from "@turf/distance"
 import {Coord, Units} from "@turf/helpers"
+import {FfvlBalise, FfvlSite} from "../../model/ffvlApi";
 
 export type SyncSitesTask = {
     name: "SyncSites";
-}
-
-export type FfvlBalise = {
-    nom: string
-    idBalise: string,
-    latitude: string
-    longitude: string
-    altitude: string
-}
-
-export type FfvlSite = {
-    suid: string,
-    latitude: string
-    longitude: string
-    altitude: string
-    terrain_polygon: string | undefined
-    toponym: string
-    flying_functions_text: string | null
 }
 
 export function isSyncSitesTask(body: TaskBody): body is SyncSitesTask {

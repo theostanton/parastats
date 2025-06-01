@@ -1,6 +1,8 @@
-import {FlightRow} from "../../model/database/model";
+import {FlightRow, SiteType} from "../../model/database/model";
 import {getDatabase} from "../../model/database/client";
 import {Client} from "ts-postgres";
+import {FFVL} from "../../model/ffvlApi";
+import {WindDirection} from "../../model/ffvlApi/model";
 
 export type AggregationResult = {
     count: number
@@ -46,21 +48,49 @@ export class DescriptionFormatter {
         this.lines.push(`${this.wingPrefix.padEnd(this.maxLength, " ")}${formatAggregationResult(values)}`)
     }
 
+    async generateTakeoffLandingLine(siteType: SiteType, siteName: string, baliseId: string | undefined): Promise<string> {
+
+        const prefix = siteType == SiteType.takeoff ? "↗️" : "↘️"
+        const date = siteType == SiteType.takeoff ? this.flightRow.start_date : this.flightRow.start_date
+
+        if (baliseId) {
+            const result = await FFVL.getReport(baliseId, date)
+
+            if (result.success) {
+                const report = result.value
+                return `${prefix} ${siteName} ${report.windKmh}kmh/${report.gustKmh}kmh ${WindDirection[report.direction]}`
+            }
+        }
+
+        return `${prefix} ${siteName}`
+    }
+
     async appendTakeOffAndLanding() {
 
-        type Row = { landing: string, takeoff: string }
+        type Row = {
+            landing_name: string,
+            landing_balise_id: string | undefined,
+            takeoff_name: string,
+            takeoff_balise_id: string | undefined
+        }
         const result = await this.client.query<Row>(`
-            select t.name as takeoff, l.name as landing
+            select t.name              as takeoff_name,
+                   t.nearest_balise_id as takeoff_balise_id,
+                   l.name              as landing_name,
+                   l.nearest_balise_id as landing_balise_id
             from flights as f
-                     inner join takeoffs as t on f.takeoff_id = t.slug
-                     inner join landings as l on f.landing_id = l.slug
+                     inner join sites as t on f.takeoff_id = t.ffvl_sid
+                     inner join sites as l on f.landing_id = l.ffvl_sid
             where strava_activity_id = $1
         `, [this.flightRow.strava_activity_id])
 
         const row = result.rows[0].reify()
 
-        this.lines.push(`↗️ ${row.takeoff}`)
-        this.lines.push(`↘️ ${row.landing}`)
+        const takeoffLine = await this.generateTakeoffLandingLine(SiteType.takeoff, row.takeoff_name, row.takeoff_balise_id)
+        this.lines.push(takeoffLine)
+
+        const landingLine = await this.generateTakeoffLandingLine(SiteType.landing, row.landing_name, row.landing_balise_id)
+        this.lines.push(landingLine)
     }
 
     async appendSameYearAggregation() {
@@ -101,6 +131,7 @@ export class DescriptionFormatter {
         return null;
     }
 }
+
 
 function formatAggregationResult(result: AggregationResult): string {
     return `${result.count} ${result.count == 1 ? "flight" : "flights"} / ${elapsedTime(result.total_duration_sec)}`

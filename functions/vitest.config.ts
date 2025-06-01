@@ -5,6 +5,9 @@ export default defineConfig({
         disableConsoleIntercept: true,
         silent: false,
         exclude: [],
+        env: {
+            FFVL_KEY: ""
+        },
         testTimeout: 60_000,
         // setupFiles: ['dotenv/config'],
     },

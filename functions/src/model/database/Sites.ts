@@ -1,4 +1,4 @@
-import {Site} from "./model";
+import {LatLng, Site} from "./model";
 import {failed, Result, success} from "../model";
 import {getDatabase} from "./client";
 
@@ -54,5 +54,34 @@ export namespace Sites {
         } catch (error) {
             return failed(error!!.toString())
         }
+    }
+
+
+    export async function getIdOfCloset(latLng: LatLng, limitMeters: number | null = null): Promise<string | null> {
+        const client = await getDatabase()
+        const query = `select ffvl_sid                   as slug,
+                              distance(lat, lng, $1, $2) as distance_meters
+                       from sites
+                       order by distance_meters
+                       limit 1;`
+
+        type Closest = {
+            slug: string
+            distance_meters: number
+        }
+
+        const result = await client.query<Closest>(query, [latLng[0], latLng[1]])
+
+        const closest = result.rows[0].reify()
+
+        if (!closest.slug) {
+            return null
+        }
+
+        if (limitMeters == null || closest.distance_meters < limitMeters) {
+            return closest.slug
+        }
+
+        return null
     }
 }

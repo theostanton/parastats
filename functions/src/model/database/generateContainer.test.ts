@@ -1,18 +1,16 @@
 import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {connect} from "ts-postgres";
 import {setClient} from "./client";
-import {FlightRow, Landing, PilotRowFull, Takeoff} from "./model";
+import {FlightRow, PilotRowFull, Site} from "./model";
 import {Pilots} from "./Pilots";
 import {test} from "vitest";
 import {Flights} from "./Flights";
-import {Takeoffs} from "./Takeoffs";
-import {Landings} from "./Landings";
 import * as fs from "node:fs";
 import {Mocks} from "./Mocks.test";
+import {Sites} from "./Sites";
 
 
 export namespace TestContainer {
-    import userRow1 = Mocks.userRow1;
 
     export async function generateEmpty(): Promise<StartedPostgreSqlContainer> {
         return generateContainer()
@@ -31,29 +29,25 @@ export namespace TestContainer {
             ],
             [
                 Mocks.planpraz,
-                Mocks.forclaz
-            ],
-            [
+                Mocks.forclaz,
                 Mocks.leSavoy,
                 Mocks.planpraz
-            ]
+            ],
         )
 
     }
 
     export async function generateCustom(pilots: PilotRowFull[] = [],
                                          flights: FlightRow[] = [],
-                                         takeoffs: Takeoff[] = [],
-                                         landings: Landing[] = []
+                                         sites: Site[] = []
     ): Promise<StartedPostgreSqlContainer> {
-        return generateCustom(pilots, flights, takeoffs, landings)
+        return generateCustom(pilots, flights, sites)
     }
 
     async function generateContainer(
         pilots: PilotRowFull[] = [],
         flights: FlightRow[] = [],
-        takeoffs: Takeoff[] = [],
-        landings: Landing[] = []
+        sites: Site[] = []
     ): Promise<StartedPostgreSqlContainer> {
 
         const container = await new PostgreSqlContainer("postgres")
@@ -98,9 +92,7 @@ export namespace TestContainer {
         if (flightsResult.success == false) {
             throw new Error(`Failed to upsert flights error=${flightsResult.error}`);
         }
-        await Takeoffs.upsert(takeoffs)
-        await Landings.upsert(landings)
-
+        await Sites.upsert(sites)
 
         return container
     }

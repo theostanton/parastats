@@ -29,22 +29,6 @@ export type     FlightRow = {
     takeoff_id: string | undefined
 }
 
-export type Takeoff = {
-    slug: string,
-    name: string,
-    lat: number,
-    lng: number,
-    alt: number
-}
-
-export type Landing = {
-    slug: string,
-    name: string,
-    lat: number,
-    lng: number,
-    alt: number
-}
-
 export enum SiteType {
     landing,
     takeoff
