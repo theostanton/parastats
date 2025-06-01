@@ -30,7 +30,7 @@ resource "google_cloudfunctions2_function" "webhooks" {
 }
 
 resource "google_cloud_run_domain_mapping" "webhooks" {
-  name     = "webhooks.parastats.info"
+  name     = "webhooks.${local.domain}"
   location = google_cloudfunctions2_function.webhooks.location
   metadata {
     namespace = local.project_id

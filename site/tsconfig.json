@@ -34,7 +34,12 @@
       "@ui/*": [
         "./src/ui/*"
       ]
-    }
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",

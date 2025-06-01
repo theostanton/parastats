@@ -1,16 +1,40 @@
-import {getFlight} from "@database/flights";
-import Activity from "@ui/FlightItem";
+import {Flights} from "@database/flights";
 import styles from "@styles/Page.module.css";
-import FlightItem from "@ui/FlightItem";
+import {Stat} from "@ui/stats/model";
+import {StravaActivityId} from "@model/Flight";
+import Stats from "@ui/stats/Stats";
+import TakeoffLink from "@ui/links/TakeoffLink";
+import LandingLink from "@ui/links/LandingLink";
+import WingLink from "@ui/links/WingLink";
+import {Metadata} from "next";
+import {createMetadata} from "@ui/metadata";
 
-export default async function PagePilot({params}: {
-    params: Promise<{ flight_id: number }>
+export const metadata: Metadata = createMetadata("Flight")
+
+export default async function FlightDetail({params}: {
+    params: Promise<{ flight_id: StravaActivityId }>
 }) {
-    const {flight_id} = await params
-    const [flight, errorMessage] = await getFlight(flight_id);
+    const flightId = (await params).flight_id
+    const [flight, errorMessage] = await Flights.get(flightId);
     if (flight) {
+
+        const stats: Stat[] = [
+            {label: "Duration", value: `${Math.round(flight.duration_sec / 60)}mins`},
+            {label: "Distance", value: `${Math.round(flight.distance_meters / 100.0) / 10}km`},
+        ]
+
         return <div className={styles.page}>
-            <FlightItem flight={flight}/>
+            <p>{flight.strava_activity_id}</p>
+            <TakeoffLink takeoff={flight.takeoff}/>
+            <LandingLink landing={flight.landing}/>
+            <WingLink wing={flight.wing} pilotId={flight.pilot_id}/>
+            <Stats stats={stats}/>
+
+            <div className={styles.descriptionBox}>
+                <div className={styles.descriptionLabel}>Description</div>
+                <span className={styles.span}>{flight.description}</span>
+                <div className={styles.actionButton}>Update</div>
+            </div>
         </div>
     } else {
         return <h1>{errorMessage}</h1>

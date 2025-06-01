@@ -1,0 +1,12 @@
+.ViewOnStrava {
+    padding: 0.67rem;
+    background: #FC5200;
+    color: white;
+    max-width: 200px;
+    text-align: center;
+    border-radius: 1rem;
+}
+
+.ViewOnStrava:hover{
+    background: #ff8950;
+}

@@ -6,6 +6,7 @@ import {createMetadata} from "@ui/metadata";
 
 export const metadata: Metadata = createMetadata()
 
+
 export default function Layout({children}: {
     children: React.ReactNode
 }) {

@@ -31,6 +31,10 @@ resource "google_cloud_run_v2_service" "site" {
         name  = "DATABASE_PASSWORD"
         value = local.functions_variables.DATABASE_PASSWORD
       }
+      env {
+        name  = "TASKS_URL"
+        value = local.functions_variables.TASKS_URL
+      }
       image = "europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:${var.site_tag}"
       volume_mounts {
         name       = "cloudsql"
@@ -48,7 +52,7 @@ resource "google_cloud_run_v2_service" "site" {
 }
 
 resource "google_cloud_run_domain_mapping" "site" {
-  name     = "parastats.info"
+  name     = local.domain
   location = google_cloud_run_v2_service.site.location
   metadata {
     namespace = local.project_id

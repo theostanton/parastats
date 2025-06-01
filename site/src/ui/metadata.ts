@@ -2,7 +2,7 @@ import {Metadata} from "next";
 
 export function createMetadata(subtitle: string = null): Metadata {
     return {
-        title: subtitle ? `Parastats • ${subtitle}` : `Parastats`,
+        title: subtitle ? `Paraglider Stats • ${subtitle}` : `Paraglider Stats`,
         icons: './favicon.ico',
     }
 }

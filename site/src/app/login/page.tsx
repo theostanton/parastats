@@ -7,12 +7,12 @@ export const metadata: Metadata = createMetadata('Login')
 export default function Login() {
     return <div className={styles.page}>
         <h1>
-            Welcome to ParaStats.
+            Welcome to Paraglider Stats.
         </h1>
 
         <p className={styles.description}>
             <a className={styles.connectButton}
-               href="https://www.strava.com/oauth/authorize?client_id=155420&redirect_uri=https%3A%2F%2Fwebhooks.parastats.info&response_type=code&approval_prompt=force&scope=read_all,activity:write,activity:read_all">
+               href="https://www.strava.com/oauth/authorize?client_id=155420&redirect_uri=https%3A%2F%2Fwebhooks.paragliderstats.com&response_type=code&approval_prompt=force&scope=read_all,activity:write,activity:read_all">
                 Connect with Strava
             </a>
         </p>

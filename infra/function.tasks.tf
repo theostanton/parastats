@@ -63,7 +63,7 @@ resource "google_cloudfunctions2_function" "tasks" {
 }
 
 resource "google_cloud_run_domain_mapping" "tasks" {
-  name     = "tasks.parastats.info"
+  name     = "tasks.${local.domain}"
   location = google_cloudfunctions2_function.tasks.location
   metadata {
     namespace = local.project_id

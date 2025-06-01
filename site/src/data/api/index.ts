@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Result} from "@model/Result";
+import {Either} from "@model/Either";
 import {Pilot} from "@model/Pilot";
 
 type BaseResponse = {
@@ -21,7 +21,7 @@ export class ParastatsApi {
     // baseUrl = process.env.API_URL;
     baseUrl = "http://api:81";
 
-    async getSelf(): Promise<Result<Pilot>> {
+    async getSelf(): Promise<Either<Pilot>> {
         console.log(`getSelf baseUrl=${this.baseUrl}`)
 
         const response = await axios.get<GetSelfResponse>(this.baseUrl,
@@ -40,7 +40,7 @@ export class ParastatsApi {
         }
     }
 
-    async getActivities(): Promise<Result<Pilot>> {
+    async getActivities(): Promise<Either<Pilot>> {
         console.log(`getActivities baseUrl=${this.baseUrl}`)
         const response = await axios.get<GetSelfResponse>(`${this.baseUrl}/activities`,
             {

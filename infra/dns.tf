@@ -1,7 +1,7 @@
-resource "google_dns_managed_zone" "parastats" {
+resource "google_dns_managed_zone" "paragliderstats" {
   name          = "parastats-info"
-  dns_name      = "parastats.info."
-  description   = "parastats.info"
+  dns_name      = "${local.domain}."
+  description   = local.domain
   force_destroy = "true"
 }
 

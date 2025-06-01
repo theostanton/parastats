@@ -1,4 +1,4 @@
-import {getTakeOffs} from "@database/takeoffs";
+import {Takeoffs} from "@database/takeoffs";
 import styles from "@styles/Page.module.css";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
@@ -6,7 +6,7 @@ import {createMetadata} from "@ui/metadata";
 export const metadata: Metadata = createMetadata('Take Offs')
 
 export default async function PageTakeOffs() {
-    const [takeOffs, errorMessage] = await getTakeOffs();
+    const [takeOffs, errorMessage] = await Takeoffs.getAll();
     if (takeOffs) {
         return <div className={styles.page}>
             {takeOffs.map(takeOff =>

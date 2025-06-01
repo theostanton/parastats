@@ -19,7 +19,7 @@ export default async function Welcome() {
     return (
         <div className={styles.page}>
             <h1 className={styles.title}>
-                Welcome to ParaStats, {pilot.first_name}
+                Welcome to Paraglider Stats, {pilot.first_name}
             </h1>
         </div>
     );

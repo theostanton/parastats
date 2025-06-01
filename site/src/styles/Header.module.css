@@ -1,7 +1,26 @@
-.header {
-    display: flex;
-    flex-direction: row;
+@value headerHeight: 70px;
+
+.container {
+    display: block;
     height: 70px;
+    border-bottom: 1px solid #eaeaea;
+    background: #555;
+}
+
+.content {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    width: 1000px;
+    flex-direction: row;
+}
+
+.headerTitle {
+    height: 70px;
+    line-height: 70px;
+    font-weight: lighter;
+    font-size: 35px;
+    color: #ffffff
 }
 
 .space {
@@ -9,14 +28,17 @@
 }
 
 .navItem {
-    padding: 1em 2em;
     height: 70px;
+    padding: 0 1rem;
+    line-height: 70px;
     justify-content: center;
     align-self: end;
+    color: #ccc;
 }
 
 .navItem:hover {
-    background: #dddddd;
+    background: #666666;
+    color: #ccc;
     cursor: pointer;
 }
 

@@ -7,7 +7,7 @@ export const metadata: Metadata = createMetadata('Dashboard')
 export default function Welcome() {
     return <div className={styles.page}>
         <h1 className={styles.title}>
-            Welcome to ParaStats.
+            Welcome to Paraglider Stats.
         </h1>
     </div>
 }

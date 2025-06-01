@@ -42,13 +42,15 @@ export default async function Header() {
         {text: "Landings", path: "/landings", auth: AuthRequired.Always},
     ]
 
-    return <div className={styles.header}>
-        <h1>🪂 Parastats</h1>
-        <div className={styles.space}/>
-        {navItems.filter((item) => shouldShow(item.auth, isAuthed))
-            .map((item) => <NavItem key={item.text} {...item}/>
-            )
-        }
-        {isAuthed && <SignOut/>}
+    return <div className={styles.container}>
+        <div className={styles.content}>
+            <div className={styles.headerTitle}>🪂 Paraglider Stats</div>
+            <div className={styles.space}/>
+            {navItems.filter((item) => shouldShow(item.auth, isAuthed))
+                .map((item) => <NavItem key={item.text} {...item}/>
+                )
+            }
+            {isAuthed && <SignOut/>}
+        </div>
     </div>
 }

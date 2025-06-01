@@ -6,7 +6,7 @@ export default function Home() {
         <div className={styles.pageCentered}>
 
             <h1 className={styles.title}>
-                Welcome to ParaStats
+                Welcome to Paraglider Stats.
             </h1>
 
             <h2 className={styles.subtitle}>Coming soon...</h2>

@@ -11,7 +11,8 @@ services:
       - DATABASE_PASSWORD=${LOCAL_DATABASE_PASSWORD}
       - DATABASE_NAME=${LOCAL_DATABASE_NAME}
       - SESSION_SECRET=${SESSION_SECRET}
-      - API_URL="http://api:${API_PORT}"
+      - API_URL=${API_URL}"
+      - TASKS_URL=${TASKS_URL}
     volumes:
       - ./site/src:/app/src
       - ./site/public:/app/public

@@ -36,7 +36,7 @@ resource "google_cloud_run_v2_service_iam_binding" "api" {
 }
 
 resource "google_cloud_run_domain_mapping" "api" {
-  name     = "api.parastats.info"
+  name     = "api.${local.domain}"
   location = google_cloudfunctions2_function.api.location
   metadata {
     namespace = local.project_id

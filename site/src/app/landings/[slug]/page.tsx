@@ -1,11 +1,11 @@
-import {getLanding} from "@database/landings";
+import {Landings} from "@database/landings";
 import styles from "@styles/Page.module.css";
 
 export default async function PageLanding({params}: {
     params: Promise<{ slug: string }>
 }) {
     const {slug} = await params
-    const [landing, errorMessage] = await getLanding(slug);
+    const [landing, errorMessage] = await Landings.get(slug);
     if (landing) {
         return <div className={styles.page}>
             <h1>{landing.name}</h1>

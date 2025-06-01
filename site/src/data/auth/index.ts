@@ -1,4 +1,4 @@
-import {failure, Result, success} from "@model/Result";
+import {failure, Either, success} from "@model/Either";
 import {jwtVerify} from "jose";
 import {cookies} from "next/headers";
 import {StravaAthleteId} from "@model/Pilot";
@@ -39,7 +39,7 @@ export namespace Auth {
         }
     }
 
-    async function verifyJwt(sid: string): Promise<Result<number>> {
+    async function verifyJwt(sid: string): Promise<Either<number>> {
         if (!process.env.SESSION_SECRET?.length) {
             throw Error('Session Secret required');
         }

@@ -1,4 +1,6 @@
 import {StravaAthleteId} from "@model/Pilot";
+import {TakeOff} from "@model/TakeOff";
+import {Landing} from "@model/Landing";
 
 export type StravaActivityId = number
 
@@ -14,4 +16,11 @@ export type Flight = {
     start_date: Date
     description: string
     polyline: Polyline
+    takeoff_id: string
+    landing_id: string
+}
+
+export type FlightWithSites = Flight & {
+    takeoff: TakeOff | null
+    landing: Landing | null
 }

@@ -10,8 +10,9 @@ create table takeoffs
 );;;
 
 insert into takeoffs(slug, name, lat, lng, alt)
-values ('chamonix---plan-praz---brevent', 'CHAMONIX - PLAN PRAZ - BREVENT', 45.9047, 6.8831, 1917),
-       ('col-de-la-forclaz---montmin', 'COL DE LA FORCLAZ - MONTMIN', 45.8142, 6.2469, 1257);;;
+values ('chamonix---plan-praz---brevent', 'Planpraz', 45.9047, 6.8831, 1917),
+       ('chamonix---plan-de-laiguille', 'Plan de l''Aiguille', 45.9379, 6.849, 2237),
+       ('col-de-la-forclaz---montmin', 'Col de la Forclaz', 45.8142, 6.2469, 1257);;;
 
 create table landings
 (

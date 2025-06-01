@@ -49,19 +49,52 @@
     text-align: center;
 }
 
-.connectButton {
+.span {
+    white-space: pre;
+    margin-bottom: 2rem;
+}
+
+.descriptionLabel {
+    font-weight: bold;
+    font-size: 0.8em;
+    padding-bottom: 0.5rem;
+}
+
+.descriptionBox {
+    padding: 1em;
+    background: #ddd;
+    max-width: 400px;
+    margin-top: 1rem;
+}
+
+.button {
     padding: 15px 30px;
+    text-align: center;
     font-size: 18px;
-    background-color: #fc4c02;
-    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
+    color: white;
+    max-width: 200px;
+}
+
+.connectButton {
+    composes: button;
+    background-color: #fc4c02;
 }
 
 .connectButton:hover {
     background-color: #e54400;
+}
+
+.actionButton {
+    composes: button;
+    background-color: #444;
+}
+
+.actionButton:hover {
+    background-color: #888;
 }
 
 

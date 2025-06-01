@@ -1,5 +1,5 @@
 import {getPilot} from "@database/pilots";
-import {getFlightsForPilot} from "@database/flights";
+import {Flights} from "@database/flights";
 import Activity from "@ui/FlightItem";
 import styles from "@styles/Page.module.css";
 import FlightItem from "@ui/FlightItem";
@@ -13,7 +13,7 @@ export default async function PagePilot({params}: {
         return <h1>pilotErrorMessage={pilotErrorMessage}</h1>
     }
 
-    const [flights, flightsErrorMessage] = await getFlightsForPilot(pilot_id);
+    const [flights, flightsErrorMessage] = await Flights.getForPilot(pilot_id);
     if (flightsErrorMessage) {
         return <h1>flightsErrorMessage={flightsErrorMessage}</h1>
     }
