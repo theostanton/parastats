@@ -17,6 +17,7 @@ locals {
     TASKS_PORT                = 3000
     WEBHOOKS_PORT             = 4000
     API_PORT                  = 81
+    FFVL_KEY                  = var.ffvl_key
   }
   compose_variables = {
     SESSION_SECRET              = random_id.session_secret.b64_std
@@ -38,6 +39,7 @@ locals {
     API_PORT                    = 81
     API_URL                     = "http://api:81"
     DEBUG                       = 1
+    FFVL_KEY                    = var.ffvl_key
   }
 }
 

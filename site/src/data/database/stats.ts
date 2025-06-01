@@ -17,7 +17,9 @@ export async function getPilotWingStats(pilotId: StravaAthleteId): Promise<Eithe
         select trim(wing) as wing, count(1) as flights
         from flights
         where pilot_id = $1
-        group by trim(wing)`, [pilotId])
+        group by trim(wing)
+        order by flights desc
+    `, [pilotId])
 
     if (!result.rows) {
         return failure(`No PilotWingStats for pilotId=${pilotId}`)

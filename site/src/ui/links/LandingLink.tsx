@@ -1,6 +1,6 @@
 import Link from "next/link";
-import {Landing} from "@model/Landing";
+import {Site} from "@model/Site";
 
-export default function LandingLink({landing}: { landing: Landing }) {
-    return <Link href={`/landings/${landing.slug}`}>↘️ {landing.name}</Link>
+export default function LandingLink({landing}: { landing: Site }) {
+    return <Link href={`/sites/${landing.slug}`}>↘️ {landing.name}</Link>
 }

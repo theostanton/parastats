@@ -60,5 +60,5 @@ export async function handleCode(req: Request, res: Response) {
 
     sign(athlete.id, res)
 
-    res.redirect('https://parastats.info/welcome');
+    res.redirect('https://paragliderstats.com/welcome');
 }

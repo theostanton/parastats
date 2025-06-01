@@ -1,6 +1,6 @@
-import {TakeOff} from "@model/TakeOff";
 import Link from "next/link";
+import {Site} from "@model/Site";
 
-export default function TakeoffLink({takeoff}: { takeoff: TakeOff }) {
-    return <Link href={`/takeoffs/${takeoff.slug}`}>↗️ {takeoff.name}</Link>
+export default function TakeoffLink({takeoff}: { takeoff: Site }) {
+    return <Link href={`/sites/${takeoff.slug}`}>↗️ {takeoff.name}</Link>
 }

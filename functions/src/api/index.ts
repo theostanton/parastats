@@ -8,19 +8,6 @@ import {getFlight} from "./getFlight";
 import {generateToken} from "./generateToken";
 import {getTakeOff} from "./getTakeOff";
 
-export default async function handler(req: Request, res: Response): Promise<void> {
-    console.log("Received api body=", JSON.stringify(req.body));
-    const verifyResult = await verifyJwt(req, res)
-    if (!verifyResult.success) {
-        console.log("Verification failed: ", JSON.stringify(verifyResult.error));
-        return
-    }
-    const user = verifyResult.value
-
-    res.status(200).send({"status": "OK", "hello": user.first_name});
-}
-
-
 const jsonParser = bodyParser.json({})
 
 const app = express();

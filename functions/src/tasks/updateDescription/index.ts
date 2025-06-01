@@ -5,13 +5,13 @@ import {StravaApi} from "../../model/stravaApi";
 import {Flights} from "../../model/database/Flights";
 import {StravaActivityId} from "../../model/stravaApi/model";
 
-export type WingActivityTask = {
-    name: "WingActivity";
+export type UpdateDescriptionTask = {
+    name: "UpdateDescription";
     flightId: StravaActivityId
 }
 
-function isWingActivityTask(body: TaskBody): body is WingActivityTask {
-    return (body as WingActivityTask).flightId !== undefined;
+function isWingActivityTask(body: TaskBody): body is UpdateDescriptionTask {
+    return (body as UpdateDescriptionTask).flightId !== undefined;
 }
 
 export default async function (task: TaskBody): Promise<TaskResult> {
@@ -22,14 +22,14 @@ export default async function (task: TaskBody): Promise<TaskResult> {
         }
     }
 
-    console.log(`Gonna wing activity for activityId=${task.flightId}`)
+    console.log(`Gonna update description flightId=${task.flightId}`)
 
     // Fetch ActivityRow
     const result = await Flights.get(task.flightId)
     if (!result.success) {
         return {
             success: false,
-            message: `No activity rows for activityId=${task.flightId}`
+            message: `No flight rows for flightId=${task.flightId}`
         }
     }
     const activityRow = result.value

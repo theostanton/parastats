@@ -1,6 +1,5 @@
 import {StravaAthleteId} from "@model/Pilot";
-import {TakeOff} from "@model/TakeOff";
-import {Landing} from "@model/Landing";
+import {Site} from "@model/Site";
 
 export type StravaActivityId = number
 
@@ -20,7 +19,7 @@ export type Flight = {
     landing_id: string
 }
 
-export type FlightWithSites = Flight & {
-    takeoff: TakeOff | null
-    landing: Landing | null
+export type FlightWithSites = Exclude<Flight, 'takeoff_id' | 'landing_id'> & {
+    takeoff: Site | null
+    landing: Site | null
 }

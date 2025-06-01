@@ -1,6 +1,6 @@
 import {expect, test} from "vitest";
 import initialiseUser, {FetchAllActivitiesTask} from "./index";
-import {WingActivityTask} from "../wingActivity";
+import {UpdateDescriptionTask} from "../updateDescription";
 
 test("fetchAllActivities success", async () => {
     const input: FetchAllActivitiesTask = {
@@ -11,9 +11,9 @@ test("fetchAllActivities success", async () => {
     expect(result.success).toEqual(true)
 })
 
-test("fetchAllActivities fail on invalid body", async () => {
-    const input: WingActivityTask = {
-        name: "WingActivity",
+test("updateDescription fail on invalid body", async () => {
+    const input: UpdateDescriptionTask = {
+        name: "UpdateDescription",
         flightId: "123"
     }
     const result = await initialiseUser(input)

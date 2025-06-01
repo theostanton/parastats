@@ -11,8 +11,8 @@ import VerticalSpace from "@ui/VerticalSpace";
 
 export default function FlightItem({flight}: { flight: FlightWithSites }) {
     const topStats: Stat[] = [
-        {label: "Takeoff", value: flight.takeoff.name},
-        {label: "Landing", value: flight.landing.name},
+        {label: "Takeoff", value: flight.takeoff?.name},
+        {label: "Landing", value: flight.landing?.name},
     ]
 
     const bottomStats: Stat[] = [

@@ -38,8 +38,7 @@ export default async function Header() {
         {text: "Login", path: "/login", auth: AuthRequired.NotAuthed},
         {text: "Pilots", path: "/pilots", auth: AuthRequired.Always},
         {text: "Flights", path: "/flights", auth: AuthRequired.Always},
-        {text: "Take Offs", path: "/takeoffs", auth: AuthRequired.Always},
-        {text: "Landings", path: "/landings", auth: AuthRequired.Always},
+        {text: "Sites", path: "/sites", auth: AuthRequired.Always},
     ]
 
     return <div className={styles.container}>

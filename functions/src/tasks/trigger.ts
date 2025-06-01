@@ -7,7 +7,7 @@ function getQueueId(taskName: TaskName): string | null {
     switch (taskName) {
         case "FetchAllActivities":
             return process.env.QUEUE_ID_FETCH_ACTIVITIES!!
-        case "WingActivity":
+        case "UpdateDescription":
             return process.env.QUEUE_ID_WING_ACTIVITY!!
         default:
             return null
@@ -20,7 +20,7 @@ export default async function (task: TaskBody): Promise<Result<void>> {
 
     try {
         const queueId = getQueueId(task.name);
-        if(!queueId){
+        if (!queueId) {
             return failed(`No queue id found for =${task.name}`)
         }
         const response = await client.createTask({

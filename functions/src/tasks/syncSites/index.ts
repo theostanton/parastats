@@ -7,6 +7,7 @@ import {Windsocks} from "../../model/database/Windsocks";
 import getDistance from "@turf/distance"
 import {Coord, Units} from "@turf/helpers"
 import {FfvlBalise, FfvlSite} from "../../model/ffvlApi";
+import {Flights} from "../../model/database/Flights";
 
 export type SyncSitesTask = {
     name: "SyncSites";
@@ -135,11 +136,31 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
     const upsertResult = await Sites.upsert(sites)
 
-    if (!upsertResult.success) {
+    // if (!upsertResult.success) {
+    //     return {
+    //         success: false,
+    //         message: `Faield to upsert sites error=${upsertResult.error}`
+    //     }
+    // }
+
+    const flightsResult = await Flights.getAll(4142500)
+    if (!flightsResult.success) {
         return {
             success: false,
-            message: `Faield to upsert sites error=${upsertResult.error}`
+            message: `Failed to update flights error=${flightsResult.error}`
         }
+    }
+
+    for await (const flight of flightsResult.value) {
+        const takeoffId = await Sites.getIdOfCloset(flight.polyline[0])
+        if (takeoffId) {
+            flight.takeoff_id = takeoffId
+        }
+        const landingId = await Sites.getIdOfCloset(flight.polyline[flight.polyline.length - 1])
+        if (landingId) {
+            flight.landing_id = landingId
+        }
+        await Flights.upsert([flight])
     }
 
     return {
