@@ -19,11 +19,19 @@ Content-Type: application/json
   "pilotId": 4142500
 }
 
+### SyncSites
+POST {{parastats_tasks_base_url}}
+Content-Type: application/json
+
+{
+  "name": "SyncSites"
+}
+
 ### WingActivity
 POST {{parastats_tasks_base_url}}
 Content-Type: application/json
 
 {
   "name": "WingActivity",
-  "activityId": 14590322465
+  "flightId": 14659467895
 }

@@ -1,8 +1,7 @@
 import {getDatabase} from "./client";
 import {Failed, failed, Result, Success, success} from "../model";
-import {FlightRow, DescriptionStatus} from "./model";
+import {FlightRow} from "./model";
 import {StravaActivityId, StravaAthleteId} from "../stravaApi/model";
-import e from "express";
 
 export namespace Flights {
     export async function get(flightId: StravaActivityId): Promise<Result<FlightRow>> {
@@ -31,19 +30,18 @@ export namespace Flights {
         }
     }
 
-    export async function updateDescription(flightId: StravaActivityId, description: string, descriptionStatus: DescriptionStatus): Promise<Result<void>> {
+    export async function updateDescription(flightId: StravaActivityId, description: string): Promise<Result<void>> {
         const database = await getDatabase()
 
         try {
             await database.query(`
                 update flights
-                set description        = $1,
-                    description_status = $2
+                set description = $1
                 where strava_activity_id = $2
-            `, [description, descriptionStatus, flightId])
+            `, [description, flightId])
             return success(undefined)
         } catch (error) {
-            return failed(`Failed to updateDescription flightId=${flightId} description=${description} descriptionStatus=${descriptionStatus} error=${error}`)
+            return failed(`Failed to updateDescription flightId=${flightId} description=${description} error=${error}`)
         }
 
     }
@@ -55,7 +53,7 @@ export namespace Flights {
 
             const errors: string[] = []
             for await (const flight of flights) {
-                console.log(`Inserting ${JSON.stringify(flight)}`)
+                console.log(`Inserting flight strava_activity_id=${flight.strava_activity_id}`)
                 try {
                     await database.query(`
                                 insert into flights(pilot_id,

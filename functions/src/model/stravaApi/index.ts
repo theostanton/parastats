@@ -32,7 +32,7 @@ export class StravaApi {
         return response.data
     }
 
-    async updateDescription(activityId: number, description: string): Promise<Result<void>> {
+    async updateDescription(activityId: StravaActivityId, description: string): Promise<Result<void>> {
         console.log(`Update description ${activityId} to ${description} this.headers=${this.headers}`);
         try {
             const url = `https://www.strava.com/api/v3/activities/${activityId}`;
@@ -87,7 +87,7 @@ export class StravaApi {
 
                     return didIgnore;
                 })
-                moreToFetch = response.data.length == 200
+                moreToFetch = !didIgnore && response.data.length == 200
                 page++
             }
 

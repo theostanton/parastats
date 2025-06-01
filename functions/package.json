@@ -18,7 +18,9 @@
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
-    "ts-postgres": "^2.0.4"
+    "ts-postgres": "^2.0.4",
+    "@turf/distance": "^7.2.0",
+    "@turf/helpers": "^7.2.0"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^10.24.2",

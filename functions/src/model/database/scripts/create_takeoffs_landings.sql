@@ -1,5 +1,29 @@
 CREATE EXTENSION earthdistance CASCADE;;;
 
+create table windsocks
+(
+    balise_id text             not null primary key,
+    name      text             not null,
+    lat       double precision not null,
+    lng       double precision not null,
+    alt       integer          not null
+);
+
+create type site_type as enum ('Takeoff','Landing');;;
+
+create table sites
+(
+    ffvl_sid          text             not null primary key,
+    slug              text unique      not null,
+    name              text             not null,
+    lat               double precision not null,
+    lng               double precision not null,
+    alt               int              not null,
+    nearest_balise_id text,
+    polygon           json,
+    type              site_type
+);;;
+
 create table takeoffs
 (
     slug text             not null primary key,

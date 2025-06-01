@@ -44,3 +44,28 @@ export type Landing = {
     lng: number,
     alt: number
 }
+
+export enum SiteType {
+    landing,
+    takeoff
+}
+
+export type Site = {
+    ffvl_sid: string,
+    slug: string,
+    name: string,
+    lat: number,
+    lng: number,
+    alt: number,
+    polygon: Polyline | null
+    type: SiteType | null
+    nearest_balise_id: string | null
+}
+
+export type Windsock = {
+    balise_id: string,
+    name: string,
+    lat: number,
+    lng: number,
+    alt: number,
+}

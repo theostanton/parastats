@@ -1,8 +1,18 @@
-import {TaskResult, isWingActivityTask, TaskBody} from "../model";
+import {TaskResult, TaskBody} from "../model";
 import {generateStats} from "./updateActivityDescription";
 import {Pilots} from "../../model/database/Pilots";
 import {StravaApi} from "../../model/stravaApi";
-import {Flights} from "../../model/database/flights";
+import {Flights} from "../../model/database/Flights";
+import {StravaActivityId} from "../../model/stravaApi/model";
+
+export type WingActivityTask = {
+    name: "WingActivity";
+    flightId: StravaActivityId
+}
+
+function isWingActivityTask(body: TaskBody): body is WingActivityTask {
+    return (body as WingActivityTask).flightId !== undefined;
+}
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isWingActivityTask(task)) {
@@ -59,7 +69,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
         }
     }
     const stravaApi = await StravaApi.fromUserId(userResult.value.pilot_id)
-    const updateDescriptionResult = await stravaApi.updateDescription(activityRow.pilot_id, wingedDescription)
+    const updateDescriptionResult = await stravaApi.updateDescription(activityRow.strava_activity_id, wingedDescription)
     if (!updateDescriptionResult.success) {
         return {
             success: false,
@@ -68,7 +78,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     }
 
     // if success store updated else store failed
-    const updateResult = await Flights.updateDescription(task.flightId, wingedDescription, "done")
+    const updateResult = await Flights.updateDescription(task.flightId, wingedDescription)
     if (!updateResult.success) {
         return {
             success: false,

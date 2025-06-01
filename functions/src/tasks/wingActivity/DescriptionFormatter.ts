@@ -46,8 +46,21 @@ export class DescriptionFormatter {
         this.lines.push(`${this.wingPrefix.padEnd(this.maxLength, " ")}${formatAggregationResult(values)}`)
     }
 
-    async appendTakeOff() {
+    async appendTakeOffAndLanding() {
 
+        type Row = { landing: string, takeoff: string }
+        const result = await this.client.query<Row>(`
+            select t.name as takeoff, l.name as landing
+            from flights as f
+                     inner join takeoffs as t on f.takeoff_id = t.slug
+                     inner join landings as l on f.landing_id = l.slug
+            where strava_activity_id = $1
+        `, [this.flightRow.strava_activity_id])
+
+        const row = result.rows[0].reify()
+
+        this.lines.push(`↗️ ${row.takeoff}`)
+        this.lines.push(`↘️ ${row.landing}`)
     }
 
     async appendSameYearAggregation() {

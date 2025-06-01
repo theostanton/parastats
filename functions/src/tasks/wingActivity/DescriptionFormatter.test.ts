@@ -1,6 +1,5 @@
 import {expect, test} from "vitest";
-import wingActivity from "./index";
-import {FetchAllActivitiesTask, WingActivityTask} from "../model";
+import wingActivity, {WingActivityTask} from "./index";
 
 test("wingActivity success", async () => {
     const input: WingActivityTask = {

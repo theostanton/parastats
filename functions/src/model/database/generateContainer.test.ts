@@ -4,7 +4,7 @@ import {setClient} from "./client";
 import {FlightRow, Landing, PilotRowFull, Takeoff} from "./model";
 import {Pilots} from "./Pilots";
 import {test} from "vitest";
-import {Flights} from "./flights";
+import {Flights} from "./Flights";
 import {Takeoffs} from "./Takeoffs";
 import {Landings} from "./Landings";
 import * as fs from "node:fs";

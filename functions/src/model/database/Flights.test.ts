@@ -5,7 +5,7 @@ import {Success} from "../model";
 import {end, getDatabase} from "./client";
 import {TestContainer} from "./generateContainer.test";
 import {Mocks} from "./Mocks.test";
-import {Flights} from "./flights";
+import {Flights} from "./Flights";
 
 test('Pilots.upsert()', async () => {
 

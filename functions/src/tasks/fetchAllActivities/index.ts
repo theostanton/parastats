@@ -1,12 +1,22 @@
-import {isFetchAllActivitiesTask, TaskBody, TaskResult} from "../model";
+import {TaskBody, TaskResult} from "../model";
 import {StravaApi} from "../../model/stravaApi";
 import {getDatabase} from "../../model/database/client";
 import {Pilots} from "../../model/database/Pilots";
-import {Flights} from "../../model/database/flights";
+import {Flights} from "../../model/database/Flights";
 import {StravaActivity, StravaActivityId} from "../../model/stravaApi/model";
 import axios, {AxiosHeaders} from "axios";
 import {FlightRow} from "../../model/database/model";
 import {StravaActivityToFlightConverter} from "./StravaActivityToFlightConverter";
+
+
+export type FetchAllActivitiesTask = {
+    name: "FetchAllActivities";
+    pilotId: number
+}
+
+function isFetchAllActivitiesTask(body: TaskBody): body is FetchAllActivitiesTask {
+    return (body as FetchAllActivitiesTask).pilotId !== undefined;
+}
 
 export default async function (task: TaskBody): Promise<TaskResult> {
     if (!isFetchAllActivitiesTask(task)) {

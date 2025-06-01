@@ -8,6 +8,7 @@ export async function generateStats(activityRow: FlightRow): Promise<string | nu
 
     const formatter = await DescriptionFormatter.create(activityRow)
 
+    await formatter.appendTakeOffAndLanding()
     await formatter.appendWingAggregation()
     await formatter.appendSameYearAggregation()
     await formatter.appendAllTimeAggregation()

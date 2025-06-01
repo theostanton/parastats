@@ -1,13 +1,13 @@
 import {expect, test} from "vitest";
-import wingActivity from "./index";
-import {FetchAllActivitiesTask, WingActivityTask} from "../model";
+import handler,{WingActivityTask} from "./index";
+import {FetchAllActivitiesTask} from "../fetchAllActivities";
 
 test("wingActivity success", async () => {
     const input: WingActivityTask = {
         name: "WingActivity",
         flightId: "123",
     }
-    const result = await wingActivity(input)
+    const result = await handler(input)
     expect(result.success).toEqual(true)
 })
 
@@ -16,6 +16,6 @@ test("wingActivity fail on invalid body", async () => {
         name: "FetchAllActivities",
         pilotId: 123
     }
-    const result = await wingActivity(input)
+    const result = await handler(input)
     expect(result.success).toEqual(false)
 })
