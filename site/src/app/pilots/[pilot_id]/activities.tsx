@@ -1,4 +1,4 @@
-import {getPilot} from "@database/pilots";
+import {get} from "@database/pilots";
 import {Flights} from "@database/flights";
 import Activity from "@ui/FlightItem";
 import styles from "@styles/Page.module.css";
@@ -8,7 +8,7 @@ export default async function PagePilot({params}: {
     params: Promise<{ pilot_id: number }>
 }) {
     const {pilot_id} = await params
-    const [pilot, pilotErrorMessage] = await getPilot(pilot_id);
+    const [pilot, pilotErrorMessage] = await get(pilot_id);
     if (pilotErrorMessage) {
         return <h1>pilotErrorMessage={pilotErrorMessage}</h1>
     }

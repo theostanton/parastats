@@ -1,10 +1,10 @@
 import {afterAll, afterEach, beforeAll, beforeEach, expect, it, test} from "vitest";
 import {TestContainer} from "../../model/database/generateContainer.test";
 import {StartedPostgreSqlContainer} from "@testcontainers/postgresql";
-import {end} from "../../model/database/client";
-import {FlightRow} from "../../model/database/model";
-import {generateStats} from "./updateActivityDescription";
+import {end, getDatabase} from "../../model/database/client";
+import {DescriptionPreference, FlightRow} from "../../model/database/model";
 import {Mocks} from "../../model/database/Mocks.test";
+import {DescriptionFormatter} from "./DescriptionFormatter";
 
 let container: StartedPostgreSqlContainer
 
@@ -18,14 +18,51 @@ afterAll(async () => {
 })
 
 
-const cases: [title: string, input: FlightRow, expected: string][] = [
-    ["User 1 Activity 1", Mocks.user1activity1wing1, "🪂 One 1 flight / 5min \n2025 1 flight / 5min\nAll Time 1 flight / 5min\n🌐 parastats.info"],
-    ["User 1 Activity 2", Mocks.user1activity2wing2, "🪂 Two 1 flight / 1h 0min\n2025 2 flights / 1h 5min\nAll Time 2 flights / 1h 5min\n🌐 parastats.info"],
-    ["User 1 Activity 3", Mocks.user1activity3wing1, "🪂 One 2 flights / 15min\n2025 3 flights / 1h 15min\nAll Time 3 flights / 1h 15min\n🌐 parastats.info"],
+type Input = {
+    preference: DescriptionPreference,
+    flight: FlightRow,
+}
+
+const AllEnabled: DescriptionPreference = {
+    pilot_id: Mocks.userRow1.pilot_id,
+    include_wing_aggregate: true,
+    include_year_aggregate: true,
+    include_wind: true,
+    include_sites: true,
+    include_all_time_aggregate: true
+}
+const AllDisabled: DescriptionPreference = {
+    pilot_id: Mocks.userRow1.pilot_id,
+    include_wing_aggregate: false,
+    include_year_aggregate: false,
+    include_wind: false,
+    include_sites: false,
+    include_all_time_aggregate: false
+}
+const cases: [
+    title: string,
+    input: Input,
+    expected: string | null
+][] = [
+
+    ["User 1 Activity 1", {flight: Mocks.user1activity1wing1, preference: AllEnabled},
+        "🪂 One 1 flight / 5min \n2025 1 flight / 5min\nAll Time 1 flight / 5min\n🌐 paragliderstats.com"],
+
+    ["User 1 Activity 1", {flight: Mocks.user1activity1wing1, preference: {...AllDisabled, include_wind: false}},
+        "🪂 One 1 flight / 5min \n2025 1 flight / 5min\nAll Time 1 flight / 5min\n🌐 paragliderstats.com"],
+
+    ["User 1 Activity 1", {flight: Mocks.user1activity1wing1, preference: AllDisabled},
+        null],
+
+    ["User 1 Activity 2", {flight: Mocks.user1activity2wing2, preference: AllEnabled},
+        "🪂 Two 1 flight / 1h 0min\n2025 2 flights / 1h 5min\nAll Time 2 flights / 1h 5min\n🌐 paragliderstats.com"],
+
+    ["User 1 Activity 3", {flight: Mocks.user1activity3wing1, preference: AllEnabled},
+        "🪂 One 2 flights / 15min\n2025 3 flights / 1h 15min\nAll Time 3 flights / 1h 15min\n🌐 paragliderstats.com"],
 ]
 
 test.each(cases)('generateStats(%s)', async (_, input, expected) => {
-    const actual = await generateStats(input)
-    expect(actual?.replace(/\s/g, '')).toEqual(expected.replace(/\s/g, ''))
+    const actual = await new DescriptionFormatter(await getDatabase(), input.flight, input.preference).generate()
+    expect(actual?.replace(/\s/g, '')).toEqual(expected?.replace(/\s/g, ''))
 })
 

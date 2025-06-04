@@ -1,5 +1,5 @@
 import {Auth} from "@auth/index";
-import {getPilot} from "@database/pilots";
+import {get} from "@database/pilots";
 import styles from "@styles/Page.module.css";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
@@ -10,7 +10,7 @@ export default async function Welcome() {
 
     const selfId = await Auth.getSelfPilotId()
 
-    const [pilot, error] = await getPilot(selfId)
+    const [pilot, error] = await get(selfId)
 
     if (error) {
         return <div>Failed to get pilot ${error}</div>

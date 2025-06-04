@@ -12,10 +12,8 @@ export namespace Pilots {
     }
 
     export async function get(pilotId: StravaAthleteId): Promise<Result<PilotRow>> {
-        console.log(`Pilot.get() pilotId=${pilotId}`);
         const database = await getDatabase()
         const result = await database.query<PilotRow>("select pilot_id,first_name from pilots where pilot_id = $1", [pilotId])
-        console.log('result', result)
         if (result.rows.length === 1) {
             return new Success(result.rows[0].reify())
         } else {
@@ -24,10 +22,8 @@ export namespace Pilots {
     }
 
     export async function getFull(pilotId: StravaAthleteId): Promise<Result<PilotRowFull>> {
-        console.log(`Pilots.get() pilotId=${pilotId}`);
         const database = await getDatabase()
         const result = await database.query<PilotRowFull>("select pilot_id,first_name,strava_access_token, strava_refresh_token, strava_expires_at from pilots where pilot_id = $1", [pilotId])
-        console.log('result', result)
         if (result.rows.length === 1) {
             return new Success(result.rows[0].reify())
         } else {

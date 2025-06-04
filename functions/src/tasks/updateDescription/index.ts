@@ -45,13 +45,13 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     }
 
     // Check description is already winged
-    const alreadyWinged = activityRow.description.includes("🌐 parastats.info")
+    const alreadyWinged = activityRow.description.includes("🌐 paragliderstats.com")
 
     // If winged, replace stats
     let wingedDescription: string
     if (alreadyWinged) {
         console.log("Updating")
-        wingedDescription = activityRow.description.replace(/(?:[🪂↘️↗️])[\s\S]*parastats.info/, stats)
+        wingedDescription = activityRow.description.replace(/(?:[🪂↘️↗️])[\s\S]*paragliderstats.com/, stats)
     } else {
         console.log("Appending")
         wingedDescription = activityRow.description.replace(`🪂 ${activityRow.wing}`, stats)

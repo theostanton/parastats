@@ -1,7 +1,7 @@
 import {PostgreSqlContainer, StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {connect} from "ts-postgres";
 import {setClient} from "./client";
-import {FlightRow, PilotRowFull, Site} from "./model";
+import {DescriptionPreference, FlightRow, PilotRowFull, Site} from "./model";
 import {Pilots} from "./Pilots";
 import {test} from "vitest";
 import {Flights} from "./Flights";
@@ -47,7 +47,8 @@ export namespace TestContainer {
     async function generateContainer(
         pilots: PilotRowFull[] = [],
         flights: FlightRow[] = [],
-        sites: Site[] = []
+        sites: Site[] = [],
+        descriptionPreferences: DescriptionPreference[] = []
     ): Promise<StartedPostgreSqlContainer> {
 
         const container = await new PostgreSqlContainer("postgres")
@@ -62,17 +63,9 @@ export namespace TestContainer {
             port: container.getPort(),
         })
 
-        const scriptsDir = './src/model/database/scripts/';
-        const createFlightsSql = fs.readFileSync(scriptsDir + 'create_flights.sql', 'utf8');
-        const createPilotsSql = fs.readFileSync(scriptsDir + 'create_pilots.sql', 'utf8');
-        const createTakeoffsLandingsSql = fs.readFileSync(scriptsDir + 'create_takeoffs_landings.sql', 'utf8');
-
-
-        const queries: string[] = [
-            ...createFlightsSql.split(";;;"),
-            ...createPilotsSql.split(";;;"),
-            ...createTakeoffsLandingsSql.split(";;;"),
-        ]
+        const queries = ['create_flights', 'create_pilots', 'create_sites', 'create_description_preferences']
+            .map((filename) => fs.readFileSync(`./src/model/database/scripts/${filename}.sql`, 'utf8'))
+            .flatMap(query => query.split(";;;"))
 
         for await (const query of queries) {
             try {

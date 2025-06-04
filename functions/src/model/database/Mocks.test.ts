@@ -71,7 +71,7 @@ export namespace Mocks {
         wing: "One",
         duration_sec: 10 * 60,
         ...flightFiller,
-        description: "Some description\n🪂 One\nThis wing Xmin over Y flights\nThis year 1h 15min over 3 flights\nAll time 1h 15min over 3 flights\n🌐 parastats.info",
+        description: "Some description\n🪂 One\nThis wing Xmin over Y flights\nThis year 1h 15min over 3 flights\nAll time 1h 15min over 3 flights\n🌐 paragliderstats.com",
     }
     export const user1activity4wing1: FlightRow = {
         pilot_id: userRow1.pilot_id,

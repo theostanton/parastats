@@ -19,7 +19,7 @@ export function sign(userId: number, res: Response): string {
 
     const jwtToken = generateJwt(userId)
     res.cookie('sid', jwtToken, {
-        domain: "parastats.info",
+        domain: "paragliderstats.com",
         httpOnly: false,
         secure: true,
         sameSite: 'lax',

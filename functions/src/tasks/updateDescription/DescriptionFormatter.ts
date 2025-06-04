@@ -1,13 +1,32 @@
-import {FlightRow, SiteType} from "../../model/database/model";
+import {DescriptionPreference, FlightRow, SiteType} from "../../model/database/model";
 import {getDatabase} from "../../model/database/client";
 import {Client} from "ts-postgres";
 import {FFVL} from "../../model/ffvlApi";
 import {WindDirection} from "../../model/ffvlApi/model";
+import {DescriptionPreferences} from "../../model/database/DescriptionPreferences";
+import {StravaAthleteId} from "../../model/stravaApi/model";
 
 export type AggregationResult = {
     count: number
     total_duration_sec: number
     total_distance_meters: number
+}
+
+
+async function getPreferenceForPilotOrDefaults(pilotId: StravaAthleteId): Promise<DescriptionPreference> {
+    const result = await DescriptionPreferences.get(pilotId)
+    if (result.success) {
+        return result.value
+    } else {
+        return {
+            pilot_id: pilotId,
+            include_all_time_aggregate: true,
+            include_sites: true,
+            include_wind: true,
+            include_wing_aggregate: true,
+            include_year_aggregate: true
+        }
+    }
 }
 
 export class DescriptionFormatter {
@@ -20,10 +39,15 @@ export class DescriptionFormatter {
 
     static async create(flightRow: FlightRow) {
         const client = await getDatabase()
-        return new DescriptionFormatter(client, flightRow)
+        const preference = await getPreferenceForPilotOrDefaults(flightRow.pilot_id)
+        return new DescriptionFormatter(client, flightRow, preference)
     }
 
-    private constructor(private client: Client, private flightRow: FlightRow) {
+    constructor(
+        private client: Client,
+        private flightRow: FlightRow,
+        private preference: DescriptionPreference
+    ) {
         this.client = client
 
         this.allTimePrefix = 'All Time'
@@ -33,6 +57,9 @@ export class DescriptionFormatter {
     }
 
     async appendWingAggregation() {
+        if (!this.preference.include_wing_aggregate) {
+            return
+        }
         const result = await this.client.query<AggregationResult>(`
             select count(1)::int               as count,
                    sum(duration_sec)::float    as total_duration_sec,
@@ -48,12 +75,12 @@ export class DescriptionFormatter {
         this.lines.push(`${this.wingPrefix.padEnd(this.maxLength, " ")}${formatAggregationResult(values)}`)
     }
 
-    async generateTakeoffLandingLine(siteType: SiteType, siteName: string, baliseId: string | undefined): Promise<string> {
+    async generateSiteLine(siteType: SiteType, siteName: string, baliseId: string | undefined): Promise<string> {
 
         const prefix = siteType == SiteType.takeoff ? "↗️" : "↘️"
         const date = siteType == SiteType.takeoff ? this.flightRow.start_date : this.flightRow.start_date
 
-        if (baliseId) {
+        if (baliseId && this.preference.include_wind) {
             const result = await FFVL.getReport(baliseId, date)
 
             if (result.success) {
@@ -65,7 +92,11 @@ export class DescriptionFormatter {
         return `${prefix} ${siteName}`
     }
 
-    async appendTakeOffAndLanding() {
+    async appendSites() {
+
+        if (!this.preference.include_sites) {
+            return
+        }
 
         type Row = {
             landing_name: string,
@@ -86,14 +117,19 @@ export class DescriptionFormatter {
 
         const row = result.rows[0].reify()
 
-        const takeoffLine = await this.generateTakeoffLandingLine(SiteType.takeoff, row.takeoff_name, row.takeoff_balise_id)
+        const takeoffLine = await this.generateSiteLine(SiteType.takeoff, row.takeoff_name, row.takeoff_balise_id)
         this.lines.push(takeoffLine)
 
-        const landingLine = await this.generateTakeoffLandingLine(SiteType.landing, row.landing_name, row.landing_balise_id)
+        const landingLine = await this.generateSiteLine(SiteType.landing, row.landing_name, row.landing_balise_id)
         this.lines.push(landingLine)
     }
 
-    async appendSameYearAggregation() {
+    async appendYearAggregation() {
+
+        if (!this.preference.include_year_aggregate) {
+            return
+        }
+
         const result = await this.client.query<AggregationResult>(`
             select count(1)::int               as count,
                    sum(duration_sec)::float    as total_duration_sec,
@@ -110,6 +146,10 @@ export class DescriptionFormatter {
     }
 
     async appendAllTimeAggregation() {
+        if (!this.preference.include_all_time_aggregate) {
+            return
+        }
+
         const result = await this.client.query<AggregationResult>(`
             select count(1)::int               as count,
                    sum(duration_sec)::float    as total_duration_sec,
@@ -124,11 +164,20 @@ export class DescriptionFormatter {
         this.lines.push(`${this.allTimePrefix.padEnd(this.maxLength, " ")}  ${formatAggregationResult(values)}`)
     }
 
-    generate(): string | null {
-        if (this.lines.length > 0) {
-            return [...this.lines, '🌐 parastats.info'].join('\n')
+    async generate(): Promise<string | null> {
+        
+        if (this.lines.length == 0) {
+            await this.appendSites()
+            await this.appendWingAggregation()
+            await this.appendYearAggregation()
+            await this.appendAllTimeAggregation()
         }
-        return null;
+
+        if (this.lines.length == 0) {
+            return null;
+        }
+
+        return [...this.lines, '🌐 paragliderstats.com'].join('\n')
     }
 }
 

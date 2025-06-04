@@ -14,8 +14,6 @@ export type PilotRowFull = PilotRow & {
     strava_expires_at: Date
 }
 
-export type DescriptionStatus = "todo" | "failed" | "done";
-
 export type     FlightRow = {
     pilot_id: StravaAthleteId
     strava_activity_id: StravaActivityId
@@ -44,6 +42,15 @@ export type Site = {
     polygon: Polyline | null
     type: SiteType | null
     nearest_balise_id: string | null
+}
+
+export type DescriptionPreference = {
+    pilot_id: StravaAthleteId
+    include_sites: boolean
+    include_wind: boolean
+    include_wing_aggregate: boolean
+    include_year_aggregate: boolean
+    include_all_time_aggregate: boolean
 }
 
 export type Windsock = {

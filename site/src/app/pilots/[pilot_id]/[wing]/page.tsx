@@ -1,4 +1,4 @@
-import {getPilot} from "@database/pilots";
+import {get} from "@database/pilots";
 import {Flights} from "@database/flights";
 import styles from "@styles/Page.module.css";
 import FlightItem from "@ui/FlightItem";
@@ -8,7 +8,7 @@ export default async function PagePilot({params}: {
 }) {
     const {pilot_id, wing} = await params
     console.log('pilot_id', pilot_id, 'wing', wing)
-    const [pilot, pilotErrorMessage] = await getPilot(pilot_id);
+    const [pilot, pilotErrorMessage] = await get(pilot_id);
     if (pilotErrorMessage) {
         return <h1>pilotErrorMessage={pilotErrorMessage}</h1>
     }

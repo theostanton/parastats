@@ -1,4 +1,4 @@
-import {getPilot} from "@database/pilots";
+import {get} from "@database/pilots";
 import {Flights} from "@database/flights";
 import {getPilotWingStats} from "@database/stats";
 import styles from "@styles/Page.module.css";
@@ -17,7 +17,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 
     const pilotId = (await params).pilot_id
-    const [pilot, pilotErrorMessage] = await getPilot(pilotId);
+    const [pilot, pilotErrorMessage] = await get(pilotId);
     if (pilotErrorMessage) {
         return createMetadata()
     }
@@ -29,7 +29,7 @@ export default async function PagePilot({params}: {
     params: Promise<Params>
 }) {
     const pilotId = (await params).pilot_id
-    const [pilot, pilotErrorMessage] = await getPilot(pilotId);
+    const [pilot, pilotErrorMessage] = await get(pilotId);
     if (pilotErrorMessage) {
         return <h1>pilotErrorMessage={pilotErrorMessage}</h1>
     }
