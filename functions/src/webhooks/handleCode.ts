@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import {StravaAthlete} from "@/stravaApi/model";
 import axios from "axios";
 import {StravaApi} from "@/stravaApi";
-import {getDatabase} from "@/database/client";
+import {withPooledClient} from "@/database/client";
 import {PilotRow} from "@/database/model";
 import trigger from "@/tasks/trigger";
 import {sign} from "@/jwt";
@@ -32,14 +32,14 @@ export async function handleCode(req: Request, res: Response) {
 
     const {access_token, refresh_token, expires_at} = body
     const api = StravaApi.fromAccessToken(access_token)
-    const database = await getDatabase()
 
     // Fetch profile
     const athlete = await api.fetchAthlete()
 
     // Save profile to `user` table
-    let expiresAtDate = new Date(expires_at * 1000);
-    await database.query<PilotRow>(`
+    await withPooledClient(async (database) => {
+        let expiresAtDate = new Date(expires_at * 1000);
+        await database.query<PilotRow>(`
                 INSERT INTO pilots (pilot_id,
                                     first_name,
                                     strava_access_token,
@@ -51,9 +51,10 @@ export async function handleCode(req: Request, res: Response) {
                                   strava_access_token  = $7,
                                   strava_refresh_token = $8,
                                   strava_expires_at    = $9;`,
-        [athlete.id, athlete.firstname, access_token, refresh_token, expiresAtDate,
-            athlete.firstname, access_token, refresh_token, expiresAtDate]
-    )
+            [athlete.id, athlete.firstname, access_token, refresh_token, expiresAtDate,
+                athlete.firstname, access_token, refresh_token, expiresAtDate]
+        )
+    })
     console.log(`Inserted user`)
 
     await trigger({name: "FetchAllActivities", pilotId: athlete.id})

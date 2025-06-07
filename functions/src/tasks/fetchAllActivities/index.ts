@@ -1,6 +1,6 @@
 import {TaskBody, TaskResult} from "@/tasks/model";
 import {StravaApi} from "@/stravaApi";
-import {getDatabase} from "@/database/client";
+import {withPooledClient} from "@/database/client";
 import {Pilots} from "@/database/Pilots";
 import {Flights} from "@/database/Flights";
 import {StravaActivity, StravaActivityId} from "@/stravaApi/model";
@@ -41,17 +41,18 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     const api = await StravaApi.fromUserId(pilot.pilot_id)
 
     // Get existing activity IDs from database
-    const database = await getDatabase()
-    type ExistingStravaActivityId = Pick<FlightRow, 'strava_activity_id'>
-    console.log('Gonna fetch existingActivityIds')
-    const existingActivityIdsResult = await database.query<ExistingStravaActivityId>(`
-        select f.strava_activity_id as strava_activity_id
-        from flights as f
-        where pilot_id = $1
-    `, [pilot.pilot_id])
-    console.log(`Fetched existingActivityIdsResult=${JSON.stringify(existingActivityIdsResult)}`)
+    const existingActivityIds: StravaActivityId[] = await withPooledClient(async (database) => {
+        type ExistingStravaActivityId = Pick<FlightRow, 'strava_activity_id'>
+        console.log('Gonna fetch existingActivityIds')
+        const existingActivityIdsResult = await database.query<ExistingStravaActivityId>(`
+            select f.strava_activity_id as strava_activity_id
+            from flights as f
+            where pilot_id = $1
+        `, [pilot.pilot_id])
+        console.log(`Fetched existingActivityIdsResult=${JSON.stringify(existingActivityIdsResult)}`)
 
-    const existingActivityIds: StravaActivityId[] = [...existingActivityIdsResult].map(a => a.strava_activity_id);
+        return [...existingActivityIdsResult].map(a => a.strava_activity_id);
+    });
 
     // Fetch activities
     const paraglidingActivityIdsResult = await api.fetchParaglidingActivityIds(1000, existingActivityIds)

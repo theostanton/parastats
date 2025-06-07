@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, beforeEach, expect, it, test} from "vitest";
 import {TestContainer} from "@/database/generateContainer.test";
 import {StartedPostgreSqlContainer} from "@testcontainers/postgresql";
-import {end, getDatabase} from "@/database/client";
+import {end} from "@/database/client";
 import {DescriptionPreference, FlightRow} from "@/database/model";
 import {Mocks} from "@/database/Mocks.test";
 import {DescriptionFormatter} from "./DescriptionFormatter";
