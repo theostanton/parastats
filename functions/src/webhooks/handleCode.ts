@@ -1,11 +1,11 @@
 import {Request, Response} from "express";
-import {StravaAthlete} from "../model/stravaApi/model";
+import {StravaAthlete} from "@/stravaApi/model";
 import axios from "axios";
-import {StravaApi} from "../model/stravaApi";
-import {getDatabase} from "../model/database/client";
-import {PilotRow} from "../model/database/model";
-import trigger from "../tasks/trigger";
-import {sign} from "../jwt";
+import {StravaApi} from "@/stravaApi";
+import {getDatabase} from "@/database/client";
+import {PilotRow} from "@/database/model";
+import trigger from "@/tasks/trigger";
+import {sign} from "@/jwt";
 
 export async function handleCode(req: Request, res: Response) {
     console.log("handleCode code=", req.query['code'])

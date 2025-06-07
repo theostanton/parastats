@@ -1,5 +1,5 @@
 import {FfvlReport, WindDirection, WindsockReport} from "./model";
-import {Result} from "../model";
+import {Result} from "@/model/model";
 import axios from "axios";
 
 export namespace FFVL {

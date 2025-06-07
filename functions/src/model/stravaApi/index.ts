@@ -1,7 +1,7 @@
 import axios, {AxiosHeaders} from "axios";
 import {StravaActivityId, StravaActivitySummary, StravaAthlete} from "./model";
-import {failed, Result, success} from "../model";
-import {Pilots} from "../database/Pilots";
+import {failed, Result, success} from "@/model/model";
+import {Pilots} from "@/database/Pilots";
 
 export class StravaApi {
 

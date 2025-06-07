@@ -1,8 +1,8 @@
 import {getDatabase} from "./client";
-import {Success, Failed, Result, failed, success} from "../model";
+import {Success, Failed, Result, failed, success} from "@/model/model";
 import {PilotRow, PilotRowFull} from "./model";
 import axios from "axios";
-import {StravaAthleteId} from "../stravaApi/model";
+import {StravaAthleteId} from "@parastats/common";
 
 export namespace Pilots {
     export async function insert(pilot: PilotRowFull): Promise<void> {

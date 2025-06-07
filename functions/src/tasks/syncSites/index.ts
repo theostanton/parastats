@@ -1,13 +1,13 @@
-import {TaskBody, TaskResult} from "../model";
+import {TaskBody, TaskResult} from "@/tasks/model";
 import axios from "axios";
-import {LatLng, Site, SiteType, Windsock} from "../../model/database/model";
-import {Sites} from "../../model/database/Sites";
-import {Windsocks} from "../../model/database/Windsocks";
+import {LatLng, Site, SiteType, Windsock} from "@/database/model";
+import {Sites} from "@/database/Sites";
+import {Windsocks} from "@/database/Windsocks";
 
 import getDistance from "@turf/distance"
 import {Coord, Units} from "@turf/helpers"
-import {FfvlBalise, FfvlSite} from "../../model/ffvlApi";
-import {Flights} from "../../model/database/Flights";
+import {FfvlBalise, FfvlSite} from "@/ffvlApi";
+import {Flights} from "@/database/Flights";
 
 export type SyncSitesTask = {
     name: "SyncSites";

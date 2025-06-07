@@ -1,5 +1,5 @@
 import {TaskBody, TaskName} from "./model";
-import {failed, Result, success} from "../model/model";
+import {failed, Result, success} from "@/model/model";
 
 const {CloudTasksClient} = require('@google-cloud/tasks').v2;
 

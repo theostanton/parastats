@@ -1,6 +1,5 @@
 {
   "name": "@parastats/common",
-
   "author": "theostanton",
   "version": "0.1.0",
   "main": "./dist/index.js",
@@ -10,7 +9,13 @@
     "dev": "tsc --watch",
     "test": "vitest run"
   },
+  "dependencies": {
+    "generic-pool": "^3.9.0",
+    "ts-postgres": "^2.0.4"
+  },
   "devDependencies": {
+    "@types/generic-pool": "^3.8.3",
+    "@types/node": "^22.15.30",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"
   }

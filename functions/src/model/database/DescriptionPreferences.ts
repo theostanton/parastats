@@ -1,7 +1,7 @@
-import {Failed, failed, Result, Success, success} from "../model";
+import {Failed, failed, Result, Success, success} from "@/model/model";
 import {getDatabase} from "./client";
 import {DescriptionPreference, PilotRow} from "./model";
-import {StravaAthleteId} from "../stravaApi/model";
+import {StravaAthleteId} from "@parastats/common";
 
 export namespace DescriptionPreferences {
 

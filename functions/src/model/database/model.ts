@@ -1,4 +1,4 @@
-import {StravaActivityId, StravaAthleteId} from "../stravaApi/model";
+import {StravaActivityId, StravaAthleteId} from "@/stravaApi/model";
 import { LatLng, Polyline, SiteType } from '@parastats/common';
 
 export { LatLng, Polyline, SiteType };

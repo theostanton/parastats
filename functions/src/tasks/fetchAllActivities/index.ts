@@ -1,11 +1,11 @@
-import {TaskBody, TaskResult} from "../model";
-import {StravaApi} from "../../model/stravaApi";
-import {getDatabase} from "../../model/database/client";
-import {Pilots} from "../../model/database/Pilots";
-import {Flights} from "../../model/database/Flights";
-import {StravaActivity, StravaActivityId} from "../../model/stravaApi/model";
+import {TaskBody, TaskResult} from "@/tasks/model";
+import {StravaApi} from "@/stravaApi";
+import {getDatabase} from "@/database/client";
+import {Pilots} from "@/database/Pilots";
+import {Flights} from "@/database/Flights";
+import {StravaActivity, StravaActivityId} from "@/stravaApi/model";
 import axios, {AxiosHeaders} from "axios";
-import {FlightRow} from "../../model/database/model";
+import {FlightRow} from "@/database/model";
 import {StravaActivityToFlightConverter} from "./StravaActivityToFlightConverter";
 
 

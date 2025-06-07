@@ -1,9 +1,8 @@
-import {DescriptionPreference, FlightRow, SiteType} from "../../model/database/model";
-import {getDatabase} from "../../model/database/client";
-import {Client} from "ts-postgres";
-import {FFVL} from "../../model/ffvlApi";
-import {WindDirection} from "../../model/ffvlApi/model";
-import {DescriptionPreferences} from "../../model/database/DescriptionPreferences";
+import {DescriptionPreference, FlightRow, SiteType} from "@/database/model";
+import {withPooledClient, Client} from "@parastats/common";
+import {FFVL} from "@/ffvlApi";
+import {WindDirection} from "@/ffvlApi/model";
+import {DescriptionPreferences} from "@/database/DescriptionPreferences";
 import {StravaAthleteId} from "@parastats/common";
 
 export type AggregationResult = {
@@ -38,29 +37,25 @@ export class DescriptionFormatter {
     private allTimePrefix: string;
 
     static async create(flightRow: FlightRow) {
-        const client = await getDatabase()
         const preference = await getPreferenceForPilotOrDefaults(flightRow.pilot_id)
-        return new DescriptionFormatter(client, flightRow, preference)
+        return new DescriptionFormatter(flightRow, preference)
     }
 
     constructor(
-        private client: Client,
         private flightRow: FlightRow,
         private preference: DescriptionPreference
     ) {
-        this.client = client
-
         this.allTimePrefix = 'All Time'
         this.wingPrefix = `🪂 ${this.flightRow.wing}`
         this.yearPrefix = this.flightRow.start_date.getFullYear().toString()
         this.maxLength = 2 + Math.max(this.wingPrefix.length, this.yearPrefix.length, this.allTimePrefix.length)
     }
 
-    async appendWingAggregation() {
+    async appendWingAggregation(client: Client) {
         if (!this.preference.include_wing_aggregate) {
             return
         }
-        const result = await this.client.query<AggregationResult>(`
+        const result = await client.query<AggregationResult>(`
             select count(1)::int               as count,
                    sum(duration_sec)::float    as total_duration_sec,
                    sum(distance_meters)::float as total_distance_meters
@@ -92,7 +87,7 @@ export class DescriptionFormatter {
         return `${prefix} ${siteName}`
     }
 
-    async appendSites() {
+    async appendSites(client: Client) {
 
         if (!this.preference.include_sites) {
             return
@@ -104,7 +99,7 @@ export class DescriptionFormatter {
             takeoff_name: string,
             takeoff_balise_id: string | undefined
         }
-        const result = await this.client.query<Row>(`
+        const result = await client.query<Row>(`
             select t.name              as takeoff_name,
                    t.nearest_balise_id as takeoff_balise_id,
                    l.name              as landing_name,
@@ -124,13 +119,13 @@ export class DescriptionFormatter {
         this.lines.push(landingLine)
     }
 
-    async appendYearAggregation() {
+    async appendYearAggregation(client: Client) {
 
         if (!this.preference.include_year_aggregate) {
             return
         }
 
-        const result = await this.client.query<AggregationResult>(`
+        const result = await client.query<AggregationResult>(`
             select count(1)::int               as count,
                    sum(duration_sec)::float    as total_duration_sec,
                    sum(distance_meters)::float as total_distance_meters
@@ -145,12 +140,12 @@ export class DescriptionFormatter {
         this.lines.push(`${this.yearPrefix.padEnd(this.maxLength, " ")}  ${formatAggregationResult(values)}`)
     }
 
-    async appendAllTimeAggregation() {
+    async appendAllTimeAggregation(client: Client) {
         if (!this.preference.include_all_time_aggregate) {
             return
         }
 
-        const result = await this.client.query<AggregationResult>(`
+        const result = await client.query<AggregationResult>(`
             select count(1)::int               as count,
                    sum(duration_sec)::float    as total_duration_sec,
                    sum(distance_meters)::float as total_distance_meters
@@ -165,19 +160,20 @@ export class DescriptionFormatter {
     }
 
     async generate(): Promise<string | null> {
+        return withPooledClient(async (client: Client) => {
+            if (this.lines.length == 0) {
+                await this.appendSites(client)
+                await this.appendWingAggregation(client)
+                await this.appendYearAggregation(client)
+                await this.appendAllTimeAggregation(client)
+            }
 
-        if (this.lines.length == 0) {
-            await this.appendSites()
-            await this.appendWingAggregation()
-            await this.appendYearAggregation()
-            await this.appendAllTimeAggregation()
-        }
+            if (this.lines.length == 0) {
+                return null;
+            }
 
-        if (this.lines.length == 0) {
-            return null;
-        }
-
-        return [...this.lines, '🌐 paragliderstats.com'].join('\n')
+            return [...this.lines, '🌐 paragliderstats.com'].join('\n')
+        });
     }
 }
 

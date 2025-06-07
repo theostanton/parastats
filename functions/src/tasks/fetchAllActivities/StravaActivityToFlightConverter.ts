@@ -1,8 +1,8 @@
-import {StravaActivity, StravaAthleteId} from "../../model/stravaApi/model";
-import {FlightRow, LatLng, Polyline} from "../../model/database/model";
+import {StravaActivity, StravaAthleteId} from "@/stravaApi/model";
+import {FlightRow, LatLng, Polyline} from "@/database/model";
 import {decode, LatLngTuple} from "@googlemaps/polyline-codec";
-import {Result} from "../../model/model";
-import {Sites} from "../../model/database/Sites";
+import {Result} from "@/model/model";
+import {Sites} from "@/database/Sites";
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 

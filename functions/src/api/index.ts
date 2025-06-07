@@ -1,5 +1,5 @@
 import express, {Request, Response} from "express";
-import {verifyJwt} from "../jwt";
+import {verifyJwt} from "@/jwt";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import {getSelf} from "./getSelf";

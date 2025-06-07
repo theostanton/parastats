@@ -1,5 +1,5 @@
 import {failure, Either, success} from "@model/Either";
-import {getDatabase} from "./client";
+import {withPooledClient, Client} from "./client";
 import {FlightWithSites, StravaActivityId, StravaAthleteId} from "@parastats/common";
 
 export namespace Flights {
@@ -21,51 +21,55 @@ export namespace Flights {
     `
 
     export async function getAll(): Promise<Either<FlightWithSites[]>> {
-        const database = await getDatabase()
-        const result = await database.query<FlightWithSites>(FlightsWithSitesQuery)
-        if (result.rows) {
-            return success(result.rows.map(row => row.reify()))
-        } else {
-            return failure(`No flights`)
-        }
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(FlightsWithSitesQuery)
+            if (result.rows) {
+                return success(result.rows.map(row => row.reify()))
+            } else {
+                return failure(`No flights`)
+            }
+        });
     }
 
     export async function getForPilot(pilotId: StravaAthleteId, limit: number = 1000): Promise<Either<FlightWithSites[]>> {
-        const database = await getDatabase()
-        const result = await database.query<FlightWithSites>(`
-        ${FlightsWithSitesQuery}
-            where pilot_id = $1
-            limit $2`, [pilotId, limit])
-        if (result.rows) {
-            return success(result.rows.map(row => row.reify()))
-        } else {
-            return failure(`No flights for pilot_id=${pilotId}`)
-        }
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(`
+            ${FlightsWithSitesQuery}
+                where pilot_id = $1
+                limit $2`, [pilotId, limit])
+            if (result.rows) {
+                return success(result.rows.map(row => row.reify()))
+            } else {
+                return failure(`No flights for pilot_id=${pilotId}`)
+            }
+        });
     }
 
     export async function getForPilotAndWing(pilotId: StravaAthleteId, wing: string): Promise<Either<FlightWithSites[]>> {
-        const database = await getDatabase()
-        const result = await database.query<FlightWithSites>(`
-            ${FlightsWithSitesQuery}
-            where pilot_id = $1
-              and lower(wing) = $2`, [pilotId, wing])
-        if (result.rows) {
-            return success(result.rows.map(row => row.reify()))
-        } else {
-            return failure(`No flights for pilotId=${pilotId} && wing=${wing}`)
-        }
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(`
+                ${FlightsWithSitesQuery}
+                where pilot_id = $1
+                  and lower(wing) = $2`, [pilotId, wing])
+            if (result.rows) {
+                return success(result.rows.map(row => row.reify()))
+            } else {
+                return failure(`No flights for pilotId=${pilotId} && wing=${wing}`)
+            }
+        });
     }
 
     export async function get(flightId: StravaActivityId): Promise<Either<FlightWithSites>> {
-        const database = await getDatabase()
-        const result = await database.query<FlightWithSites>(`
-            ${FlightsWithSitesQuery}
-            where strava_activity_id = $1`, [flightId])
-        if (result.rows.length === 1) {
-            return success(result.rows[0].reify())
-        } else {
-            return failure(`No flight for flightId=${flightId}`)
-        }
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(`
+                ${FlightsWithSitesQuery}
+                where strava_activity_id = $1`, [flightId])
+            if (result.rows.length === 1) {
+                return success(result.rows[0].reify())
+            } else {
+                return failure(`No flight for flightId=${flightId}`)
+            }
+        });
     }
 
     // async function rowWithSites(result: Result<Flight>): Promise<Either<FlightWithSites>> {

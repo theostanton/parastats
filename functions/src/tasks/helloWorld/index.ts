@@ -1,4 +1,4 @@
-import {TaskBody, TaskResult} from "../model";
+import {TaskBody, TaskResult} from "@/tasks/model";
 
 
 export type HelloWorldTask = {

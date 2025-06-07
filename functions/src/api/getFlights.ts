@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import {extractPilotFromJwt} from "../jwt";
-import {Flights} from "../model/database/Flights";
+import {extractPilotFromJwt} from "@/jwt";
+import {Flights} from "@/database/Flights";
 
 export async function getFlights(req: Request, res: Response) {
 

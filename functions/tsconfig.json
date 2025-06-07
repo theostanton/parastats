@@ -6,7 +6,20 @@
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@/model/*": ["./src/model/*"],
+      "@/database/*": ["./src/model/database/*"],
+      "@/stravaApi": ["./src/model/stravaApi/index"],
+      "@/stravaApi/*": ["./src/model/stravaApi/*"],
+      "@/ffvlApi": ["./src/model/ffvlApi/index"],
+      "@/ffvlApi/*": ["./src/model/ffvlApi/*"],
+      "@/tasks/*": ["./src/tasks/*"],
+      "@/api/*": ["./src/api/*"],
+      "@/webhooks/*": ["./src/webhooks/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/jwt": ["./src/jwt"]
+    }
   },
   "ts-node": {
     "transpileOnly": true

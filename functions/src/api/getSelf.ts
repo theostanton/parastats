@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {extractPilotFromJwt} from "../jwt";
+import {extractPilotFromJwt} from "@/jwt";
 
 export async function getSelf(req: Request, res: Response) {
     const user = await extractPilotFromJwt(req)
