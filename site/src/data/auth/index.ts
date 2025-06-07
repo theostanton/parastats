@@ -1,7 +1,7 @@
 import {failure, Either, success} from "@model/Either";
 import {jwtVerify} from "jose";
 import {cookies} from "next/headers";
-import {StravaAthleteId} from "@model/Pilot";
+import {StravaAthleteId} from "@parastats/common";
 
 export namespace Auth {
 

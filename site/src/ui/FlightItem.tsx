@@ -1,6 +1,6 @@
 'use client'
 
-import {FlightWithSites} from "@model/Flight";
+import {FlightWithSites} from "@parastats/common";
 import Link from "next/link";
 import Stats from "@ui/stats/Stats";
 import {Stat} from "@ui/stats/model";

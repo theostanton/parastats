@@ -1,6 +1,6 @@
 import {failure, Either, success} from "@model/Either";
 import {getDatabase} from "./client";
-import {Pilot} from "@model/Pilot";
+import {Pilot} from "@parastats/common";
 
 export async function getAll
 (): Promise<Either<Pilot[]>> {

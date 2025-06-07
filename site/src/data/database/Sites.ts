@@ -1,7 +1,6 @@
 import {failure, Either, success} from "@model/Either";
 import {getDatabase} from "./client";
-import {StravaAthleteId} from "@model/Pilot";
-import {Site} from "@model/Site";
+import {Site, StravaAthleteId} from "@parastats/common";
 
 export type PilotSitesStats = {
     takeoffs: SitesStatsItem[]

@@ -1,11 +1,16 @@
-export type StravaActivityId = string
-export type StravaAthleteId = number
+import { StravaActivityId, StravaAthleteId } from '@parastats/common';
+
+export { StravaActivityId, StravaAthleteId };
 
 export type StravaAthlete = {
     id: StravaAthleteId
     username: string
     firstname: string
     lastname: string
+    city: string
+    country: string
+    profile: string
+    profile_medium: string
 }
 
 type StravaActivityType = "AlpineSki" | "KiteSurf" | "Workout" | string

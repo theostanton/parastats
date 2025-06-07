@@ -1,7 +1,7 @@
 import {StravaActivityId, StravaAthleteId} from "../stravaApi/model";
+import { LatLng, Polyline, SiteType } from '@parastats/common';
 
-export type LatLng = [lat: number, lng: number]
-export type Polyline = LatLng[]
+export { LatLng, Polyline, SiteType };
 
 export type PilotRow = {
     pilot_id: StravaAthleteId
@@ -27,10 +27,6 @@ export type     FlightRow = {
     takeoff_id: string | undefined
 }
 
-export enum SiteType {
-    landing,
-    takeoff
-}
 
 export type Site = {
     ffvl_sid: string,
@@ -43,6 +39,7 @@ export type Site = {
     type: SiteType | null
     nearest_balise_id: string | null
 }
+
 
 export type DescriptionPreference = {
     pilot_id: StravaAthleteId

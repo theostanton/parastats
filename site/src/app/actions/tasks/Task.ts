@@ -1,4 +1,4 @@
-import {StravaActivityId} from "@model/Flight";
+import {StravaActivityId} from "@parastats/common";
 
 export type TaskBody = WingActivityTask
 

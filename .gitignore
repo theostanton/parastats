@@ -44,6 +44,7 @@ node_modules/
 /dist/
 /functions/.task/
 /functions/dist/
+/common/dist/
 site/.next
 .task
 /infra/.terraform

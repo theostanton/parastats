@@ -1,6 +1,5 @@
-import {StravaAthleteId} from "@model/Pilot";
+import {StravaAthleteId, StravaActivityId} from "@parastats/common";
 import Link from "next/link";
-import {StravaActivityId} from "@model/Flight";
 import styles from "./Links.module.css"
 
 export default function ViewOnStrava({flightId}: { flightId: StravaActivityId }) {

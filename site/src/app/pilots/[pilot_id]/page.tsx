@@ -4,7 +4,7 @@ import {getPilotWingStats} from "@database/stats";
 import styles from "@styles/Page.module.css";
 import {Metadata, ResolvingMetadata} from "next";
 import {createMetadata} from "@ui/metadata";
-import {StravaAthleteId} from "@model/Pilot";
+import {StravaAthleteId} from "@parastats/common";
 import FlightItem from "@ui/FlightItem";
 import Link from "next/link";
 import {Sites} from "@database/Sites";
