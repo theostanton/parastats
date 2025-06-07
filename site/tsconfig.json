@@ -9,8 +9,10 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
+    "disableSourceOfProjectReferenceRedirect": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
+    "assumeChangesOnlyAffectDirectDependencies": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -19,6 +21,12 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
+      "@parastats/common": [
+        "../common/src/index.ts"
+      ],
+      "@parastats/common/*": [
+        "../common/src/*"
+      ],
       "@model/*": [
         "./src/data/model/*"
       ],

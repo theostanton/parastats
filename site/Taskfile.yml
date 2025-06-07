@@ -5,10 +5,9 @@ tasks:
   build:
     desc: Build the image
     internal: true
-    dir: site
     cmds:
       - |
-        docker build -f prod.Dockerfile \
+        docker build -f site/prod.Dockerfile \
         -t europe-west1-docker.pkg.dev/para-stats/parastats/parastats-site:{{.TAG}} \
         --platform linux/amd64 \
         --build-arg DATABASE_HOST={{.DATABASE_HOST}} \
@@ -40,13 +39,10 @@ tasks:
     desc: Deploy site image
     vars:
       TAG: '{{now | unixEpoch}}'
-    dir: site
     sources:
-      - ./**
-      - src/**/*.ts
-      - src/**/*.tsx
+      - site/**
       - common/**/*.ts
-      - exclude: src/**/*.test.ts
+      - exclude: site/**/*.test.ts
     cmds:
       - task: build
         vars:

@@ -1,8 +1,0 @@
-version: "3"
-
-tasks:
-  hello-world:
-    desc: Hello
-    dir: database
-    cmds:
-      - psql {{.DATABASE_CONNECTION_URL }}

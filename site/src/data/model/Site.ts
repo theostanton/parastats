@@ -1,4 +1,4 @@
-import {Polyline} from "@model/Flight";
+import {Polyline} from "@parastats/common";
 
 export type Site = {
     ffvl_sid: string

@@ -2,7 +2,8 @@ import {failure, Either, success} from "@model/Either";
 import {getDatabase} from "./client";
 import {Pilot} from "@model/Pilot";
 
-export async function getAll(): Promise<Either<Pilot[]>> {
+export async function getAll
+(): Promise<Either<Pilot[]>> {
     const database = await getDatabase()
     const result = await database.query<Pilot>(`
         select first_name, pilot_id

@@ -1,10 +1,8 @@
 import {StravaAthleteId} from "@model/Pilot";
 import {Site} from "@model/Site";
+import {Polyline} from "@parastats/common";
 
 export type StravaActivityId = number
-
-export type LatLng = [lat: number, lng: number]
-export type Polyline = LatLng[]
 
 export type Flight = {
     pilot_id: StravaAthleteId,

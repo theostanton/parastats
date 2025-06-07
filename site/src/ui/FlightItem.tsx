@@ -1,10 +1,9 @@
 'use client'
 
-import {Flight, FlightWithSites} from "@model/Flight";
+import {FlightWithSites} from "@model/Flight";
 import Link from "next/link";
 import Stats from "@ui/stats/Stats";
 import {Stat} from "@ui/stats/model";
-import {Vibur} from "next/dist/compiled/@next/font/dist/google";
 import ViewOnStrava from "@ui/links/ViewOnStrava";
 import styles from "./FlightItem.module.css"
 import VerticalSpace from "@ui/VerticalSpace";

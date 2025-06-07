@@ -4,14 +4,17 @@ FROM node:24-alpine as base
 
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* .npmrc* ./
-RUN yarn --frozen-lockfile
+# Install site dependencies (without common package for dev)
+COPY site/package.json .
+COPY site/yarn.lock .
+# Remove common package dependency for development
+RUN sed -i '/"@parastats\/common":/d' package.json
+RUN yarn install
 
-COPY src ./src
-COPY public ./public
-COPY next.config.js .
-COPY tsconfig.json .
+COPY site/src ./src
+COPY site/public ./public
+COPY site/next.config.js .
+COPY site/tsconfig.json .
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at run time
@@ -20,4 +23,4 @@ COPY tsconfig.json .
 # Note: Don't expose ports here, Compose will handle that for us
 
 # Start Next.js in development mode based on the preferred package manager
-CMD yarn dev --turbopack
+CMD yarn dev

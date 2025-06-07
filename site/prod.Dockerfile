@@ -7,16 +7,24 @@ FROM base AS builder
 
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json ./
-COPY yarn.lock ./
-# Omit --production flag for TypeScript devDependencies
-RUN yarn
+# Copy common package and build it
+COPY common ./common
+WORKDIR /app/common
+RUN yarn install && yarn build
 
-COPY src ./src
-COPY public ./public
-COPY next.config.js .
-COPY tsconfig.json .
+# Install site dependencies
+WORKDIR /app
+COPY site/package.json ./
+COPY site/yarn.lock ./
+# Fix the common package path for Docker context
+RUN sed -i 's|"file:../common"|"file:./common"|g' package.json
+# Omit --production flag for TypeScript devDependencies
+RUN yarn install
+
+COPY site/src ./src
+COPY site/public ./public
+COPY site/next.config.js .
+COPY site/tsconfig.json .
 
 # Buildtime
 ARG DATABASE_HOST
