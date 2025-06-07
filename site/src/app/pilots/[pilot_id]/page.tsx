@@ -9,6 +9,8 @@ import {StravaAthleteId} from "@parastats/common";
 import FlightItem from "@ui/FlightItem";
 import Link from "next/link";
 import {Sites} from "@database/Sites";
+import PilotMap from "@ui/PilotMap";
+import mapStyles from "@ui/FlightMap.module.css";
 
 type Params = { pilot_id: StravaAthleteId };
 
@@ -37,13 +39,15 @@ export default async function PagePilot({params}: {
         [wingStats, wingStatsErrorMessage],
         [stats, takeoffStatsErrorMessage],
         [flights, flightsErrorMessage],
-        [totalFlightCount, flightCountErrorMessage]
+        [totalFlightCount, flightCountErrorMessage],
+        [allFlights, allFlightsErrorMessage]
     ] = await Promise.all([
         get(pilotId),
         getPilotWingStats(pilotId),
         Sites.getPilotStats(pilotId),
         Flights.getForPilot(pilotId, 5),
-        Flights.getPilotFlightCount(pilotId)
+        Flights.getPilotFlightCount(pilotId),
+        Flights.getAllForPilotWithPolylines(pilotId)
     ]);
     
     if (pilotErrorMessage) {
@@ -60,6 +64,9 @@ export default async function PagePilot({params}: {
     }
     if (flightCountErrorMessage) {
         return <h1>flightCountErrorMessage={flightCountErrorMessage}</h1>
+    }
+    if (allFlightsErrorMessage) {
+        return <h1>allFlightsErrorMessage={allFlightsErrorMessage}</h1>
     }
 
     const totalFlights = totalFlightCount;
@@ -160,6 +167,16 @@ export default async function PagePilot({params}: {
                             ))}
                     </div>
                 </div>
+            </div>
+
+            {/* Pilot Activity Map Section */}
+            <div className={detailStyles.infoCard}>
+                <h3 className={detailStyles.infoTitle}>Flying Activity Map</h3>
+                <PilotMap 
+                    flights={allFlights || []}
+                    pilotName={pilot.first_name}
+                    className={mapStyles.mapContainer}
+                />
             </div>
 
             {/* Recent Flights Section */}

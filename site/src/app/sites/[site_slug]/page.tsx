@@ -6,6 +6,8 @@ import {Sites} from "@database/Sites";
 import {Flights} from "@database/flights";
 import FlightItem from "@ui/FlightItem";
 import {StravaAthleteId} from "@parastats/common";
+import SiteMap from "@ui/SiteMap";
+import mapStyles from "@ui/FlightMap.module.css";
 
 export const metadata: Metadata = createMetadata("Site")
 
@@ -23,12 +25,10 @@ export default async function SiteDetail({params}: {
         </div>;
     }
 
-    // Get recent flights from this site (both takeoffs and landings)
-    const [allFlights] = await Flights.getAll();
-    const siteFlights = allFlights ? allFlights.filter(flight => 
-        flight.takeoff?.ffvl_sid === site.ffvl_sid || 
-        flight.landing?.ffvl_sid === site.ffvl_sid
-    ).slice(0, 10) : [];
+    // Get flights from this site (both takeoffs and landings)
+    const [siteFlights] = await Flights.getForSite(site.ffvl_sid);
+    const recentFlights = siteFlights ? siteFlights.slice(0, 10) : [];
+    const allSiteFlights = siteFlights || [];
 
     const formatCoordinate = (coord: number) => coord.toFixed(6);
     const formatAltitude = (alt: number) => `${alt}m`;
@@ -75,8 +75,8 @@ export default async function SiteDetail({params}: {
                     <h3 className={detailStyles.infoTitle}>Flight Activity</h3>
                     <div className={detailStyles.infoGrid}>
                         <div className={detailStyles.infoItem}>
-                            <span className={detailStyles.infoLabel}>Recent Flights</span>
-                            <span className={detailStyles.infoValue}>{siteFlights.length}</span>
+                            <span className={detailStyles.infoLabel}>Total Flights</span>
+                            <span className={detailStyles.infoValue}>{allSiteFlights.length}</span>
                         </div>
                         <div className={detailStyles.infoItem}>
                             <span className={detailStyles.infoLabel}>Site Slug</span>
@@ -86,12 +86,22 @@ export default async function SiteDetail({params}: {
                 </div>
             </div>
 
+            {/* Site Map Section */}
+            <div className={detailStyles.infoCard}>
+                <h3 className={detailStyles.infoTitle}>Site Location & Flight Activity</h3>
+                <SiteMap 
+                    site={site}
+                    flights={allSiteFlights}
+                    className={mapStyles.mapContainer}
+                />
+            </div>
+
             {/* Recent Flights Section */}
-            {siteFlights.length > 0 && (
+            {recentFlights.length > 0 && (
                 <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>Recent Flights</h3>
                     <div className={detailStyles.flightsList}>
-                        {siteFlights.map(flight => (
+                        {recentFlights.map(flight => (
                             <FlightItem key={flight.strava_activity_id} flight={flight} />
                         ))}
                     </div>

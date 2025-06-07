@@ -97,7 +97,6 @@ export namespace Sites {
             if (result.rows) {
                 return success(result.rows.map(row => {
                     const site = row.reify();
-                    console.log(`site.flight_count=${site.flight_count}`)
                     return {
                         ...site,
                         flightCount: parseInt(site.flight_count)

@@ -7,6 +7,8 @@ import Stats from "@ui/stats/Stats";
 import ViewOnStrava from "@ui/links/ViewOnStrava";
 import ClientOnlyDate from "@ui/ClientOnlyDate";
 import Link from "next/link";
+import FlightMap from "@ui/FlightMap";
+import mapStyles from "@ui/FlightMap.module.css";
 
 
 export default async function FlightDetail({params}: {
@@ -148,6 +150,25 @@ export default async function FlightDetail({params}: {
                         )}
                     </div>
                 </div>
+            </div>
+
+            {/* Flight Map Section */}
+            <div className={flightStyles.infoCard}>
+                <h3 className={flightStyles.infoTitle}>Flight Path</h3>
+                <FlightMap 
+                    polyline={flight.polyline}
+                    takeoffSite={flight.takeoff ? {
+                        name: flight.takeoff.name,
+                        lat: flight.takeoff.lat,
+                        lng: flight.takeoff.lng
+                    } : null}
+                    landingSite={flight.landing ? {
+                        name: flight.landing.name,
+                        lat: flight.landing.lat,
+                        lng: flight.landing.lng
+                    } : null}
+                    className={mapStyles.mapContainer}
+                />
             </div>
 
             {/* Description Section */}

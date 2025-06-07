@@ -12,12 +12,15 @@
     "@parastats/common": "file:../common",
     "axios": "^1.9.0",
     "jose": "^6.0.11",
+    "mapbox-gl": "^3.12.0",
     "next": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-map-gl": "^8.0.4",
     "ts-postgres": "^2.0.4"
   },
   "devDependencies": {
+    "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^22.15.24",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",

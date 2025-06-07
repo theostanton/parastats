@@ -89,6 +89,34 @@ export namespace Flights {
         });
     }
 
+    export async function getAllForPilotWithPolylines(pilotId: StravaAthleteId): Promise<Either<FlightWithSites[]>> {
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(
+                generateQuery("where f.pilot_id = $1"),
+                [pilotId]
+            )
+            if (result.rows) {
+                return success(result.rows.map(row => row.reify()))
+            } else {
+                return failure(`No flights for pilot_id=${pilotId}`)
+            }
+        });
+    }
+
+    export async function getForSite(siteId: string): Promise<Either<FlightWithSites[]>> {
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(
+                generateQuery("where f.takeoff_id = $1 OR f.landing_id = $1"),
+                [siteId]
+            )
+            if (result.rows) {
+                return success(result.rows.map(row => row.reify()))
+            } else {
+                return failure(`No flights for site_id=${siteId}`)
+            }
+        });
+    }
+
     // async function rowWithSites(result: Result<Flight>): Promise<Either<FlightWithSites>> {
     //     const flight: Flight = result.rows[0].reify()
     //
