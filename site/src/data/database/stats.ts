@@ -16,7 +16,7 @@ export async function getPilotWingStats(pilotId: StravaAthleteId): Promise<Eithe
         const result = await database.query<WingStatItem>(`
             select trim(wing) as wing, count(1) as flights
             from flights
-            where pilot_id = $1
+            where pilot_id = $1::integer
             group by trim(wing)
             order by flights desc
         `, [pilotId])

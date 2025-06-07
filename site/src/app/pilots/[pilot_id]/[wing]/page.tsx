@@ -4,9 +4,10 @@ import styles from "@styles/Page.module.css";
 import FlightItem from "@ui/FlightItem";
 
 export default async function PagePilot({params}: {
-    params: Promise<{ pilot_id: number, wing: string }>
+    params: Promise<{ pilot_id: string, wing: string }>
 }) {
-    const {pilot_id, wing} = await params
+    const {pilot_id: pilotIdStr, wing} = await params
+    const pilot_id = parseInt(pilotIdStr)
     console.log('pilot_id', pilot_id, 'wing', wing)
     const [pilot, pilotErrorMessage] = await get(pilot_id);
     if (pilotErrorMessage) {

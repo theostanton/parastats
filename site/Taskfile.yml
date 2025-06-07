@@ -14,6 +14,7 @@ tasks:
         --build-arg DATABASE_NAME={{.DATABASE_NAME}} \
         --build-arg DATABASE_PASSWORD={{.DATABASE_PASSWORD}} \
         --build-arg DATABASE_PORT={{.DATABASE_PORT}} \
+        --build-arg NEXT_PUBLIC_MAPBOX_TOKEN={{.NEXT_PUBLIC_MAPBOX_TOKEN}} \
         --build-arg DATABASE_USER={{.DATABASE_USER}} \
         .
 
@@ -33,7 +34,7 @@ tasks:
     requires:
       vars: [ TAG ]
     cmds:
-      - echo "site_tag = \"{{.TAG}}\"" > ../infra/terraform.tfvars
+      - sed -i '' 's/^site_tag = .*/site_tag = "{{.TAG}}"/' ../infra/terraform.tfvars
 
   deploy:
     desc: Deploy site image

@@ -5,21 +5,20 @@ import styles from "@styles/Page.module.css";
 import detailStyles from "@ui/DetailPages.module.css";
 import {Metadata, ResolvingMetadata} from "next";
 import {createMetadata} from "@ui/metadata";
-import {StravaAthleteId} from "@parastats/common";
 import FlightItem from "@ui/FlightItem";
 import Link from "next/link";
 import {Sites} from "@database/Sites";
 import PilotMap from "@ui/PilotMap";
 import mapStyles from "@ui/FlightMap.module.css";
 
-type Params = { pilot_id: StravaAthleteId };
+type Params = { pilot_id: string };
 
 export async function generateMetadata(
     {params}: { params: Promise<Params> },
     parent: ResolvingMetadata
 ): Promise<Metadata> {
 
-    const pilotId = (await params).pilot_id
+    const pilotId = parseInt((await params).pilot_id)
     const [pilot, pilotErrorMessage] = await get(pilotId);
     if (pilotErrorMessage) {
         return createMetadata()
@@ -31,7 +30,7 @@ export async function generateMetadata(
 export default async function PagePilot({params}: {
     params: Promise<Params>
 }) {
-    const pilotId = (await params).pilot_id
+    const pilotId = parseInt((await params).pilot_id)
     
     // Run all database calls in parallel to reduce connection time
     const [

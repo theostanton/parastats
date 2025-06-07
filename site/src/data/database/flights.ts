@@ -39,8 +39,8 @@ export namespace Flights {
     export async function getForPilot(pilotId: StravaAthleteId, limit: number = 1000): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightWithSites>(
-                generateQuery("where f.pilot_id = $1", limit),
-                [pilotId, limit]
+                generateQuery("where f.pilot_id = $1::integer", limit),
+                [pilotId]
             )
             if (result.rows) {
                 return success(result.rows.map(row => row.reify()))
@@ -53,7 +53,7 @@ export namespace Flights {
     export async function getForPilotAndWing(pilotId: StravaAthleteId, wing: string): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightWithSites>(
-                generateQuery("where f.pilot_id = $1 and lower(wing) = $2"),
+                generateQuery("where f.pilot_id = $1::integer and lower(wing) = $2"),
                 [pilotId, wing]
             )
             if (result.rows) {
@@ -77,8 +77,8 @@ export namespace Flights {
 
     export async function getPilotFlightCount(pilotId: StravaAthleteId): Promise<Either<number>> {
         return withPooledClient(async (database: Client) => {
-            const result = await database.query<{count: string}>(
-                "SELECT COUNT(*) as count FROM flights WHERE pilot_id = $1",
+            const result = await database.query<{ count: string }>(
+                "SELECT COUNT(*) as count FROM flights WHERE pilot_id = $1::integer",
                 [pilotId]
             );
             if (result.rows && result.rows.length > 0) {
@@ -92,7 +92,7 @@ export namespace Flights {
     export async function getAllForPilotWithPolylines(pilotId: StravaAthleteId): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightWithSites>(
-                generateQuery("where f.pilot_id = $1"),
+                generateQuery("where f.pilot_id = $1::integer"),
                 [pilotId]
             )
             if (result.rows) {
@@ -107,7 +107,7 @@ export namespace Flights {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightWithSites>(
                 generateQuery("where f.takeoff_id = $1 OR f.landing_id = $1"),
-                [siteId]
+                [parseInt(siteId)]
             )
             if (result.rows) {
                 return success(result.rows.map(row => row.reify()))

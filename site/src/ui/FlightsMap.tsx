@@ -1,11 +1,9 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { FlightWithSites } from '@parastats/common';
-import 'mapbox-gl/dist/mapbox-gl.css';
-
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+import BaseMap from './BaseMap';
 
 interface FlightsMapProps {
   flights: FlightWithSites[];
@@ -36,242 +34,119 @@ function getFlightColor(pilotId: string, wing: string): string {
 }
 
 export default function FlightsMap({ flights, className }: FlightsMapProps) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!mapContainer.current || !flights.length) return;
-
-    // Check if Mapbox token is available
-    if (!MAPBOX_TOKEN) {
-      console.error('Mapbox access token is required. Please set NEXT_PUBLIC_MAPBOX_TOKEN environment variable.');
-      return;
-    }
-
-    // Initialize map
-    mapboxgl.accessToken = MAPBOX_TOKEN;
-    console.log('Initializing map with token:', MAPBOX_TOKEN.substring(0, 20) + '...');
-
-    // Calculate bounds from all flight polylines
-    const bounds = new mapboxgl.LngLatBounds();
-    let hasValidPolylines = false;
+  const onMapLoad = useCallback((map: mapboxgl.Map) => {
+    // Track unique sites for markers
+    const sites = new Map();
     
-    flights.forEach(flight => {
+    // Add flight paths
+    flights.forEach((flight, index) => {
       if (flight.polyline && flight.polyline.length > 0) {
-        hasValidPolylines = true;
-        flight.polyline.forEach(([lat, lng]) => {
-          bounds.extend([lng, lat]);
-        });
-      }
-      // Also include takeoff and landing sites
-      if (flight.takeoff) {
-        bounds.extend([flight.takeoff.lng, flight.takeoff.lat]);
-      }
-      if (flight.landing) {
-        bounds.extend([flight.landing.lng, flight.landing.lat]);
-      }
-    });
-
-    // If no valid polylines, center on France (common paragliding area)
-    if (!hasValidPolylines) {
-      bounds.extend([2.3, 46.2]); // France center
-      bounds.extend([2.4, 46.3]);
-    }
-
-    try {
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [2.3, 46.2], // Center on France
-        zoom: 6,
-        pitch: 60, // Tilt the map for 3D effect
-        bearing: 0 // Rotation angle
-      });
-    } catch (error) {
-      console.error('Failed to initialize Mapbox map:', error);
-      return;
-    }
-
-    // Add error handling for map style loading
-    map.current.on('error', (e) => {
-      console.error('Mapbox GL error:', e.error);
-    });
-
-    map.current.on('load', () => {
-      if (!map.current) return;
-      
-      // Fit to bounds if we have valid polylines
-      if (hasValidPolylines) {
-        map.current.fitBounds(bounds, {
-          padding: 50
-        });
-      }
-
-      try {
-        // Enable 3D terrain (optional)
-        map.current.addSource('mapbox-terrain', {
-          type: 'raster-dem',
-          url: 'mapbox://mapbox.terrain-rgb'
-        });
-
-        map.current.setTerrain({
-          source: 'mapbox-terrain',
-          exaggeration: 1.2
-        });
-      } catch (error) {
-        console.warn('Terrain not available:', error);
-      }
-
-      // Track unique sites for markers
-      const sites = new Map();
-      
-      // Add flight paths
-      flights.forEach((flight, index) => {
-        if (flight.polyline && flight.polyline.length > 0) {
-          const flightLineCoordinates = flight.polyline.map(([lat, lng]) => [lng, lat]);
-          const color = getFlightColor(String(flight.pilot_id), flight.wing || 'unknown');
-          
-          const sourceId = `flight-${index}`;
-          const layerId = `flight-line-${index}`;
-          
-          map.current!.addSource(sourceId, {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {
-                flightId: flight.strava_activity_id,
-                wing: flight.wing,
-                pilotName: flight.pilot?.first_name || 'Unknown',
-                pilotId: flight.pilot_id
-              },
-              geometry: {
-                type: 'LineString',
-                coordinates: flightLineCoordinates
-              }
-            }
-          });
-
-          map.current!.addLayer({
-            id: layerId,
-            type: 'line',
-            source: sourceId,
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round'
+        const flightLineCoordinates = flight.polyline.map(([lat, lng]) => [lng, lat]);
+        const color = getFlightColor(String(flight.pilot_id), flight.wing || 'unknown');
+        
+        const sourceId = `flight-${index}`;
+        const layerId = `flight-line-${index}`;
+        
+        map.addSource(sourceId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {
+              flightId: flight.strava_activity_id,
+              wing: flight.wing,
+              pilotName: flight.pilot?.first_name || 'Unknown',
+              pilotId: flight.pilot_id
             },
-            paint: {
-              'line-color': color,
-              'line-width': 3,
-              'line-opacity': 0.7
+            geometry: {
+              type: 'LineString',
+              coordinates: flightLineCoordinates
             }
-          });
+          }
+        });
 
-          // Add click handler for flight paths
-          map.current!.on('click', layerId, (e) => {
-            if (e.features && e.features[0]) {
-              const feature = e.features[0];
-              const properties = feature.properties;
-              
-              new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(`
-                  <div style="font-weight: bold; color: ${color};">✈️ Flight Path</div>
-                  <div><strong>Pilot:</strong> ${properties?.pilotName}</div>
-                  <div><strong>Wing:</strong> ${properties?.wing}</div>
-                  <div><strong>Flight ID:</strong> ${properties?.flightId}</div>
-                  <div style="margin-top: 8px;">
-                    <a href="/flights/${properties?.flightId}" 
-                       style="color: #3b82f6; text-decoration: none; font-size: 12px;">
-                       View Flight Details →
-                    </a>
-                  </div>
-                `)
-                .addTo(map.current!);
-            }
-          });
+        map.addLayer({
+          id: layerId,
+          type: 'line',
+          source: sourceId,
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': color,
+            'line-width': 3,
+            'line-opacity': 0.7
+          }
+        });
 
-          // Change cursor on hover
-          map.current!.on('mouseenter', layerId, () => {
-            map.current!.getCanvas().style.cursor = 'pointer';
-          });
+        // Add click handler for flight paths
+        map.on('click', layerId, (e) => {
+          if (e.features && e.features[0]) {
+            const feature = e.features[0];
+            const properties = feature.properties;
+            
+            new mapboxgl.Popup()
+              .setLngLat(e.lngLat)
+              .setHTML(`
+                <div style="font-weight: bold; color: ${color};">✈️ Flight Path</div>
+                <div><strong>Pilot:</strong> ${properties?.pilotName}</div>
+                <div><strong>Wing:</strong> ${properties?.wing}</div>
+                <div><strong>Flight ID:</strong> ${properties?.flightId}</div>
+                <div style="margin-top: 8px;">
+                  <a href="/flights/${properties?.flightId}" 
+                     style="color: #3b82f6; text-decoration: none; font-size: 12px;">
+                     View Flight Details →
+                  </a>
+                </div>
+              `)
+              .addTo(map);
+          }
+        });
 
-          map.current!.on('mouseleave', layerId, () => {
-            map.current!.getCanvas().style.cursor = '';
-          });
-        }
+        // Change cursor on hover
+        map.on('mouseenter', layerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
 
-        // Collect unique sites
-        if (flight.takeoff && !sites.has(flight.takeoff.ffvl_sid)) {
-          sites.set(flight.takeoff.ffvl_sid, { ...flight.takeoff, type: 'takeoff' });
-        }
-        if (flight.landing && !sites.has(flight.landing.ffvl_sid)) {
-          sites.set(flight.landing.ffvl_sid, { ...flight.landing, type: 'landing' });
-        }
-      });
+        map.on('mouseleave', layerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
+      }
 
-      // Add site markers
-      sites.forEach((site) => {
-        new mapboxgl.Marker({
-          color: site.type === 'takeoff' ? '#22c55e' : '#ef4444',
-          scale: 0.8
-        })
-          .setLngLat([site.lng, site.lat])
-          .setPopup(new mapboxgl.Popup().setHTML(`
-            <div style="font-weight: bold; color: ${site.type === 'takeoff' ? '#22c55e' : '#ef4444'};">
-              ${site.type === 'takeoff' ? '🛫' : '🛬'} ${site.name}
-            </div>
-            <div style="margin: 4px 0;">
-              <strong>Altitude:</strong> ${site.alt}m<br>
-              <strong>Site ID:</strong> ${site.ffvl_sid}
-            </div>
-            <div style="margin-top: 8px;">
-              <a href="/sites/${site.slug}" 
-                 style="color: #3b82f6; text-decoration: none; font-size: 12px;">
-                 View Site Details →
-              </a>
-            </div>
-          `))
-          .addTo(map.current!);
-      });
-
-      // Add navigation controls
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
-
-      setIsLoaded(true);
+      // Collect unique sites
+      if (flight.takeoff && !sites.has(flight.takeoff.ffvl_sid)) {
+        sites.set(flight.takeoff.ffvl_sid, { ...flight.takeoff, type: 'takeoff' });
+      }
+      if (flight.landing && !sites.has(flight.landing.ffvl_sid)) {
+        sites.set(flight.landing.ffvl_sid, { ...flight.landing, type: 'landing' });
+      }
     });
 
-    return () => {
-      if (map.current) {
-        map.current.remove();
-      }
-    };
+    // Add site markers
+    sites.forEach((site) => {
+      new mapboxgl.Marker({
+        color: site.type === 'takeoff' ? '#22c55e' : '#ef4444',
+        scale: 0.8
+      })
+        .setLngLat([site.lng, site.lat])
+        .setPopup(new mapboxgl.Popup().setHTML(`
+          <div style="font-weight: bold; color: ${site.type === 'takeoff' ? '#22c55e' : '#ef4444'};">
+            ${site.type === 'takeoff' ? '🛫' : '🛬'} ${site.name}
+          </div>
+          <div style="margin: 4px 0;">
+            <strong>Altitude:</strong> ${site.alt}m<br>
+            <strong>Site ID:</strong> ${site.ffvl_sid}
+          </div>
+          <div style="margin-top: 8px;">
+            <a href="/sites/${site.slug}" 
+               style="color: #3b82f6; text-decoration: none; font-size: 12px;">
+               View Site Details →
+            </a>
+          </div>
+        `))
+        .addTo(map);
+    });
   }, [flights]);
-
-  if (!MAPBOX_TOKEN) {
-    return (
-      <div className={className} style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--border-radius-lg)',
-        color: 'var(--color-text-secondary)',
-        fontSize: 'var(--font-size-sm)',
-        padding: 'var(--space-6)',
-        textAlign: 'center',
-        gap: 'var(--space-2)'
-      }}>
-        <div>📍 Map not available</div>
-        <div style={{fontSize: 'var(--font-size-xs)'}}>
-          Mapbox access token required. Please set NEXT_PUBLIC_MAPBOX_TOKEN environment variable.
-        </div>
-      </div>
-    );
-  }
 
   if (!flights.length) {
     return (
@@ -291,38 +166,37 @@ export default function FlightsMap({ flights, className }: FlightsMapProps) {
     );
   }
 
+  // Calculate bounds from all flight polylines
+  const bounds = new mapboxgl.LngLatBounds();
+  let hasValidPolylines = false;
+  
+  flights.forEach(flight => {
+    if (flight.polyline && flight.polyline.length > 0) {
+      hasValidPolylines = true;
+      flight.polyline.forEach(([lat, lng]) => {
+        bounds.extend([lng, lat]);
+      });
+    }
+    // Also include takeoff and landing sites
+    if (flight.takeoff) {
+      bounds.extend([flight.takeoff.lng, flight.takeoff.lat]);
+    }
+    if (flight.landing) {
+      bounds.extend([flight.landing.lng, flight.landing.lat]);
+    }
+  });
+
   return (
-    <div className={className} style={{ position: 'relative' }}>
-      <div 
-        ref={mapContainer} 
-        style={{ 
-          width: '100%', 
-          height: '100%',
-          borderRadius: 'var(--border-radius-lg)',
-          overflow: 'hidden'
-        }} 
-      />
-      {!isLoaded && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'rgba(248, 250, 252, 0.9)',
-          borderRadius: 'var(--border-radius-lg)',
-          fontSize: 'var(--font-size-sm)',
-          color: 'var(--color-text-secondary)'
-        }}>
-          Loading flights map...
-        </div>
-      )}
-      
+    <BaseMap 
+      className={className}
+      bounds={hasValidPolylines ? bounds : undefined}
+      center={hasValidPolylines ? undefined : [2.3, 46.2]}
+      zoom={hasValidPolylines ? undefined : 6}
+      fitBoundsOptions={{ padding: hasValidPolylines ? 50 : 200 }}
+      onMapLoad={onMapLoad}
+    >
       {/* Map Legend */}
-      {isLoaded && flights.length > 0 && (
+      {flights.length > 0 && (
         <div style={{
           position: 'absolute',
           bottom: 'var(--space-4)',
@@ -347,6 +221,6 @@ export default function FlightsMap({ flights, className }: FlightsMapProps) {
           </div>
         </div>
       )}
-    </div>
+    </BaseMap>
   );
 }

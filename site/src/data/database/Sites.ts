@@ -49,7 +49,7 @@ export namespace Sites {
                                    count(1)   as flights
                             from flights as f
                                      left join sites as s on s.ffvl_sid = f.takeoff_id
-                            where f.pilot_id = $1
+                            where f.pilot_id = $1::integer
                             group by f.takeoff_id, s.ffvl_sid)
 
                 select ss.flights as flights, to_json(s) as site
@@ -63,7 +63,7 @@ export namespace Sites {
                                    count(1)   as flights
                             from flights as f
                                      left join sites as s on s.ffvl_sid = f.landing_id
-                            where f.pilot_id = $1
+                            where f.pilot_id = $1::integer
                             group by f.landing_id, s.ffvl_sid)
 
                 select ss.flights as flights,
