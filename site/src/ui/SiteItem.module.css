@@ -40,7 +40,7 @@
     text-decoration: none;
     color: inherit;
     padding: var(--space-6);
-    gap: var(--space-5);
+    gap: var(--space-4);
 }
 
 .mainContent:hover {
@@ -56,13 +56,13 @@
     gap: var(--space-4);
 }
 
-.flightInfo {
+.siteInfo {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
 }
 
-.wing {
+.siteName {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
@@ -71,29 +71,11 @@
     gap: var(--space-2);
 }
 
-.pilot {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-}
-
-.pilotLink {
-    color: var(--color-primary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.pilotLink:hover {
-    color: var(--color-primary-hover);
-    text-decoration: none;
-}
-
-.date {
+.siteId {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-mono);
 }
 
 .metrics {
@@ -126,8 +108,8 @@
     margin-top: var(--space-1);
 }
 
-/* Sites Section */
-.sites {
+/* Location Section */
+.location {
     display: flex;
     align-items: center;
     gap: var(--space-4);
@@ -137,15 +119,7 @@
     border: 1px solid var(--color-border-light);
 }
 
-.site {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    flex: 1;
-    min-width: 0;
-}
-
-.siteIcon {
+.locationIcon {
     font-size: var(--font-size-lg);
     display: flex;
     align-items: center;
@@ -158,53 +132,37 @@
     flex-shrink: 0;
 }
 
-.siteInfo {
+.coordinates {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
     min-width: 0;
+    flex: 1;
 }
 
-.siteLabel {
+.coordinateRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.coordinateLabel {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    min-width: 3rem;
 }
 
-.siteName {
+.coordinateValue {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.siteArrow {
-    font-size: var(--font-size-lg);
-    color: var(--color-text-muted);
-    font-weight: var(--font-weight-bold);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    background-color: var(--color-surface-elevated);
-    border-radius: var(--border-radius-full);
-    border: 1px solid var(--color-border-light);
-}
-
-/* Actions Section */
-.actions {
-    display: flex;
-    gap: var(--space-3);
-    padding: var(--space-4) var(--space-6);
-    background-color: var(--color-surface);
-    border-top: 1px solid var(--color-border-light);
-    justify-content: flex-end;
 }
 
 /* Responsive Design */
@@ -215,7 +173,7 @@
     
     .mainContent {
         padding: var(--space-4);
-        gap: var(--space-4);
+        gap: var(--space-3);
     }
     
     .header {
@@ -230,22 +188,17 @@
         justify-content: space-around;
     }
     
-    .sites {
+    .location {
         flex-direction: column;
         gap: var(--space-3);
         align-items: stretch;
     }
     
-    .site {
-        justify-content: flex-start;
+    .coordinates {
+        align-items: stretch;
     }
     
-    .siteArrow {
-        align-self: center;
-        transform: rotate(90deg);
-    }
-    
-    .actions {
-        padding: var(--space-3) var(--space-4);
+    .coordinateRow {
+        justify-content: space-between;
     }
 }

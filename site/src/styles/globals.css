@@ -1,12 +1,17 @@
 
 :root {
   /* Colors */
-  --color-primary: #fc4c02;
-  --color-primary-hover: #e54400;
-  --color-primary-light: #ff8950;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-light: #60a5fa;
   
   --color-secondary: #0070f3;
   --color-secondary-hover: #0051a5;
+  
+  /* Strava-specific colors */
+  --color-strava: #fc4c02;
+  --color-strava-hover: #e54400;
+  --color-strava-light: #ff8950;
   
   --color-background: #ffffff;
   --color-surface: #f8fafc;

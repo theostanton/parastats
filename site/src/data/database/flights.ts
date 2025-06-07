@@ -4,25 +4,30 @@ import {FlightWithSites, StravaActivityId, StravaAthleteId} from "@parastats/com
 
 export namespace Flights {
 
-    const FlightsWithSitesQuery = `
-        select pilot_id,
-               strava_activity_id,
-               wing,
-               duration_sec,
-               distance_meters,
-               start_date,
-               description,
-               polyline,
-               to_json(t) as takeoff,
-               to_json(l) as landing
-        from flights as f
-                 left join sites as t on f.takeoff_id = t.ffvl_sid
-                 left join sites as l on f.landing_id = l.ffvl_sid
-    `
+    function generateQuery(where: string = "", limit: number = 9999): string {
+        return `select f.pilot_id,
+                       f.strava_activity_id,
+                       f.wing,
+                       f.duration_sec,
+                       f.distance_meters,
+                       f.start_date,
+                       f.description,
+                       f.polyline,
+                       to_json(t) as takeoff,
+                       to_json(l) as landing,
+                       to_json(p) as pilot
+                from flights as f
+                         left join sites as t on f.takeoff_id = t.ffvl_sid
+                         left join sites as l on f.landing_id = l.ffvl_sid
+                         left join pilots as p on f.pilot_id = p.pilot_id
+                    ${where}
+                order by f.start_date desc
+                limit ${limit}`
+    }
 
     export async function getAll(): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
-            const result = await database.query<FlightWithSites>(FlightsWithSitesQuery)
+            const result = await database.query<FlightWithSites>(generateQuery())
             if (result.rows) {
                 return success(result.rows.map(row => row.reify()))
             } else {
@@ -33,10 +38,10 @@ export namespace Flights {
 
     export async function getForPilot(pilotId: StravaAthleteId, limit: number = 1000): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
-            const result = await database.query<FlightWithSites>(`
-            ${FlightsWithSitesQuery}
-                where pilot_id = $1
-                limit $2`, [pilotId, limit])
+            const result = await database.query<FlightWithSites>(
+                generateQuery("where f.pilot_id = $1", limit),
+                [pilotId, limit]
+            )
             if (result.rows) {
                 return success(result.rows.map(row => row.reify()))
             } else {
@@ -47,10 +52,10 @@ export namespace Flights {
 
     export async function getForPilotAndWing(pilotId: StravaAthleteId, wing: string): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
-            const result = await database.query<FlightWithSites>(`
-                ${FlightsWithSitesQuery}
-                where pilot_id = $1
-                  and lower(wing) = $2`, [pilotId, wing])
+            const result = await database.query<FlightWithSites>(
+                generateQuery("where f.pilot_id = $1 and lower(wing) = $2"),
+                [pilotId, wing]
+            )
             if (result.rows) {
                 return success(result.rows.map(row => row.reify()))
             } else {
@@ -61,13 +66,25 @@ export namespace Flights {
 
     export async function get(flightId: StravaActivityId): Promise<Either<FlightWithSites>> {
         return withPooledClient(async (database: Client) => {
-            const result = await database.query<FlightWithSites>(`
-                ${FlightsWithSitesQuery}
-                where strava_activity_id = $1`, [flightId])
+            const result = await database.query<FlightWithSites>(generateQuery("where f.strava_activity_id = $1"), [flightId])
             if (result.rows.length === 1) {
                 return success(result.rows[0].reify())
             } else {
                 return failure(`No flight for flightId=${flightId}`)
+            }
+        });
+    }
+
+    export async function getPilotFlightCount(pilotId: StravaAthleteId): Promise<Either<number>> {
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<{count: string}>(
+                "SELECT COUNT(*) as count FROM flights WHERE pilot_id = $1",
+                [pilotId]
+            );
+            if (result.rows && result.rows.length > 0) {
+                return success(parseInt(result.rows[0].reify().count));
+            } else {
+                return failure(`Could not get flight count for pilot_id=${pilotId}`);
             }
         });
     }

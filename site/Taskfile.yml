@@ -39,10 +39,6 @@ tasks:
     desc: Deploy site image
     vars:
       TAG: '{{now | unixEpoch}}'
-    sources:
-      - site/**
-      - common/**/*.ts
-      - exclude: site/**/*.test.ts
     cmds:
       - task: build
         vars:

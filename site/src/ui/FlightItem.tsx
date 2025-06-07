@@ -7,16 +7,35 @@ import {Stat} from "@ui/stats/model";
 import ViewOnStrava from "@ui/links/ViewOnStrava";
 import styles from "./FlightItem.module.css"
 import VerticalSpace from "@ui/VerticalSpace";
+import {useEffect, useState} from "react";
 
-export default function FlightItem({flight}: { flight: FlightWithSites }) {
-    const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat('en-US', {
+function ClientOnlyDate({date}: {date: Date}) {
+    const [formattedDate, setFormattedDate] = useState<string>('');
+    const [isClient, setIsClient] = useState(false);
+    
+    useEffect(() => {
+        setIsClient(true);
+        const formatted = new Intl.DateTimeFormat('en-US', {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         }).format(new Date(date));
-    };
+        setFormattedDate(formatted);
+    }, [date]);
+    
+    if (!isClient) {
+        // Show a timezone-neutral fallback during SSR
+        const utcDate = new Date(date);
+        const month = utcDate.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+        const day = utcDate.getUTCDate();
+        return <span>{month} {day}</span>; // Show just month and day in UTC
+    }
+    
+    return <span>{formattedDate}</span>;
+}
+
+export default function FlightItem({flight}: { flight: FlightWithSites }) {
 
     const formatDuration = (seconds: number) => {
         const hours = Math.floor(seconds / 3600);
@@ -36,7 +55,14 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
             <div className={styles.header}>
                 <div className={styles.flightInfo}>
                     <div className={styles.wing}>🪂 {flight.wing}</div>
-                    <div className={styles.date}>{formatDate(flight.start_date)}</div>
+                    {flight.pilot && (
+                        <div className={styles.pilot}>
+                            <Link href={`/pilots/${flight.pilot.pilot_id}`} className={styles.pilotLink}>
+                                👤 {flight.pilot.first_name}
+                            </Link>
+                        </div>
+                    )}
+                    <div className={styles.date}><ClientOnlyDate date={flight.start_date} /></div>
                 </div>
                 <div className={styles.metrics}>
                     <div className={styles.metric}>
@@ -52,7 +78,7 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
             
             <div className={styles.sites}>
                 <div className={styles.site}>
-                    <div className={styles.siteIcon}>🚁</div>
+                    <div className={styles.siteIcon}>↗️</div>
                     <div className={styles.siteInfo}>
                         <div className={styles.siteLabel}>Takeoff</div>
                         <div className={styles.siteName}>{flight.takeoff?.name || 'Unknown'}</div>
@@ -60,7 +86,7 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
                 </div>
                 <div className={styles.siteArrow}>→</div>
                 <div className={styles.site}>
-                    <div className={styles.siteIcon}>🎯</div>
+                    <div className={styles.siteIcon}>↘️</div>
                     <div className={styles.siteInfo}>
                         <div className={styles.siteLabel}>Landing</div>
                         <div className={styles.siteName}>{flight.landing?.name || 'Unknown'}</div>

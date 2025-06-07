@@ -68,6 +68,7 @@ export interface Flight {
 export interface FlightWithSites extends Exclude<Flight, 'takeoff_id' | 'landing_id'> {
   takeoff: Site | null;
   landing: Site | null;
+  pilot: Pilot | null;
 }
 
 // Geometric types

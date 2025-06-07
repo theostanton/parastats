@@ -2,19 +2,30 @@ import styles from "@styles/Page.module.css";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
 import {Sites} from "@database/Sites";
-import SiteLink from "@ui/links/SiteLink";
+import SitesList from "@ui/SitesList";
 
 export const metadata: Metadata = createMetadata('Sites')
 
-export default async function SitesList() {
-    const [sites, errorMessage] = await Sites.getAll();
+export default async function SitesPage() {
+    const [sites, errorMessage] = await Sites.getAllWithFlightCounts();
     if (sites) {
         return <div className={styles.page}>
-            {sites.map(site =>
-                <SiteLink key={site.ffvl_sid} site={site}/>
-            )}
+            <div className={styles.container}>
+                <h1 className={styles.title}>Flying Sites</h1>
+                <p className={styles.description}>
+                    Discover paragliding sites with detailed location information and flight data.
+                </p>
+                
+                <div style={{marginTop: 'var(--space-8)'}}>
+                    <SitesList sites={sites} />
+                </div>
+            </div>
         </div>
     } else {
-        return <h1>{errorMessage}</h1>
+        return <div className={styles.page}>
+            <div className={styles.container}>
+                <h1>{errorMessage}</h1>
+            </div>
+        </div>
     }
 }
