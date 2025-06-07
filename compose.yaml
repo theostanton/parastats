@@ -2,8 +2,16 @@ services:
   site:
     container_name: site
     build:
-      context: ./site
-      dockerfile: dev.Dockerfile
+      context: .
+      dockerfile: site/dev.Dockerfile
+    depends_on:
+      - database
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
     environment:
       - DEBUG=${DEBUG}
       - DATABASE_HOST=${LOCAL_DATABASE_HOST}
@@ -16,6 +24,8 @@ services:
     volumes:
       - ./site/src:/app/src
       - ./site/public:/app/public
+      - ./common:/app/common
+      - next-cache:/app/.next
     restart: always
     ports:
       - ${SITE_PORT}:3000
@@ -23,8 +33,8 @@ services:
   tasks:
     container_name: tasks
     build:
-      context: ./functions
-      dockerfile: dev.Dockerfile
+      context: .
+      dockerfile: functions/dev.Dockerfile
     environment:
       - TASKS_PORT=${TASKS_PORT}
       - DATABASE_HOST=${LOCAL_DATABASE_HOST}
@@ -36,6 +46,7 @@ services:
       - CLIENT_SECRET=${CLIENT_SECRET}
     volumes:
       - ./functions/src:/app/src
+      - ./common:/app/common
     expose:
       - '${TASKS_PORT}'
     ports:
@@ -45,8 +56,8 @@ services:
   webhooks:
     container_name: webhooks
     build:
-      context: ./functions
-      dockerfile: dev.Dockerfile
+      context: .
+      dockerfile: functions/dev.Dockerfile
     environment:
       - WEBHOOKS_PORT=${WEBHOOKS_PORT}
       - DATABASE_HOST=${LOCAL_DATABASE_HOST}
@@ -65,8 +76,8 @@ services:
     container_name: api
     restart: no
     build:
-      context: ./functions
-      dockerfile: dev.Dockerfile
+      context: .
+      dockerfile: functions/dev.Dockerfile
     environment:
       - API_PORT=${API_PORT}
       - DATABASE_HOST=${LOCAL_DATABASE_HOST}
@@ -99,3 +110,4 @@ services:
 
 volumes:
   database:
+  next-cache:

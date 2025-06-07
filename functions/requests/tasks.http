@@ -27,11 +27,11 @@ Content-Type: application/json
   "name": "SyncSites"
 }
 
-### WingActivity
+### UpdateDescription
 POST {{parastats_tasks_base_url}}
 Content-Type: application/json
 
 {
-  "name": "WingActivity",
+  "name": "UpdateDescription",
   "flightId": 14659467895
 }
