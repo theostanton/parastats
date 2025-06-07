@@ -43,13 +43,19 @@ export default async function Header() {
 
     return <div className={styles.container}>
         <div className={styles.content}>
-            <div className={styles.headerTitle}>🪂 Paraglider Stats</div>
-            <div className={styles.space}/>
-            {navItems.filter((item) => shouldShow(item.auth, isAuthed))
-                .map((item) => <NavItem key={item.text} {...item}/>
-                )
-            }
-            {isAuthed && <SignOut/>}
+            <a href="/" className={styles.headerTitle}>
+                <span>🪂</span>
+                <span>Paraglider Stats</span>
+            </a>
+            <nav className={styles.nav}>
+                <div className={styles.mobileNav}>
+                    {navItems.filter((item) => shouldShow(item.auth, isAuthed))
+                        .map((item) => <NavItem key={item.text} {...item}/>
+                        )
+                    }
+                    {isAuthed && <SignOut/>}
+                </div>
+            </nav>
         </div>
     </div>
 }

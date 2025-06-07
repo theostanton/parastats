@@ -62,7 +62,7 @@ export default async function PagePilot({params}: {
         {stats.takeoffs
             .filter(item => item.site)
             .map(item => (
-                <Link key={item.site.slug} href={`/takeoffs/${item.site.slug}`}>
+                <Link key={item.site.slug} href={`/sites/${item.site.slug}`}>
                     <div>{item.site.name} • {item.flights} flights</div>
                 </Link>
             ))}
@@ -71,7 +71,7 @@ export default async function PagePilot({params}: {
         {stats.landings
             .filter(item => item.site)
             .map(item => (
-                <Link key={item.site.slug} href={`/landings/${item.site.slug}`}>
+                <Link key={item.site.slug} href={`/sites/${item.site.slug}`}>
                     <div>{item.site.name} • {item.flights} flights</div>
                 </Link>
             ))}

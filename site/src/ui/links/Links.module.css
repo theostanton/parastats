@@ -1,12 +1,55 @@
 .ViewOnStrava {
-    padding: 0.67rem;
-    background: #FC5200;
-    color: white;
-    max-width: 200px;
-    text-align: center;
-    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-fast);
+    white-space: nowrap;
 }
 
-.ViewOnStrava:hover{
-    background: #ff8950;
+.ViewOnStrava:hover {
+    background-color: var(--color-primary-hover);
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.ViewOnStrava:focus-visible {
+    background-color: var(--color-primary-hover);
+    box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    border-radius: var(--border-radius-base);
+    transition: all var(--transition-fast);
+}
+
+.link:hover {
+    background-color: var(--color-surface);
+    color: var(--color-secondary-hover);
+    text-decoration: none;
+}
+
+.secondaryLink {
+    color: var(--color-text-secondary);
+}
+
+.secondaryLink:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-surface);
 }
