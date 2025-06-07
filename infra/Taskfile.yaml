@@ -5,13 +5,13 @@ tasks:
     dir: infra/
     desc: Plan
     cmds:
-      - terraform plan -var-file=”./site.tfvars”
+      - terraform plan -var-file="./terraform.tfvars"
 
   apply:
     dir: infra/
     desc: Apply
     cmds:
-      - terraform apply -auto-approve
+      - terraform apply -auto-approve -var-file="./terraform.tfvars"
 
   init:
     dir: infra/

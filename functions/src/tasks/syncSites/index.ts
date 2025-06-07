@@ -59,10 +59,10 @@ export function convertToSite(ffvlSite: FfvlSite, windsocks: Windsock[]): Site {
     console.log(`convertToSite ${JSON.stringify(ffvlSite)}`);
     let type: SiteType | null = null
     if (ffvlSite.flying_functions_text && ffvlSite.flying_functions_text.includes("atterrissage")) {
-        type = SiteType.landing
+        type = SiteType.Landing
     }
     if (ffvlSite.flying_functions_text && ffvlSite.flying_functions_text.includes("décollage")) {
-        type = SiteType.takeoff
+        type = SiteType.TakeOff
     }
 
 

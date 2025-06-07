@@ -37,8 +37,8 @@ export type Pilot = {
 }
 
 export enum SiteType {
-  landing,
-  takeoff,
+  Landing,
+  TakeOff,
 }
 
 export interface Site {

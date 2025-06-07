@@ -4,7 +4,7 @@ import {Client} from "ts-postgres";
 import {FFVL} from "../../model/ffvlApi";
 import {WindDirection} from "../../model/ffvlApi/model";
 import {DescriptionPreferences} from "../../model/database/DescriptionPreferences";
-import {StravaAthleteId} from "../../model/stravaApi/model";
+import {StravaAthleteId} from "@parastats/common";
 
 export type AggregationResult = {
     count: number
@@ -77,8 +77,8 @@ export class DescriptionFormatter {
 
     async generateSiteLine(siteType: SiteType, siteName: string, baliseId: string | undefined): Promise<string> {
 
-        const prefix = siteType == SiteType.takeoff ? "↗️" : "↘️"
-        const date = siteType == SiteType.takeoff ? this.flightRow.start_date : this.flightRow.start_date
+        const prefix = siteType == SiteType.TakeOff ? "↗️" : "↘️"
+        const date = siteType == SiteType.TakeOff ? this.flightRow.start_date : this.flightRow.start_date
 
         if (baliseId && this.preference.include_wind) {
             const result = await FFVL.getReport(baliseId, date)
@@ -117,10 +117,10 @@ export class DescriptionFormatter {
 
         const row = result.rows[0].reify()
 
-        const takeoffLine = await this.generateSiteLine(SiteType.takeoff, row.takeoff_name, row.takeoff_balise_id)
+        const takeoffLine = await this.generateSiteLine(SiteType.TakeOff, row.takeoff_name, row.takeoff_balise_id)
         this.lines.push(takeoffLine)
 
-        const landingLine = await this.generateSiteLine(SiteType.landing, row.landing_name, row.landing_balise_id)
+        const landingLine = await this.generateSiteLine(SiteType.Landing, row.landing_name, row.landing_balise_id)
         this.lines.push(landingLine)
     }
 
@@ -165,7 +165,7 @@ export class DescriptionFormatter {
     }
 
     async generate(): Promise<string | null> {
-        
+
         if (this.lines.length == 0) {
             await this.appendSites()
             await this.appendWingAggregation()
@@ -192,7 +192,6 @@ function elapsedTime(duration_secs: number): string {
         const minutes = Math.floor((duration_secs - hours * 60 * 60) / 60)
         return `${hours}h ${minutes}min`
     }
-    const hours = Math.floor(duration_secs / (60 * 60))
-    const minutes = Math.floor((duration_secs - 60 * 60 * hours) / 60)
+    const minutes = Math.floor(duration_secs / 60)
     return `${minutes}min`
 }

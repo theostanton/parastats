@@ -6,7 +6,6 @@ includes:
   infra: ./infra
   functions: ./functions
   site: ./site
-  db: ./database
 
 tasks:
   deploy:
