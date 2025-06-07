@@ -6,6 +6,7 @@ import Stats from "@ui/stats/Stats";
 import TakeoffLink from "@ui/links/TakeoffLink";
 import LandingLink from "@ui/links/LandingLink";
 import WingLink from "@ui/links/WingLink";
+import ViewOnStrava from "@ui/links/ViewOnStrava";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
 
@@ -24,11 +25,22 @@ export default async function FlightDetail({params}: {
         ]
 
         return <div className={styles.page}>
-            <p>{flight.strava_activity_id}</p>
-            <TakeoffLink takeoff={flight.takeoff}/>
-            <LandingLink landing={flight.landing}/>
-            <WingLink wing={flight.wing} pilotId={flight.pilot_id}/>
-            <Stats stats={stats}/>
+            <h1>Flight {flight.strava_activity_id}</h1>
+            
+            <div className={styles.section}>
+                <Stats stats={stats}/>
+            </div>
+
+            <div className={styles.section}>
+                <h2>Flight Details</h2>
+                <TakeoffLink takeoff={flight.takeoff}/>
+                <LandingLink landing={flight.landing}/>
+                <WingLink wing={flight.wing} pilotId={flight.pilot_id}/>
+            </div>
+
+            <div className={styles.section}>
+                <ViewOnStrava flightId={flight.strava_activity_id}/>
+            </div>
 
             <div className={styles.descriptionBox}>
                 <div className={styles.descriptionLabel}>Description</div>
