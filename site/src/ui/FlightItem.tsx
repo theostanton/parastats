@@ -19,11 +19,15 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
         {label: "Distance", value: `${Math.round(flight.distance_meters / 100.0) / 10}km`},
         {label: "Wing", value: flight.wing},
     ]
-    return <Link className={styles.container} href={`/flights/${flight.strava_activity_id}`}>
-        <Stats stats={topStats}/>
-        <VerticalSpace rems={1}/>
-        <Stats stats={bottomStats}/>
-        <VerticalSpace rems={1}/>
-        <ViewOnStrava flightId={flight.strava_activity_id}/>
-    </Link>
+    return <div className={styles.container}>
+        <Link href={`/flights/${flight.strava_activity_id}`} className={styles.mainContent}>
+            <Stats stats={topStats}/>
+            <VerticalSpace rems={1}/>
+            <Stats stats={bottomStats}/>
+            <VerticalSpace rems={1}/>
+        </Link>
+        <div className={styles.actions}>
+            <ViewOnStrava flightId={flight.strava_activity_id}/>
+        </div>
+    </div>
 }
