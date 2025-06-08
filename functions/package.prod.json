@@ -13,6 +13,7 @@
     "ts-postgres": "^2.0.4",
     "@turf/distance": "^7.2.0",
     "@turf/helpers": "^7.2.0",
-    "@parastats/common": "file:../common"
+    "generic-pool": "^3.9.0",
+    "@parastats/common": "file:./common"
   }
 }
