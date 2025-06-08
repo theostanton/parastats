@@ -4,6 +4,7 @@ import {FFVL} from "@/ffvlApi";
 import {WindDirection} from "@/ffvlApi/model";
 import {DescriptionPreferences} from "@/database/DescriptionPreferences";
 import {StravaAthleteId} from "@parastats/common";
+import {formatSiteName} from "@/utils/formatSiteName";
 
 export type AggregationResult = {
     count: number
@@ -74,17 +75,18 @@ export class DescriptionFormatter {
 
         const prefix = siteType == SiteType.TakeOff ? "↗️" : "↘️"
         const date = siteType == SiteType.TakeOff ? this.flightRow.start_date : this.flightRow.start_date
+        const formattedSiteName = formatSiteName(siteName)
 
         if (baliseId && this.preference.include_wind) {
             const result = await FFVL.getReport(baliseId, date)
 
             if (result.success) {
                 const report = result.value
-                return `${prefix} ${siteName} ${report.windKmh}kmh/${report.gustKmh}kmh ${WindDirection[report.direction]}`
+                return `${prefix} ${formattedSiteName} ${report.windKmh}kmh/${report.gustKmh}kmh ${WindDirection[report.direction]}`
             }
         }
 
-        return `${prefix} ${siteName}`
+        return `${prefix} ${formattedSiteName}`
     }
 
     async appendSites(client: Client) {

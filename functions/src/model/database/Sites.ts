@@ -69,7 +69,8 @@ export namespace Sites {
                 distance_meters: number
             }
 
-            const result = await client.query<Closest>(query, [latLng[0], latLng[1]])
+            const [lat, lng] = latLng;
+            const result = await client.query<Closest>(query, [lat, lng])
 
             const closest = result.rows[0].reify()
 

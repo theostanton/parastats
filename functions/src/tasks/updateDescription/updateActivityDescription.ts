@@ -1,9 +1,7 @@
-import {FlightRow} from "@/database/model";
-import {DescriptionFormatter} from "./DescriptionFormatter";
+import {FlightRow} from "@parastats/common";
+import {DescriptionFormatter} from "./DescriptionFormatterAdapter";
 
 
 export async function generateStats(activityRow: FlightRow): Promise<string | null> {
-
-    const formatter = await DescriptionFormatter.create(activityRow)
-    return formatter.generate()
+    return DescriptionFormatter.generateDescription(activityRow);
 }

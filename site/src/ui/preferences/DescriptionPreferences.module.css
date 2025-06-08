@@ -1,0 +1,133 @@
+.container {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    background: #ffffff;
+    margin-bottom: 24px;
+}
+
+.title {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.subtitle {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.checkboxLabel:hover {
+    background-color: #f8f9fa;
+}
+
+.checkbox {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.checkbox:disabled {
+    opacity: 0.5;
+}
+
+.checkboxText {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+}
+
+.checkboxLabel:has(.checkbox:disabled) .checkboxText {
+    color: #999;
+}
+
+.submitButton {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+}
+
+.submitButton:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.submitButton:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.preview {
+    display: flex;
+    flex-direction: column;
+}
+
+.previewTitle {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.previewBox {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 16px;
+    background: #f9fafb;
+    min-height: 200px;
+}
+
+.previewText {
+    margin: 0;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #374151;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

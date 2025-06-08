@@ -44,6 +44,9 @@
       ],
       "@utils/*": [
         "./src/utils/*"
+      ],
+      "@actions/*": [
+        "./src/app/actions/*"
       ]
     },
     "plugins": [

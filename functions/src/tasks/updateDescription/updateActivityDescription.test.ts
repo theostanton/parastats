@@ -2,9 +2,8 @@ import {afterAll, afterEach, beforeAll, beforeEach, expect, it, test} from "vite
 import {TestContainer} from "@/database/generateContainer.test";
 import {StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {end} from "@/database/client";
-import {DescriptionPreference, FlightRow} from "@/database/model";
+import {DescriptionPreference, FlightRow, DescriptionFormatter, withPooledClient} from "@parastats/common";
 import {Mocks} from "@/database/Mocks.test";
-import {DescriptionFormatter} from "./DescriptionFormatter";
 
 let container: StartedPostgreSqlContainer
 
@@ -62,7 +61,10 @@ const cases: [
 ]
 
 test.each(cases)('generateStats(%s)', async (_, input, expected) => {
-    const actual = await new DescriptionFormatter(input.flight, input.preference).generate()
+    const formatter = new DescriptionFormatter(input.flight, input.preference);
+    const actual = await withPooledClient(async (client) => {
+        return await formatter.generate(client);
+    });
     expect(actual?.replace(/\s/g, '')).toEqual(expected?.replace(/\s/g, ''))
 })
 

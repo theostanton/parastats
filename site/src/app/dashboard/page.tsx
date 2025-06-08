@@ -3,12 +3,14 @@ import {get} from "@database/pilots";
 import {Flights} from "@database/flights";
 import {getPilotWingStats} from "@database/stats";
 import {Sites} from "@database/Sites";
+import {DescriptionPreferences} from "@database/descriptionPreferences";
 import styles from "@styles/Page.module.css";
 import detailStyles from "@ui/DetailPages.module.css";
 import dashboardStyles from "./Dashboard.module.css";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
 import FlightItem from "@ui/FlightItem";
+import DescriptionPreferencesComponent from "@ui/preferences/DescriptionPreferences";
 import Link from "next/link";
 import {formatSiteName} from "@utils/formatSiteName";
 
@@ -23,13 +25,15 @@ export default async function Dashboard() {
         [wingStats, wingStatsErrorMessage], 
         [stats, takeoffStatsErrorMessage],
         [recentFlights, flightsErrorMessage],
-        [totalFlightCount, flightCountErrorMessage]
+        [totalFlightCount, flightCountErrorMessage],
+        descriptionPreferencesResult
     ] = await Promise.all([
         get(pilotId),
         getPilotWingStats(pilotId),
         Sites.getPilotStats(pilotId),
         Flights.getForPilot(pilotId, 3),
-        Flights.getPilotFlightCount(pilotId)
+        Flights.getPilotFlightCount(pilotId),
+        DescriptionPreferences.get(pilotId)
     ]);
     
     // Check for any errors and display them
@@ -72,6 +76,32 @@ export default async function Dashboard() {
     const totalWings = wingStats.wingStats.length;
     const totalTakeoffs = stats.takeoffs.filter(item => item.site).length;
     const totalLandings = stats.landings.filter(item => item.site).length;
+
+    // Get description preferences (with defaults if not found)
+    const preferences = descriptionPreferencesResult.success ? descriptionPreferencesResult.data : {
+        pilot_id: pilotId,
+        include_sites: true,
+        include_wind: true,
+        include_wing_aggregate: true,
+        include_year_aggregate: true,
+        include_all_time_aggregate: true
+    };
+
+    // Create sample flight data for preview
+    const sampleFlight = recentFlights.length > 0 ? {
+        wing: recentFlights[0].wing,
+        start_date: recentFlights[0].start_date,
+        takeoff_name: recentFlights[0].takeoff?.name || 'Unknown Takeoff',
+        landing_name: recentFlights[0].landing?.name || 'Unknown Landing',
+        pilot_id: pilotId,
+        strava_activity_id: recentFlights[0].strava_activity_id,
+        duration_sec: recentFlights[0].duration_sec,
+        distance_meters: recentFlights[0].distance_meters,
+        description: recentFlights[0].description,
+        polyline: recentFlights[0].polyline,
+        landing_id: recentFlights[0].landing?.ffvl_sid,
+        takeoff_id: recentFlights[0].takeoff?.ffvl_sid
+    } : null;
 
     return <div className={styles.page}>
         <div className={styles.container}>
@@ -143,6 +173,12 @@ className={dashboardStyles.profileImage}
                     </div>
                 </div>
             </div>
+
+            {/* Description Preferences */}
+            <DescriptionPreferencesComponent 
+                initialPreferences={preferences}
+                sampleFlight={sampleFlight}
+            />
 
             {/* Your Equipment */}
             {wingStats.wingStats.length > 0 && (
