@@ -132,7 +132,7 @@ export default function FlightsMap({ flights, className }: FlightsMapProps) {
         .setLngLat([site.lng, site.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
           <div style="font-weight: bold; color: ${site.type === 'takeoff' ? '#22c55e' : '#ef4444'};">
-            ${site.type === 'takeoff' ? '🛫' : '🛬'} ${formatSiteName(site.name)}
+            ${site.type === 'takeoff' ? '↗️' : '↘️'} ${formatSiteName(site.name)}
           </div>
           <div style="margin: 4px 0;">
             <strong>Altitude:</strong> ${site.alt}m<br>
@@ -213,8 +213,8 @@ export default function FlightsMap({ flights, className }: FlightsMapProps) {
             All Flights Overview
           </div>
           <div style={{display: 'flex', flexDirection: 'column', gap: '2px'}}>
-            <div><span style={{color: '#22c55e'}}>🛫</span> Takeoff sites</div>
-            <div><span style={{color: '#ef4444'}}>🛬</span> Landing sites</div>
+            <div><span style={{color: '#22c55e'}}>↗️</span> Takeoff sites</div>
+            <div><span style={{color: '#ef4444'}}>↘️</span> Landing sites</div>
             <div><span>—</span> Flight paths (colored by pilot/wing)</div>
             <div style={{marginTop: '4px', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)'}}>
               {flights.length} total flights

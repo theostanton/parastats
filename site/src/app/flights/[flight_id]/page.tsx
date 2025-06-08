@@ -116,7 +116,7 @@ export default async function FlightDetail({params}: {
                     <div className={flightStyles.siteGrid}>
                         {flight.takeoff?.slug ? (
                             <Link href={`/sites/${flight.takeoff.slug}`} className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>🛫</div>
+                                <div className={flightStyles.siteIcon}>↗️</div>
                                 <div className={flightStyles.siteLabel}>Takeoff</div>
                                 <div className={flightStyles.siteName}>
                                     {formatSiteName(flight.takeoff.name)}
@@ -129,15 +129,15 @@ export default async function FlightDetail({params}: {
                             </Link>
                         ) : (
                             <div className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>🛫</div>
+                                <div className={flightStyles.siteIcon}>↗️</div>
                                 <div className={flightStyles.siteLabel}>Takeoff</div>
                                 <div className={flightStyles.siteName}>Unknown</div>
                             </div>
                         )}
-                        <div className={flightStyles.arrow}>✈️</div>
+                        <div className={flightStyles.arrow}>→</div>
                         {flight.landing?.slug ? (
                             <Link href={`/sites/${flight.landing.slug}`} className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>🛬</div>
+                                <div className={flightStyles.siteIcon}>↘️</div>
                                 <div className={flightStyles.siteLabel}>Landing</div>
                                 <div className={flightStyles.siteName}>
                                     {formatSiteName(flight.landing.name)}
@@ -150,7 +150,7 @@ export default async function FlightDetail({params}: {
                             </Link>
                         ) : (
                             <div className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>🛬</div>
+                                <div className={flightStyles.siteIcon}>↘️</div>
                                 <div className={flightStyles.siteLabel}>Landing</div>
                                 <div className={flightStyles.siteName}>Unknown</div>
                             </div>

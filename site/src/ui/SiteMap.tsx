@@ -86,7 +86,7 @@ export default function SiteMap({ site, flights, className }: SiteMapProps) {
             new mapboxgl.Popup()
               .setLngLat(e.lngLat)
               .setHTML(`
-                <div style="font-weight: bold; color: #22c55e;">🛫 Takeoff Flight</div>
+                <div style="font-weight: bold; color: #22c55e;">↗️ Takeoff Flight</div>
                 <div><strong>Pilot:</strong> ${properties?.pilotName}</div>
                 <div><strong>Wing:</strong> ${properties?.wing}</div>
                 <div><strong>Flight ID:</strong> ${properties?.flightId}</div>
@@ -161,7 +161,7 @@ export default function SiteMap({ site, flights, className }: SiteMapProps) {
             new mapboxgl.Popup()
               .setLngLat(e.lngLat)
               .setHTML(`
-                <div style="font-weight: bold; color: #ef4444;">🛬 Landing Flight</div>
+                <div style="font-weight: bold; color: #ef4444;">↘️ Landing Flight</div>
                 <div><strong>Pilot:</strong> ${properties?.pilotName}</div>
                 <div><strong>Wing:</strong> ${properties?.wing}</div>
                 <div><strong>Flight ID:</strong> ${properties?.flightId}</div>

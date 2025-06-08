@@ -5,6 +5,7 @@ import {getPilotWingStats} from "@database/stats";
 import {Sites} from "@database/Sites";
 import styles from "@styles/Page.module.css";
 import detailStyles from "@ui/DetailPages.module.css";
+import dashboardStyles from "./Dashboard.module.css";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
 import FlightItem from "@ui/FlightItem";
@@ -31,33 +32,58 @@ export default async function Dashboard() {
         Flights.getPilotFlightCount(pilotId)
     ]);
     
-    if (pilotErrorMessage) {
+    // Check for any errors and display them
+    const errors = [
+        { error: pilotErrorMessage, description: "pilot data" },
+        { error: wingStatsErrorMessage, description: "wing statistics" },
+        { error: takeoffStatsErrorMessage, description: "site statistics" },
+        { error: flightsErrorMessage, description: "recent flights" },
+        { error: flightCountErrorMessage, description: "flight count" }
+    ].filter(item => item.error);
+
+    if (errors.length > 0) {
         return <div className={styles.page}>
-            <h1>Error loading pilot data: {pilotErrorMessage}</h1>
+            <div className={styles.container}>
+                <h1 className={styles.title}>Dashboard Error</h1>
+                <div className={detailStyles.infoCard}>
+                    <h3 className={detailStyles.infoTitle}>Failed to load dashboard data</h3>
+                    <div className={dashboardStyles.errorPadding}>
+                        {errors.map((item, index) => (
+                            <div key={index} className={dashboardStyles.errorItem}>
+                                <strong>Error loading {item.description}:</strong> {item.error}
+                            </div>
+                        ))}
+                    </div>
+                    <div className={detailStyles.statsList}>
+                        <Link href="/login" className={detailStyles.statsItem}>
+                            <span className={detailStyles.statsItemName}>🔄 Try logging in again</span>
+                            <span className={detailStyles.statsItemCount}>→</span>
+                        </Link>
+                        <Link href="/" className={detailStyles.statsItem}>
+                            <span className={detailStyles.statsItemName}>🏠 Return to home</span>
+                            <span className={detailStyles.statsItemCount}>→</span>
+                        </Link>
+                    </div>
+                </div>
+            </div>
         </div>
     }
     
-    const totalWings = wingStats?.wingStats.length || 0;
-    const totalTakeoffs = stats?.takeoffs.filter(item => item.site).length || 0;
-    const totalLandings = stats?.landings.filter(item => item.site).length || 0;
+    const totalWings = wingStats.wingStats.length;
+    const totalTakeoffs = stats.takeoffs.filter(item => item.site).length;
+    const totalLandings = stats.landings.filter(item => item.site).length;
 
     return <div className={styles.page}>
         <div className={styles.container}>
             {/* Welcome Header */}
             <div className={detailStyles.header}>
                 <div className={detailStyles.headerContent}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '1.5rem'}}>
+                    <div className={dashboardStyles.headerFlex}>
                         {pilot.profile_image_url && (
                             <img 
                                 src={pilot.profile_image_url} 
                                 alt={pilot.first_name}
-                                style={{
-                                    width: '4rem',
-                                    height: '4rem',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    border: '2px solid var(--color-border)'
-                                }}
+className={dashboardStyles.profileImage}
                             />
                         )}
                         <div>
@@ -77,7 +103,7 @@ export default async function Dashboard() {
                     <div className={detailStyles.infoGrid}>
                         <Link href={`/pilots/${pilotId}`} className={detailStyles.infoItem}>
                             <span className={detailStyles.infoLabel}>Total Flights</span>
-                            <span className={detailStyles.infoValue}>{totalFlightCount || 0}</span>
+                            <span className={detailStyles.infoValue}>{totalFlightCount}</span>
                         </Link>
                         <div className={detailStyles.infoItem}>
                             <span className={detailStyles.infoLabel}>Wings Used</span>
@@ -119,7 +145,7 @@ export default async function Dashboard() {
             </div>
 
             {/* Your Equipment */}
-            {wingStats && wingStats.wingStats.length > 0 && (
+            {wingStats.wingStats.length > 0 && (
                 <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>🪂 Your Wings</h3>
                     <div className={detailStyles.statsList}>
@@ -144,7 +170,7 @@ export default async function Dashboard() {
             )}
 
             {/* Your Favorite Sites */}
-            {stats && stats.takeoffs.filter(item => item.site).length > 0 && (
+            {stats.takeoffs.filter(item => item.site).length > 0 && (
                 <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>↗️ Your Favorite Takeoffs</h3>
                     <div className={detailStyles.statsList}>
@@ -172,7 +198,7 @@ export default async function Dashboard() {
             )}
 
             {/* Recent Flights */}
-            {recentFlights && recentFlights.length > 0 && (
+            {recentFlights.length > 0 && (
                 <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>📅 Your Recent Flights</h3>
                     <div className={detailStyles.flightsList}>
@@ -180,7 +206,7 @@ export default async function Dashboard() {
                             <FlightItem key={flight.strava_activity_id} flight={flight} />
                         ))}
                     </div>
-                    <div style={{marginTop: '1rem', textAlign: 'center'}}>
+                    <div className={dashboardStyles.flightsSection}>
                         <Link href={`/pilots/${pilotId}`} className={detailStyles.statsItem}>
                             <span className={detailStyles.statsItemName}>View all your flights</span>
                             <span className={detailStyles.statsItemCount}>→</span>
@@ -190,12 +216,12 @@ export default async function Dashboard() {
             )}
 
             {/* No flights message */}
-            {(!recentFlights || recentFlights.length === 0) && (
+            {recentFlights.length === 0 && (
                 <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>📅 Your Flights</h3>
-                    <div style={{textAlign: 'center', padding: '2rem'}}>
+                    <div className={dashboardStyles.noFlightsContainer}>
                         <p>No flights recorded yet. Start flying and sync your Strava activities to see them here!</p>
-                        <Link href="/sites" className={detailStyles.statsItem} style={{marginTop: '1rem'}}>
+                        <Link href="/sites" className={`${detailStyles.statsItem} ${dashboardStyles.noFlightsAction}`}>
                             <span className={detailStyles.statsItemName}>🏔️ Explore flying sites</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>

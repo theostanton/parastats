@@ -1,0 +1,18 @@
+.errorPadding {
+    padding: var(--space-4) 0;
+}
+
+.pilotsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 100%;
+}
+
+.noPilotsContainer {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-secondary);
+    width: 100%;
+}

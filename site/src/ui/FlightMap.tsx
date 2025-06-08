@@ -53,7 +53,7 @@ export default function FlightMap({ polyline, takeoffSite, landingSite, classNam
       })
         .setLngLat([takeoffSite.lng, takeoffSite.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
-          <div style="font-weight: bold; color: #22c55e;">🛫 Takeoff</div>
+          <div style="font-weight: bold; color: #22c55e;">↗️ Takeoff</div>
           <div>${formatSiteName(takeoffSite.name)}</div>
         `))
         .addTo(map);
@@ -67,7 +67,7 @@ export default function FlightMap({ polyline, takeoffSite, landingSite, classNam
       })
         .setLngLat([landingSite.lng, landingSite.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
-          <div style="font-weight: bold; color: #ef4444;">🛬 Landing</div>
+          <div style="font-weight: bold; color: #ef4444;">↘️ Landing</div>
           <div>${formatSiteName(landingSite.name)}</div>
         `))
         .addTo(map);
