@@ -59,7 +59,16 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
                     {flight.pilot && (
                         <div className={styles.pilot}>
                             <Link href={`/pilots/${flight.pilot.pilot_id}`} className={styles.pilotLink}>
-                                👤 {flight.pilot.first_name}
+                                {flight.pilot.profile_image_url ? (
+                                    <img 
+                                        src={flight.pilot.profile_image_url} 
+                                        alt={flight.pilot.first_name}
+                                        className={styles.pilotAvatar}
+                                    />
+                                ) : (
+                                    <span className={styles.pilotIcon}>👤</span>
+                                )}
+                                {flight.pilot.first_name}
                             </Link>
                         </div>
                     )}

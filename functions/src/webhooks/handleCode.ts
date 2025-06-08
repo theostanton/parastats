@@ -44,15 +44,17 @@ export async function handleCode(req: Request, res: Response) {
                                     first_name,
                                     strava_access_token,
                                     strava_refresh_token,
-                                    strava_expires_at)
-                VALUES ($1, $2, $3, $4, $5)
+                                    strava_expires_at,
+                                    profile_image_url)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 ON CONFLICT (pilot_id)
-                    DO UPDATE SET first_name           = $6,
-                                  strava_access_token  = $7,
-                                  strava_refresh_token = $8,
-                                  strava_expires_at    = $9;`,
-            [athlete.id, athlete.firstname, access_token, refresh_token, expiresAtDate,
-                athlete.firstname, access_token, refresh_token, expiresAtDate]
+                    DO UPDATE SET first_name           = $7,
+                                  strava_access_token  = $8,
+                                  strava_refresh_token = $9,
+                                  strava_expires_at    = $10,
+                                  profile_image_url    = $11;`,
+            [athlete.id, athlete.firstname, access_token, refresh_token, expiresAtDate, athlete.profile,
+                athlete.firstname, access_token, refresh_token, expiresAtDate, athlete.profile]
         )
     })
     console.log(`Inserted user`)

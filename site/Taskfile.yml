@@ -30,11 +30,10 @@ tasks:
   update-version:
     desc: Update versions in file
     internal: true
-    dir: site
     requires:
       vars: [ TAG ]
     cmds:
-      - sed -i '' 's/^site_tag = .*/site_tag = "{{.TAG}}"/' ../infra/terraform.tfvars
+      - sed -i '' 's/^site_tag[[:space:]]*=[[:space:]]*.*/site_tag     = "{{.TAG}}"/' infra/terraform.tfvars
 
   deploy:
     desc: Deploy site image

@@ -6,6 +6,7 @@ export { LatLng, Polyline, SiteType };
 export type PilotRow = {
     pilot_id: StravaAthleteId
     first_name: string
+    profile_image_url: string | null
 }
 
 export type PilotRowFull = PilotRow & {

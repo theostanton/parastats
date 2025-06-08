@@ -18,6 +18,7 @@ locals {
     WEBHOOKS_PORT             = 4000
     API_PORT                  = 81
     FFVL_KEY                  = var.ffvl_key
+    NEXT_PUBLIC_MAPBOX_TOKEN  = var.mapbox_token
   }
   compose_variables = {
     SESSION_SECRET              = random_id.session_secret.b64_std

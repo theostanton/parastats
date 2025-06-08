@@ -79,9 +79,26 @@ export default async function PagePilot({params}: {
             {/* Header Section */}
             <div className={detailStyles.header}>
                 <div className={detailStyles.headerContent}>
-                    <h1 className={detailStyles.title}>🪂 {pilot.first_name}</h1>
-                    <div className={detailStyles.subtitle}>
-                        Paragliding Pilot
+                    <div style={{display: 'flex', alignItems: 'center', gap: '1.5rem'}}>
+                        {pilot.profile_image_url && (
+                            <img 
+                                src={pilot.profile_image_url} 
+                                alt={pilot.first_name}
+                                style={{
+                                    width: '4rem',
+                                    height: '4rem',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                    border: '2px solid var(--color-border)'
+                                }}
+                            />
+                        )}
+                        <div>
+                            <h1 className={detailStyles.title}>🪂 {pilot.first_name}</h1>
+                            <div className={detailStyles.subtitle}>
+                                Paragliding Pilot
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

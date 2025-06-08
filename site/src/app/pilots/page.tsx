@@ -10,7 +10,22 @@ export default async function PagePilots() {
     if (pilots) {
         return <div className={styles.page}>
             {pilots.map(pilot =>
-                <h3 key={pilot.pilot_id}><a href={`/pilots/${pilot.pilot_id}`}>{pilot.first_name}</a></h3>
+                <div key={pilot.pilot_id} style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem'}}>
+                    {pilot.profile_image_url && (
+                        <img 
+                            src={pilot.profile_image_url} 
+                            alt={pilot.first_name}
+                            style={{
+                                width: '3rem',
+                                height: '3rem',
+                                borderRadius: '50%',
+                                objectFit: 'cover',
+                                border: '1px solid var(--color-border)'
+                            }}
+                        />
+                    )}
+                    <h3><a href={`/pilots/${pilot.pilot_id}`}>{pilot.first_name}</a></h3>
+                </div>
             )}
         </div>
     } else {

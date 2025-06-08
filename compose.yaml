@@ -21,6 +21,7 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - API_URL=${API_URL}"
       - TASKS_URL=${TASKS_URL}
+      - NEXT_PUBLIC_MAPBOX_TOKEN=${NEXT_PUBLIC_MAPBOX_TOKEN}
     volumes:
       - ./site/src:/app/src
       - ./site/public:/app/public

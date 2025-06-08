@@ -5,3 +5,7 @@ variable "site_tag" {
 variable "ffvl_key" {
   type = string
 }
+
+variable "mapbox_token" {
+  type = string
+}

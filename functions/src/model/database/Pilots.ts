@@ -7,14 +7,14 @@ import {StravaAthleteId} from "@parastats/common";
 export namespace Pilots {
     export async function insert(pilot: PilotRowFull): Promise<void> {
         return withPooledClient(async (database) => {
-            await database.query("INSERT into pilots (pilot_id, first_name, strava_access_token, strava_refresh_token, strava_expires_at) values ($1, $2, $3,$4, $5)",
-                [pilot.pilot_id, pilot.first_name, pilot.strava_access_token, pilot.strava_refresh_token, pilot.strava_expires_at]);
+            await database.query("INSERT into pilots (pilot_id, first_name, strava_access_token, strava_refresh_token, strava_expires_at, profile_image_url) values ($1, $2, $3,$4, $5, $6)",
+                [pilot.pilot_id, pilot.first_name, pilot.strava_access_token, pilot.strava_refresh_token, pilot.strava_expires_at, pilot.profile_image_url]);
         });
     }
 
     export async function get(pilotId: StravaAthleteId): Promise<Result<PilotRow>> {
         return withPooledClient(async (database) => {
-            const result = await database.query<PilotRow>("select pilot_id,first_name from pilots where pilot_id = $1", [pilotId])
+            const result = await database.query<PilotRow>("select pilot_id,first_name,profile_image_url from pilots where pilot_id = $1", [pilotId])
             if (result.rows.length === 1) {
                 return new Success(result.rows[0].reify())
             } else {
@@ -25,7 +25,7 @@ export namespace Pilots {
 
     export async function getFull(pilotId: StravaAthleteId): Promise<Result<PilotRowFull>> {
         return withPooledClient(async (database) => {
-            const result = await database.query<PilotRowFull>("select pilot_id,first_name,strava_access_token, strava_refresh_token, strava_expires_at from pilots where pilot_id = $1", [pilotId])
+            const result = await database.query<PilotRowFull>("select pilot_id,first_name,strava_access_token, strava_refresh_token, strava_expires_at, profile_image_url from pilots where pilot_id = $1", [pilotId])
             if (result.rows.length === 1) {
                 return new Success(result.rows[0].reify())
             } else {
@@ -38,7 +38,7 @@ export namespace Pilots {
         console.log(`Pilots.getAccessToken() pilotId=${pilotId}`);
         return withPooledClient(async (database) => {
             const result = await database.query<PilotRowFull>(
-                "select pilot_id,first_name,strava_access_token,strava_refresh_token,strava_expires_at from pilots where pilot_id = $1",
+                "select pilot_id,first_name,strava_access_token,strava_refresh_token,strava_expires_at,profile_image_url from pilots where pilot_id = $1",
                 [pilotId]
             )
 

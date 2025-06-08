@@ -33,7 +33,8 @@ export type SiteId = number;
 // Core entity types
 export type Pilot = {
   first_name: string,
-  pilot_id: StravaAthleteId
+  pilot_id: StravaAthleteId,
+  profile_image_url: string | null
 }
 
 export enum SiteType {
