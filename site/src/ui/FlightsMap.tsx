@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { FlightWithSites } from '@parastats/common';
 import BaseMap from './BaseMap';
+import {formatSiteName} from '../utils/formatSiteName';
 
 interface FlightsMapProps {
   flights: FlightWithSites[];
@@ -131,7 +132,7 @@ export default function FlightsMap({ flights, className }: FlightsMapProps) {
         .setLngLat([site.lng, site.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
           <div style="font-weight: bold; color: ${site.type === 'takeoff' ? '#22c55e' : '#ef4444'};">
-            ${site.type === 'takeoff' ? '🛫' : '🛬'} ${site.name}
+            ${site.type === 'takeoff' ? '🛫' : '🛬'} ${formatSiteName(site.name)}
           </div>
           <div style="margin: 4px 0;">
             <strong>Altitude:</strong> ${site.alt}m<br>

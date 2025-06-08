@@ -8,6 +8,7 @@ import FlightItem from "@ui/FlightItem";
 import {StravaAthleteId} from "@parastats/common";
 import SiteMap from "@ui/SiteMap";
 import mapStyles from "@ui/FlightMap.module.css";
+import {formatSiteName} from "../../../utils/formatSiteName";
 
 export const metadata: Metadata = createMetadata("Site")
 
@@ -38,7 +39,7 @@ export default async function SiteDetail({params}: {
             {/* Header Section */}
             <div className={detailStyles.header}>
                 <div className={detailStyles.headerContent}>
-                    <h1 className={detailStyles.title}>🏔️ {site.name}</h1>
+                    <h1 className={detailStyles.title}>🏔️ {formatSiteName(site.name)}</h1>
                     <div className={detailStyles.subtitle}>
                         Flying Site
                     </div>

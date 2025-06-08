@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Polyline } from '@parastats/common';
 import BaseMap from './BaseMap';
+import {formatSiteName} from '../utils/formatSiteName';
 
 interface FlightMapProps {
   polyline: Polyline;
@@ -53,7 +54,7 @@ export default function FlightMap({ polyline, takeoffSite, landingSite, classNam
         .setLngLat([takeoffSite.lng, takeoffSite.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
           <div style="font-weight: bold; color: #22c55e;">🛫 Takeoff</div>
-          <div>${takeoffSite.name}</div>
+          <div>${formatSiteName(takeoffSite.name)}</div>
         `))
         .addTo(map);
     }
@@ -67,7 +68,7 @@ export default function FlightMap({ polyline, takeoffSite, landingSite, classNam
         .setLngLat([landingSite.lng, landingSite.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
           <div style="font-weight: bold; color: #ef4444;">🛬 Landing</div>
-          <div>${landingSite.name}</div>
+          <div>${formatSiteName(landingSite.name)}</div>
         `))
         .addTo(map);
     }

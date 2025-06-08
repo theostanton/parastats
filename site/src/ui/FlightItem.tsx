@@ -8,6 +8,7 @@ import ViewOnStrava from "@ui/links/ViewOnStrava";
 import styles from "./FlightItem.module.css"
 import VerticalSpace from "@ui/VerticalSpace";
 import {useEffect, useState} from "react";
+import {formatSiteNameShort} from "../utils/formatSiteName";
 
 function ClientOnlyDate({date}: {date: Date}) {
     const [formattedDate, setFormattedDate] = useState<string>('');
@@ -81,7 +82,7 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
                     <div className={styles.siteIcon}>↗️</div>
                     <div className={styles.siteInfo}>
                         <div className={styles.siteLabel}>Takeoff</div>
-                        <div className={styles.siteName}>{flight.takeoff?.name || 'Unknown'}</div>
+                        <div className={styles.siteName}>{flight.takeoff ? formatSiteNameShort(flight.takeoff.name) : 'Unknown'}</div>
                     </div>
                 </div>
                 <div className={styles.siteArrow}>→</div>
@@ -89,7 +90,7 @@ export default function FlightItem({flight}: { flight: FlightWithSites }) {
                     <div className={styles.siteIcon}>↘️</div>
                     <div className={styles.siteInfo}>
                         <div className={styles.siteLabel}>Landing</div>
-                        <div className={styles.siteName}>{flight.landing?.name || 'Unknown'}</div>
+                        <div className={styles.siteName}>{flight.landing ? formatSiteNameShort(flight.landing.name) : 'Unknown'}</div>
                     </div>
                 </div>
             </div>

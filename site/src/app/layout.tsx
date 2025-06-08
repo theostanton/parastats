@@ -1,6 +1,7 @@
 import "@styles/globals.css";
 import styles from '@styles/Layout.module.css';
 import Header from "@ui/Header";
+import Breadcrumb from "@ui/Breadcrumb";
 import {Metadata} from "next";
 import {createMetadata} from "@ui/metadata";
 
@@ -14,6 +15,7 @@ export default function Layout({children}: {
         <html lang="en">
         <body className={styles.body}>
         <Header/>
+        <Breadcrumb/>
         <div className={styles.container}>
             {children}
         </div>

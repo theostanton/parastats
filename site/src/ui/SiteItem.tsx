@@ -1,6 +1,7 @@
 import {Site} from "@parastats/common";
 import Link from "next/link";
 import styles from "./SiteItem.module.css";
+import {formatSiteName} from "../utils/formatSiteName";
 
 type SiteWithFlightCount = Site & {flightCount?: number};
 
@@ -13,7 +14,7 @@ export default function SiteItem({site}: { site: SiteWithFlightCount }) {
             <Link href={`/sites/${site.slug}`} className={styles.mainContent}>
                 <div className={styles.header}>
                     <div className={styles.siteInfo}>
-                        <div className={styles.siteName}>🏔️ {site.name}</div>
+                        <div className={styles.siteName}>🏔️ {formatSiteName(site.name)}</div>
                         <div className={styles.siteId}>ID: {site.ffvl_sid}</div>
                     </div>
                     <div className={styles.metrics}>

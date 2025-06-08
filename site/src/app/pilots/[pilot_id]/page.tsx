@@ -10,6 +10,7 @@ import Link from "next/link";
 import {Sites} from "@database/Sites";
 import PilotMap from "@ui/PilotMap";
 import mapStyles from "@ui/FlightMap.module.css";
+import {formatSiteName} from "@utils/formatSiteName";
 
 type Params = { pilot_id: string };
 
@@ -140,7 +141,7 @@ export default async function PagePilot({params}: {
                                     href={`/sites/${item.site.slug}`}
                                     className={detailStyles.statsItem}
                                 >
-                                    <span className={detailStyles.statsItemName}>{item.site.name}</span>
+                                    <span className={detailStyles.statsItemName}>{formatSiteName(item.site.name)}</span>
                                     <span className={detailStyles.statsItemCount}>{item.flights} flights</span>
                                 </Link>
                             ))}
@@ -160,7 +161,7 @@ export default async function PagePilot({params}: {
                                     href={`/sites/${item.site.slug}`}
                                     className={detailStyles.statsItem}
                                 >
-                                    <span className={detailStyles.statsItemName}>{item.site.name}</span>
+                                    <span className={detailStyles.statsItemName}>{formatSiteName(item.site.name)}</span>
                                     <span className={detailStyles.statsItemCount}>{item.flights} flights</span>
                                 </Link>
                             ))}

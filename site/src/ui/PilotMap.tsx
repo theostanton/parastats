@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { FlightWithSites } from '@parastats/common';
 import BaseMap from './BaseMap';
+import {formatSiteName} from '../utils/formatSiteName';
 
 interface PilotMapProps {
   flights: FlightWithSites[];
@@ -146,7 +147,7 @@ export default function PilotMap({ flights, pilotName, className }: PilotMapProp
       })
         .setLngLat([site.lng, site.lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
-          <div style="font-weight: bold; color: ${color};">${icon} ${site.name}</div>
+          <div style="font-weight: bold; color: ${color};">${icon} ${formatSiteName(site.name)}</div>
           <div style="margin: 4px 0;">
             <strong>Used for:</strong> ${isTakeoff && isLanding ? 'Takeoff & Landing' : isTakeoff ? 'Takeoff' : 'Landing'}<br>
             <strong>Flights:</strong> ${flights}<br>

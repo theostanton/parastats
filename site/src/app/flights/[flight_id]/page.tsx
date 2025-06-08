@@ -9,6 +9,7 @@ import ClientOnlyDate from "@ui/ClientOnlyDate";
 import Link from "next/link";
 import FlightMap from "@ui/FlightMap";
 import mapStyles from "@ui/FlightMap.module.css";
+import {formatSiteName} from "@utils/formatSiteName";
 
 
 export default async function FlightDetail({params}: {
@@ -16,7 +17,7 @@ export default async function FlightDetail({params}: {
 }) {
     const flightId = (await params).flight_id;
     const [flight, errorMessage] = await Flights.get(flightId);
-    
+
     if (!flight) {
         return <div className={styles.page}>
             <div className={styles.container}>
@@ -56,7 +57,7 @@ export default async function FlightDetail({params}: {
                         🪂 {flight.wing} {flight.pilot && `by ${flight.pilot.first_name}`}
                     </h1>
                     <div className={flightStyles.subtitle}>
-                        <ClientOnlyDate date={flight.start_date} format="full" />
+                        <ClientOnlyDate date={flight.start_date} format="full"/>
                     </div>
                 </div>
             </div>
@@ -74,7 +75,9 @@ export default async function FlightDetail({params}: {
                     <div className={flightStyles.infoGrid}>
                         <div className={flightStyles.infoItem}>
                             <span className={flightStyles.infoLabel}>Wing</span>
-                            <Link href={`/pilots/${flight.pilot_id}/${encodeURIComponent(flight.wing.toLowerCase())}`} className={flightStyles.infoValue} style={{textDecoration: 'none', color: 'var(--color-primary)', cursor: 'pointer'}}>
+                            <Link href={`/pilots/${flight.pilot_id}/${encodeURIComponent(flight.wing.toLowerCase())}`}
+                                  className={flightStyles.infoValue}
+                                  style={{textDecoration: 'none', color: 'var(--color-primary)', cursor: 'pointer'}}>
                                 {flight.wing}
                             </Link>
                         </div>
@@ -89,13 +92,17 @@ export default async function FlightDetail({params}: {
                         <div className={flightStyles.infoItem}>
                             <span className={flightStyles.infoLabel}>Start Time</span>
                             <span className={flightStyles.infoValue}>
-                                <ClientOnlyDate date={flight.start_date} format="time" />
+                                <ClientOnlyDate date={flight.start_date} format="time"/>
                             </span>
                         </div>
                         {flight.pilot && (
                             <div className={flightStyles.infoItem}>
                                 <span className={flightStyles.infoLabel}>Pilot</span>
-                                <Link href={`/pilots/${flight.pilot.pilot_id}`} style={{textDecoration: 'none', color: 'var(--color-primary)', fontWeight: 'var(--font-weight-semibold)'}}>
+                                <Link href={`/pilots/${flight.pilot.pilot_id}`} style={{
+                                    textDecoration: 'none',
+                                    color: 'var(--color-primary)',
+                                    fontWeight: 'var(--font-weight-semibold)'
+                                }}>
                                     {flight.pilot.first_name}
                                 </Link>
                             </div>
@@ -112,7 +119,7 @@ export default async function FlightDetail({params}: {
                                 <div className={flightStyles.siteIcon}>🛫</div>
                                 <div className={flightStyles.siteLabel}>Takeoff</div>
                                 <div className={flightStyles.siteName}>
-                                    {flight.takeoff.name}
+                                    {formatSiteName(flight.takeoff.name)}
                                 </div>
                                 {flight.takeoff.alt && (
                                     <div className={flightStyles.siteAlt}>
@@ -133,7 +140,7 @@ export default async function FlightDetail({params}: {
                                 <div className={flightStyles.siteIcon}>🛬</div>
                                 <div className={flightStyles.siteLabel}>Landing</div>
                                 <div className={flightStyles.siteName}>
-                                    {flight.landing.name}
+                                    {formatSiteName(flight.landing.name)}
                                 </div>
                                 {flight.landing.alt && (
                                     <div className={flightStyles.siteAlt}>
@@ -155,15 +162,15 @@ export default async function FlightDetail({params}: {
             {/* Flight Map Section */}
             <div className={flightStyles.infoCard}>
                 <h3 className={flightStyles.infoTitle}>Flight Path</h3>
-                <FlightMap 
+                <FlightMap
                     polyline={flight.polyline}
                     takeoffSite={flight.takeoff ? {
-                        name: flight.takeoff.name,
+                        name: formatSiteName(flight.takeoff.name),
                         lat: flight.takeoff.lat,
                         lng: flight.takeoff.lng
                     } : null}
                     landingSite={flight.landing ? {
-                        name: flight.landing.name,
+                        name: formatSiteName(flight.landing.name),
                         lat: flight.landing.lat,
                         lng: flight.landing.lng
                     } : null}
@@ -175,7 +182,11 @@ export default async function FlightDetail({params}: {
             {flight.description && (
                 <div className={flightStyles.infoCard}>
                     <h3 className={flightStyles.infoTitle}>Flight Description</h3>
-                    <div style={{whiteSpace: 'pre-wrap', marginBottom: 'var(--space-4)', lineHeight: 'var(--line-height-relaxed)'}}>
+                    <div style={{
+                        whiteSpace: 'pre-wrap',
+                        marginBottom: 'var(--space-4)',
+                        lineHeight: 'var(--line-height-relaxed)'
+                    }}>
                         {flight.description}
                     </div>
                     <div style={{display: 'flex', gap: 'var(--space-4)', alignItems: 'center'}}>

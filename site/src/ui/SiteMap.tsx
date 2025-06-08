@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { FlightWithSites, Site } from '@parastats/common';
 import BaseMap from './BaseMap';
+import {formatSiteName} from '../utils/formatSiteName';
 
 interface SiteMapProps {
   site: Site;
@@ -20,7 +21,7 @@ export default function SiteMap({ site, flights, className }: SiteMapProps) {
     })
       .setLngLat([site.lng, site.lat])
       .setPopup(new mapboxgl.Popup().setHTML(`
-        <div style="font-weight: bold; color: #8b5cf6; font-size: 16px;">🏔️ ${site.name}</div>
+        <div style="font-weight: bold; color: #8b5cf6; font-size: 16px;">🏔️ ${formatSiteName(site.name)}</div>
         <div style="margin: 8px 0;">
           <strong>Altitude:</strong> ${site.alt}m<br>
           <strong>Coordinates:</strong> ${site.lat.toFixed(6)}, ${site.lng.toFixed(6)}<br>
@@ -233,7 +234,7 @@ export default function SiteMap({ site, flights, className }: SiteMapProps) {
             {site.name} Flight Activity
           </div>
           <div style={{display: 'flex', flexDirection: 'column', gap: '2px'}}>
-            <div><span style={{color: '#8b5cf6'}}>🏔️</span> {site.name}</div>
+            <div><span style={{color: '#8b5cf6'}}>🏔️</span> {formatSiteName(site.name)}</div>
             <div><span style={{color: '#22c55e'}}>—</span> Takeoff flights ({flights.filter(f => f.takeoff?.ffvl_sid === site.ffvl_sid).length})</div>
             <div><span style={{color: '#ef4444'}}>—</span> Landing flights ({flights.filter(f => f.landing?.ffvl_sid === site.ffvl_sid).length})</div>
           </div>
