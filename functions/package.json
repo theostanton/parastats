@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "buildProd": "tsc && tsc-alias && npm run copyCommon && npm run updateProdPackage",
-    "copyCommon": "cp -r ../common dist/common",
+    "copyCommon": "mkdir -p dist/common && cp -r ../common/dist dist/common/ && cp ../common/package.json dist/common/",
     "updateProdPackage": "cp package.prod.json dist/package.json",
     "devApi": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register src/api/dev.ts",
     "devTasks": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register src/tasks/dev.ts",

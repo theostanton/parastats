@@ -9,9 +9,12 @@ export default async function middleware(req: NextRequest) {
     const isProtectedRoute = path.startsWith('/dashboard') || path.startsWith('/welcome')
     const isPublicRoute = !isProtectedRoute
 
+    const response = NextResponse.next()
+    response.headers.set('x-pathname', path)
+
     if (isPublicRoute) {
         console.log('middleware() isPublicRoute')
-        return NextResponse.next()
+        return response
     }
 
     const isAuthed = await Auth.checkIsAuthed()
@@ -23,7 +26,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     console.log('middleware() isProtectedRoute && isAuthed')
-    return NextResponse.next()
+    return response
 }
 
 // Routes Middleware should not run on

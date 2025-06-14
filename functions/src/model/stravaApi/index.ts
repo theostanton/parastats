@@ -1,5 +1,5 @@
 import axios, {AxiosHeaders} from "axios";
-import {StravaActivityId, StravaActivitySummary, StravaAthlete} from "./model";
+import {StravaActivityId, StravaActivitySummary, StravaAthlete, StravaActivity} from "./model";
 import {failed, Result, success} from "@/model/model";
 import {Pilots} from "@/database/Pilots";
 
@@ -97,6 +97,26 @@ export class StravaApi {
             return failed(err.toString())
         }
 
+    }
+
+    async fetchActivity(activityId: StravaActivityId): Promise<Result<StravaActivity>> {
+        console.log(`fetchActivity() activityId=${activityId}`);
+        try {
+            const response = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {
+                headers: this.headers
+            });
+            
+            if (response.status === 200) {
+                return success(response.data);
+            } else {
+                return failed(`fetchActivity failed status=${response.status}`);
+            }
+        } catch (error: any) {
+            if (error.response?.status === 429) {
+                return failed('Rate limited');
+            }
+            return failed(`fetchActivity failed: ${error.message || error.toString()}`);
+        }
     }
 
 }

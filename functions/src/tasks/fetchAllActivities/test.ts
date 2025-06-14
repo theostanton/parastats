@@ -1,6 +1,6 @@
 import {expect, test} from "vitest";
-import initialiseUser, {FetchAllActivitiesTask} from "./index";
-import {UpdateDescriptionTask} from "../updateDescription";
+import initialiseUser from "./index";
+import {FetchAllActivitiesTask, UpdateDescriptionTask} from "@parastats/common/src/model";
 
 test("fetchAllActivities success", async () => {
     const input: FetchAllActivitiesTask = {

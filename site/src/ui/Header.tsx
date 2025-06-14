@@ -1,6 +1,7 @@
 import {Auth} from "@auth/index";
 import styles from "@styles/Header.module.css";
 import {SignOut} from "@ui/SignOut";
+import {headers} from "next/headers";
 
 
 enum AuthRequired {
@@ -32,6 +33,10 @@ function NavItem(props: { text: string, path: string }) {
 
 export default async function Header() {
     const isAuthed = await Auth.checkIsAuthed()
+    const headersList = await headers()
+    const pathname = headersList.get('x-pathname') || '/'
+    const isHomePage = pathname === '/'
+    
     const navItems: NavItem[] = [
         {text: "Home", path: "/", auth: AuthRequired.Always},
         {text: "Dashboard", path: "/dashboard", auth: AuthRequired.Authed},
@@ -47,15 +52,17 @@ export default async function Header() {
                 <span>🪂</span>
                 <span>Paraglider Stats</span>
             </a>
-            <nav className={styles.nav}>
-                <div className={styles.mobileNav}>
-                    {navItems.filter((item) => shouldShow(item.auth, isAuthed))
-                        .map((item) => <NavItem key={item.text} {...item}/>
-                        )
-                    }
-                    {isAuthed && <SignOut/>}
-                </div>
-            </nav>
+            {!isHomePage && (
+                <nav className={styles.nav}>
+                    <div className={styles.mobileNav}>
+                        {navItems.filter((item) => shouldShow(item.auth, isAuthed))
+                            .map((item) => <NavItem key={item.text} {...item}/>
+                            )
+                        }
+                        {isAuthed && <SignOut/>}
+                    </div>
+                </nav>
+            )}
         </div>
     </div>
 }

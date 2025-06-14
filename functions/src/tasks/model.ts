@@ -1,7 +1,8 @@
-import fetchAllActivities, {FetchAllActivitiesTask} from "./fetchAllActivities";
-import updateDescription, {UpdateDescriptionTask} from "./updateDescription";
-import helloWorld, {HelloWorldTask} from "./helloWorld";
-import syncSites, {SyncSitesTask} from "./syncSites";
+import { executeFetchAllActivitiesTask } from "./fetchAllActivities";
+import { executeUpdateDescriptionTask } from "./updateDescription";
+import { executeHelloWorldTask } from "./helloWorld";
+import { executeSyncSitesTask } from "./syncSites";
+import { FetchAllActivitiesTask, UpdateDescriptionTask, HelloWorldTask, SyncSitesTask } from "@parastats/common/src/model";
 
 export type TaskResult = TaskSuccess | TaskFailure
 
@@ -16,13 +17,13 @@ export type TaskFailure = {
 
 export type TaskBody = FetchAllActivitiesTask | UpdateDescriptionTask | HelloWorldTask | SyncSitesTask
 
-export type TaskHandler = (task: TaskBody) => Promise<TaskResult>
+export type TaskHandler = (task: any) => Promise<TaskResult>
 
 export type TaskName = TaskBody['name'];
 
 export const taskHandlers: Record<TaskName, TaskHandler> = {
-    SyncSites: syncSites,
-    FetchAllActivities: fetchAllActivities,
-    UpdateDescription: updateDescription,
-    HelloWorld: helloWorld,
+    SyncSites: executeSyncSitesTask,
+    FetchAllActivities: executeFetchAllActivitiesTask,
+    UpdateDescription: executeUpdateDescriptionTask,
+    HelloWorld: executeHelloWorldTask,
 }
