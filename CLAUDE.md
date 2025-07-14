@@ -140,6 +140,11 @@ Before EVERY commit, Claude Code must:
 - Create PR only when feature is complete and fully tested
 - PR will be squashed into single commit on main
 - Include clear description of changes and test plan
+- **MANDATORY**: Include complete conversation history in PR description:
+  - Copy full conversation thread that led to the changes
+  - Include all user prompts and Claude responses
+  - Use collapsible sections for long conversations: `<details><summary>Conversation History</summary>...conversation...</details>`
+  - This ensures full context and traceability of all changes
 - **NEVER** merge without human review
 
 ### 5. Rollback Strategy
