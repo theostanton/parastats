@@ -140,6 +140,7 @@ Before EVERY commit, Claude Code must:
 - Create PR only when feature is complete and fully tested
 - PR will be squashed into single commit on main
 - Include clear description of changes and test plan
+- **MANDATORY**: PR author must be @claude
 - **MANDATORY**: Include complete conversation history in PR description:
   - Copy full conversation thread that led to the changes
   - Include all user prompts and Claude responses
