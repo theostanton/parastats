@@ -127,6 +127,37 @@
     box-shadow: 0 0 0 2px var(--color-primary);
 }
 
+.stravaButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    min-width: 200px;
+    background-color: var(--color-strava);
+    color: var(--color-text-inverse);
+}
+
+.stravaButton:hover {
+    background-color: var(--color-strava-hover);
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.stravaButton:focus-visible {
+    background-color: var(--color-strava-hover);
+    box-shadow: 0 0 0 2px var(--color-strava);
+}
+
 .actionButton {
     background-color: var(--color-text-primary);
     color: var(--color-text-inverse);

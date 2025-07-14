@@ -5,16 +5,47 @@ import {createMetadata} from "@ui/metadata";
 export const metadata: Metadata = createMetadata('Login')
 
 export default function Login() {
-    return <div className={styles.page}>
-        <h1>
-            Welcome to Paraglider Stats.
-        </h1>
+    return <div className={styles.pageCentered}>
+        <div className={styles.container}>
+            <div style={{ marginBottom: 'var(--space-8)' }}>
+                <div style={{ fontSize: '4rem', marginBottom: 'var(--space-6)' }}>🪂</div>
+                <h1 className={styles.title}>
+                    Welcome to Paraglider Stats
+                </h1>
+                <p className={styles.subtitle}>
+                    Track your paragliding adventures with data from Strava
+                </p>
+            </div>
 
-        <p className={styles.description}>
-            <a className={styles.connectButton}
-               href="https://www.strava.com/oauth/authorize?client_id=155420&redirect_uri=https%3A%2F%2Fwebhooks.paragliderstats.com&response_type=code&approval_prompt=force&scope=read_all,activity:write,activity:read_all">
-                Connect with Strava
-            </a>
-        </p>
+            <div style={{ marginBottom: 'var(--space-8)' }}>
+                <p className={styles.description}>
+                    Connect your Strava account to automatically sync your paragliding flights, 
+                    analyze your performance, and discover new flying sites. Get detailed insights 
+                    into your flights including takeoff/landing locations, flight duration, and more.
+                </p>
+            </div>
+
+            <div style={{ marginBottom: 'var(--space-12)' }}>
+                <a className={styles.stravaButton}
+                   href="https://www.strava.com/oauth/authorize?client_id=155420&redirect_uri=https%3A%2F%2Fwebhooks.paragliderstats.com&response_type=code&approval_prompt=force&scope=read_all,activity:write,activity:read_all">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7 13.828h4.172"/>
+                    </svg>
+                    Connect with Strava
+                </a>
+            </div>
+
+            <div className={styles.descriptionBox}>
+                <h3 style={{ marginBottom: 'var(--space-4)', fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
+                    What you'll get:
+                </h3>
+                <ul style={{ margin: 0, paddingLeft: 'var(--space-6)', color: 'var(--color-text-secondary)' }}>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>Automatic flight detection and analysis</li>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>Detailed statistics and performance metrics</li>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>Site identification and mapping</li>
+                    <li>AI-powered flight descriptions</li>
+                </ul>
+            </div>
+        </div>
     </div>
 }
