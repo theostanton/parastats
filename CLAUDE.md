@@ -110,7 +110,52 @@ Test database operations thoroughly as they involve complex geospatial queries f
 - **Error Handling**: Tasks return `{ success: boolean, message?: string }` pattern
 - **Authentication**: JWT tokens in cookies, Strava OAuth refresh token handling
 
-## Development Workflow
+## Development Workflow Guardrails
+
+**MANDATORY: Claude Code must follow these guardrails for ALL code changes:**
+
+### 1. Branch Management
+- **ALWAYS** create a new feature branch before making any changes
+- Branch naming: `feature/description`, `fix/description`, `refactor/description`
+- **NEVER** commit directly to `main` branch
+- Delete feature branches after PR merge
+
+### 2. Pre-Commit Requirements
+Before EVERY commit, Claude Code must:
+1. Run full test suite for affected packages:
+   - `cd common && yarn test && yarn build`
+   - `cd functions && yarn test`
+   - `cd site && yarn build`
+2. Test locally with `task local-build && docker compose up`
+3. Verify all services start correctly and endpoints respond
+4. Only commit if all tests pass and local deployment succeeds
+
+### 3. Commit Strategy
+- Make small, focused commits with clear messages
+- Many small commits per branch are encouraged
+- Each commit must pass all pre-commit requirements
+- Commit message format: `type: brief description`
+
+### 4. Pull Request Workflow
+- Create PR only when feature is complete and fully tested
+- PR will be squashed into single commit on main
+- Include clear description of changes and test plan
+- **NEVER** merge without human review
+
+### 5. Rollback Strategy
+- Keep git history clean for easy rollbacks
+- Document any infrastructure changes in PR description
+- If deployment fails, immediately revert to last known good state
+
+### 6. Testing Requirements
+- Full test suite before every commit
+- Local integration testing with Docker Compose
+- For infrastructure: `terraform plan` before any applies
+- Validate API endpoints and frontend functionality
+
+**Claude Code will refuse to proceed if any guardrail is violated.**
+
+## Legacy Development Workflow
 
 1. Make changes in relevant package (`common`, `functions`, `site`)
 2. Run tests with `yarn test` 
