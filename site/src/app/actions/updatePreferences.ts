@@ -2,7 +2,7 @@
 
 import { Auth } from "@auth/index";
 import { DescriptionPreferences, type DescriptionPreference } from "@database/descriptionPreferences";
-import { type Failure } from '@parastats/common';
+import { type Failure, isSuccess } from '@parastats/common';
 import { revalidatePath } from 'next/cache';
 
 export async function updateDescriptionPreferences(formData: FormData) {
@@ -19,8 +19,8 @@ export async function updateDescriptionPreferences(formData: FormData) {
 
     const result = await DescriptionPreferences.upsert(preferences);
     
-    if (!result.success) {
-        throw new Error((result as Failure)[1]);
+    if (!isSuccess(result)) {
+        throw new Error(result[1]);
     }
     
     revalidatePath('/dashboard');
