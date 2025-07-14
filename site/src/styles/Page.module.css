@@ -158,6 +158,46 @@
     box-shadow: 0 0 0 2px var(--color-strava);
 }
 
+/* Login page specific layout */
+.loginPageContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding-top: var(--header-height);
+    padding-bottom: calc(var(--space-16) + var(--space-4)); /* Account for footer height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-background);
+}
+
+.loginContent {
+    max-width: 480px;
+    width: 100%;
+    padding: 0 var(--space-6);
+    text-align: center;
+}
+
+.loginFeatures {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-4);
+    text-align: left;
+}
+
+@media (max-width: 640px) {
+    .loginContent {
+        padding: 0 var(--space-4);
+    }
+    
+    .loginPageContainer {
+        padding-bottom: calc(var(--space-12) + var(--space-4));
+    }
+}
+
 .actionButton {
     background-color: var(--color-text-primary);
     color: var(--color-text-inverse);
