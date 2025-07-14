@@ -114,13 +114,22 @@ Test database operations thoroughly as they involve complex geospatial queries f
 
 **MANDATORY: Claude Code must follow these guardrails for ALL code changes:**
 
-### 1. Branch Management
-- **ALWAYS** create a new feature branch before making any changes
-- Branch naming: `feature/description`, `fix/description`, `refactor/description`
+### 1. Initial Setup (IMMEDIATE)
+**BEFORE making ANY code changes, Claude Code must:**
+1. **IMMEDIATELY** create a new feature branch from main
+   - Branch naming: `feature/description`, `fix/description`, `refactor/description`
+   - Use descriptive names based on the work being requested
+2. **IMMEDIATELY** create a draft PR to track progress
+   - Set as draft until work is complete
+   - Include initial description of planned work
+   - **MANDATORY**: PR author must be @claude
+
+### 2. Branch Management
 - **NEVER** commit directly to `main` branch
+- All work must be done on feature branches
 - Delete feature branches after PR merge
 
-### 2. Pre-Commit Requirements
+### 3. Pre-Commit Requirements
 Before EVERY commit, Claude Code must:
 1. Run full test suite for affected packages:
    - `cd common && yarn test && yarn build`
@@ -130,17 +139,17 @@ Before EVERY commit, Claude Code must:
 3. Verify all services start correctly and endpoints respond
 4. Only commit if all tests pass and local deployment succeeds
 
-### 3. Commit Strategy
+### 4. Commit Strategy
 - Make small, focused commits with clear messages
 - Many small commits per branch are encouraged
 - Each commit must pass all pre-commit requirements
 - Commit message format: `type: brief description`
 
-### 4. Pull Request Workflow
-- Create PR only when feature is complete and fully tested
+### 5. Pull Request Workflow
+- Draft PR is created immediately at start (see Initial Setup)
+- Convert from draft to ready when feature is complete and fully tested
 - PR will be squashed into single commit on main
 - Include clear description of changes and test plan
-- **MANDATORY**: PR author must be @claude
 - **MANDATORY**: Include complete conversation history in PR description:
   - Copy full conversation thread that led to the changes
   - Include all user prompts and Claude responses
@@ -148,18 +157,27 @@ Before EVERY commit, Claude Code must:
   - This ensures full context and traceability of all changes
 - **NEVER** merge without human review
 
-### 5. Rollback Strategy
+### 6. Rollback Strategy
 - Keep git history clean for easy rollbacks
 - Document any infrastructure changes in PR description
 - If deployment fails, immediately revert to last known good state
 
-### 6. Testing Requirements
+### 7. Testing Requirements
 - Full test suite before every commit
 - Local integration testing with Docker Compose
 - For infrastructure: `terraform plan` before any applies
 - Validate API endpoints and frontend functionality
 
 **Claude Code will refuse to proceed if any guardrail is violated.**
+
+## Claude Commands
+
+Common development tasks are available as slash commands in `.claude/commands.md`:
+- `/start-work` - Create feature branch and draft PR
+- `/deploy` - Run full deployment pipeline  
+- `/test-changes` - Run comprehensive test suite
+- `/check-health` - Verify local build and service health
+- `/publish-pr` - Convert draft PR to ready with conversation history
 
 ## Legacy Development Workflow
 
