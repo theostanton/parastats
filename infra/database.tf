@@ -17,6 +17,10 @@ resource "google_sql_database_instance" "instance" {
         value = "83.204.51.218/32"
       }
       authorized_networks {
+        name  = "5G"
+        value = "92.184.140.183/32"
+      }
+      authorized_networks {
         name  = "Losserands"
         value = "81.220.110.158/32"
       }

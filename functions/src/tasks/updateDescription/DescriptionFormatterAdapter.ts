@@ -1,39 +1,49 @@
 import { 
     DescriptionFormatter as CommonDescriptionFormatter, 
-    WindProvider, 
     PreferencesProvider,
     FlightRow,
     StravaAthleteId,
-    WindReport
+    WindReport,
+    withPooledClient,
+    DescriptionPreferences,
+    isSuccess
 } from "@parastats/common";
-import { withPooledClient } from "@parastats/common";
 import { FFVL } from "@/ffvlApi";
-import { DescriptionPreferences } from "@/database/DescriptionPreferences";
 
 // Adapter to bridge FFVL API to common WindProvider interface
-class FFVLWindProvider implements WindProvider {
+class FFVLWindProvider {
     async getReport(baliseId: string, date: Date): Promise<{ success: true; value: WindReport } | { success: false; error: string }> {
         const result = await FFVL.getReport(baliseId, date);
         
-        if (result.success) {
+        if (isSuccess(result)) {
+            const [windReport] = result;
             return {
                 success: true,
                 value: {
-                    windKmh: result.value.windKmh,
-                    gustKmh: result.value.gustKmh,
-                    direction: result.value.direction
+                    windKmh: windReport.windKmh,
+                    gustKmh: windReport.gustKmh,
+                    direction: windReport.direction as any
                 }
             };
         } else {
-            return { success: false, error: result.error };
+            const [, error] = result;
+            return { success: false, error };
         }
     }
 }
 
 // Adapter to bridge DescriptionPreferences to common PreferencesProvider interface
 class DBPreferencesProvider implements PreferencesProvider {
-    async get(pilotId: StravaAthleteId) {
-        return await DescriptionPreferences.get(pilotId);
+    async get(pilotId: StravaAthleteId): Promise<{ success: true; value: any } | { success: false; error: string }> {
+        const result = await DescriptionPreferences.get(pilotId);
+        
+        if (isSuccess(result)) {
+            const [preferences] = result;
+            return { success: true, value: preferences };
+        } else {
+            const [, error] = result;
+            return { success: false, error };
+        }
     }
 }
 
@@ -45,7 +55,7 @@ export class DescriptionFormatter {
 
     static async generateDescription(flightRow: FlightRow): Promise<string | null> {
         const formatter = await DescriptionFormatter.create(flightRow);
-        const windProvider = new FFVLWindProvider();
+        const windProvider = new FFVLWindProvider() as any;
         
         return withPooledClient(async (client) => {
             return await formatter.generate(client, windProvider);

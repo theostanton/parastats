@@ -1,3 +1,5 @@
+import {WindDirection} from "@parastats/common";
+
 export type FfvlBalise = {
     nom: string
     idBalise: string,
@@ -25,16 +27,6 @@ export type FfvlReport = {
     directVentMoy: string
 }
 
-export enum WindDirection {
-    N,
-    NE,
-    E,
-    SE,
-    S,
-    SW,
-    W,
-    NW
-}
 
 export type WindsockReport = {
     idbalise: string

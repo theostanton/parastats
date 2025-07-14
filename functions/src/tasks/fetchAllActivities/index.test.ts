@@ -1,3 +1,4 @@
+import {isSuccess} from "@parastats/common";
 import {expect, test} from "vitest";
 import initialiseUser, {FetchAllActivitiesTask} from "./index";
 

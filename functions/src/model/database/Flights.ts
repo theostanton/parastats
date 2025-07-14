@@ -1,24 +1,24 @@
 import {withPooledClient, Client} from "./client";
-import {Failed, failed, Result, Success, success} from "@/model/model";
-import {FlightRow} from "./model";
+import {Either, failed, failure, success} from "@parastats/common";
+import {FlightRow} from "@parastats/common";
 import {StravaActivityId, StravaAthleteId} from "@parastats/common";
 
 export namespace Flights {
-    export async function get(flightId: StravaActivityId): Promise<Result<FlightRow>> {
+    export async function get(flightId: StravaActivityId): Promise<Either<FlightRow>> {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightRow>(`
                 select *
                 from flights
                 where strava_activity_id = $1`, [flightId])
             if (result.rows.length === 1) {
-                return new Success(result.rows[0].reify())
+                return success(result.rows[0].reify())
             } else {
-                return new Failed(`No results for flightId=${flightId}`)
+                return failure(`No results for flightId=${flightId}`)
             }
         });
     }
 
-    export async function getAll(pilotId: StravaAthleteId): Promise<Result<FlightRow[]>> {
+    export async function getAll(pilotId: StravaAthleteId): Promise<Either<FlightRow[]>> {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightRow>(`
                 select *
@@ -32,7 +32,7 @@ export namespace Flights {
         });
     }
 
-    export async function updateDescription(flightId: StravaActivityId, description: string): Promise<Result<void>> {
+    export async function updateDescription(flightId: StravaActivityId, description: string): Promise<Either<void>> {
         return withPooledClient(async (database: Client) => {
             try {
                 await database.query(`
@@ -47,7 +47,7 @@ export namespace Flights {
         });
     }
 
-    export async function upsert(flights: FlightRow[]): Promise<Result<void>> {
+    export async function upsert(flights: FlightRow[]): Promise<Either<void>> {
         return withPooledClient(async (database: Client) => {
             try {
                 const errors: string[] = []

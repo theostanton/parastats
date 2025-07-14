@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {extractPilotFromJwt, generateJwt, sign} from "@/jwt";
-import {Pilots} from "@/database/Pilots";
+import {Pilots, isSuccess} from "@parastats/common";
 import {StravaAthleteId} from "@/stravaApi/model";
 
 export async function generateToken(req: Request, res: Response) {
@@ -18,12 +18,14 @@ export async function generateToken(req: Request, res: Response) {
     const jwtToken = generateJwt(pilotId)
     const accessTokenResult = await Pilots.getAccessToken(pilotId)
 
-    if (accessTokenResult.success) {
+    if (isSuccess(accessTokenResult)) {
+        const [accessToken] = accessTokenResult;
         res.status(200).json({
             jwtToken,
-            accessToken: accessTokenResult.value
+            accessToken
         });
     } else {
-        res.status(400).json({error: accessTokenResult.error})
+        const [, error] = accessTokenResult;
+        res.status(400).json({error})
     }
 }

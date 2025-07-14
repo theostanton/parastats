@@ -26,7 +26,7 @@ export function isSuccess<V>(either: Either<V>): either is Success<V> {
 }
 
 export function isFailure<V>(either: Either<V>): either is Failure {
-    return either[0] === undefined
+    return either[1] !== undefined
 }
 
 // ===================================
@@ -165,64 +165,36 @@ export type WindReport = {
 // ===================================
 // STRAVA API TYPES
 // ===================================
-
-export type StravaAthlete = {
-    id: StravaAthleteId
-    firstname: string
-    lastname: string
-    profile: string
-    profile_medium: string
-}
-
-export type StravaActivitySummary = {
-    id: StravaActivityId
-    name: string
-    type: string
-    distance: number
-    elapsed_time: number
-    start_date: string
-}
-
-export type StravaActivity = {
-    id: StravaActivityId
-    name: string
-    type: string
-    distance: number
-    elapsed_time: number
-    start_date: string
-    description: string
-    map: {
-        polyline: string
-    }
-}
-
-// ===================================
-// FFVL API TYPES
-// ===================================
-
-export type FfvlSite = {
-    suid: string
-    toponym: string
-    latitude: string
-    longitude: string
-    altitude: string
-    flying_functions_text: string
-    terrain_polygon: string | null
-}
-
-export type FfvlBalise = {
-    idBalise: string
-    nom: string
-    latitude: string
-    longitude: string
-    altitude: string
-}
-
-export type FfvlWindReport = {
-    windKmh: number
-    gustKmh: number
-    direction: WindDirection
-}
+//
+// export type StravaAthlete = {
+//     id: StravaAthleteId
+//     firstname: string
+//     lastname: string
+//     profile: string
+//     profile_medium: string
+// }
+//
+// export type StravaActivitySummary = {
+//     id: StravaActivityId
+//     name: string
+//     type: string
+//     distance: number
+//     elapsed_time: number
+//     start_date: string
+// }
+//
+// export type StravaActivity = {
+//     id: StravaActivityId
+//     name: string
+//     type: string
+//     distance: number
+//     elapsed_time: number
+//     start_date: string
+//     description: string
+//     map: {
+//         polyline: string
+//     }
+// }
 
 // ===================================
 // TASK TYPES
@@ -276,4 +248,101 @@ export type TaskName = "SyncSites" | "FetchAllActivities" | "UpdateDescription" 
 export type TaskExecutor = (task: TaskBody) => Promise<TaskResult>
 export const executeTask: TaskExecutor = () => {
     throw new Error("executeTask must be implemented by the functions package")
+}
+
+// ===================================
+// MONITORING TYPES
+// ===================================
+
+export enum WebhookEventStatus {
+    Pending = "pending",
+    Processing = "processing", 
+    Completed = "completed",
+    Failed = "failed",
+    Ignored = "ignored"
+}
+
+export enum TaskExecutionStatus {
+    Pending = "pending",
+    Running = "running",
+    Completed = "completed", 
+    Failed = "failed",
+    Cancelled = "cancelled"
+}
+
+export enum WebhookEventType {
+    Create = "create",
+    Update = "update",
+    Delete = "delete"
+}
+
+export enum WebhookObjectType {
+    Activity = "activity",
+    Athlete = "athlete"
+}
+
+export type WebhookEventRow = {
+    id: string; // UUID
+    event_type: WebhookEventType;
+    object_type: WebhookObjectType;
+    object_id: string; // Strava activity/athlete ID
+    pilot_id: StravaAthleteId | null;
+    received_at: Date;
+    processed_at: Date | null;
+    status: WebhookEventStatus;
+    error_message: string | null;
+    payload: any; // JSONB - full webhook payload
+    processing_duration_ms: number | null;
+    retry_count: number;
+    last_retry_at: Date | null;
+}
+
+export type TaskExecutionRow = {
+    id: string; // UUID
+    task_name: TaskName;
+    task_payload: any; // JSONB
+    triggered_by: string | null; // description of trigger source
+    triggered_by_webhook_id: string | null; // UUID reference
+    started_at: Date;
+    completed_at: Date | null;
+    status: TaskExecutionStatus;
+    error_message: string | null;
+    execution_duration_ms: number | null;
+    pilot_id: StravaAthleteId | null;
+    retry_count: number;
+    last_retry_at: Date | null;
+}
+
+// View types for monitoring dashboard
+export type WebhookEventWithTasks = WebhookEventRow & {
+    triggered_tasks_count: number;
+    completed_tasks_count: number;
+    failed_tasks_count: number;
+}
+
+export type MonitoringActivity = {
+    type: 'webhook' | 'task';
+    entity_id: string;
+    action: string;
+    status: string;
+    timestamp: Date;
+    pilot_id: StravaAthleteId | null;
+    error_message: string | null;
+    duration_ms: number | null;
+}
+
+// Strava webhook payload types (based on Strava API docs)
+export type StravaWebhookEvent = {
+    object_type: 'activity' | 'athlete';
+    object_id: number;
+    aspect_type: 'create' | 'update' | 'delete';
+    updates?: {
+        title?: string;
+        type?: string;
+        private?: boolean;
+        authorized?: boolean;
+    };
+    owner_id: number;
+    subscription_id: number;
+    event_time: number; // Unix timestamp
 }

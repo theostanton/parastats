@@ -5,12 +5,13 @@
   "main": "./index.js",
   "scripts": {
     "test": "vitest run",
+    "build": "tsc",
     "buildProd": "tsc && tsc-alias && npm run copyCommon && npm run updateProdPackage",
     "copyCommon": "mkdir -p dist/common && cp -r ../common/dist dist/common/ && cp ../common/package.json dist/common/",
     "updateProdPackage": "cp package.prod.json dist/package.json",
-    "devApi": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register src/api/dev.ts",
-    "devTasks": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register src/tasks/dev.ts",
-    "devWebhooks": "tsc -p dev.tsconfig.json && nodemon --inspect src/webhooks/dev.ts"
+    "devApi": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register -r tsconfig-paths/register src/api/dev.ts",
+    "devTasks": "tsc -p dev.tsconfig.json && node --watch -r ts-node/register -r tsconfig-paths/register src/tasks/dev.ts",
+    "devWebhooks": "tsc -p dev.tsconfig.json && nodemon --exec \"node --inspect -r ts-node/register -r tsconfig-paths/register\" src/webhooks/dev.ts"
   },
   "dependencies": {
     "@google-cloud/tasks": "^6.0.1",
@@ -32,9 +33,11 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
+    "nodemon": "^3.0.3",
     "testcontainers": "^11.0.0",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"
   }

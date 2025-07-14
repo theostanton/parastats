@@ -1,6 +1,6 @@
 import {expect, test} from "vitest";
 import {TestContainer} from "./generateContainer.test";
-import {Site} from "./model";
+import {Site, isSuccess} from "@parastats/common";
 import {Sites} from "./Sites";
 import {Mocks} from "./Mocks.test";
 

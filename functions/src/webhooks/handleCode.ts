@@ -2,8 +2,7 @@ import {Request, Response} from "express";
 import {StravaAthlete} from "@/stravaApi/model";
 import axios from "axios";
 import {StravaApi} from "@/stravaApi";
-import {withPooledClient} from "@/database/client";
-import {PilotRow} from "@/database/model";
+import {withPooledClient, PilotRow} from "@parastats/common";
 import trigger from "@/tasks/trigger";
 import {sign} from "@/jwt";
 

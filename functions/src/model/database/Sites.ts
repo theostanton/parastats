@@ -1,9 +1,9 @@
-import {LatLng, Site} from "./model";
-import {failed, Result, success} from "@/model/model";
+import {Either, LatLng, Site} from "@parastats/common";
+import {failed, success} from "@parastats/common";
 import {withPooledClient, Client} from "./client";
 
 export namespace Sites {
-    export async function upsert(sites: Site[]): Promise<Result<void>> {
+    export async function upsert(sites: Site[]): Promise<Either<void>> {
         return withPooledClient(async (database: Client) => {
             try {
                 const errors: string[] = []

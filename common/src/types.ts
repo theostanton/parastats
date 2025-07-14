@@ -1,27 +1,3 @@
-// Core result/either pattern types
-export type Result<T> = Success<T> | Failed;
-
-export type Success<T> = {
-  success: true;
-  data: T;
-};
-
-export type Failed = {
-  success: false;
-  error: string;
-};
-
-// Utility type constructors
-export const createSuccess = <T>(data: T): Success<T> => ({
-  success: true,
-  data,
-});
-
-export const createFailure = (error: string): Failed => ({
-  success: false,
-  error,
-});
-
 // Base ID types
 export type StravaAthleteId = number;
 export type StravaActivityId = string;

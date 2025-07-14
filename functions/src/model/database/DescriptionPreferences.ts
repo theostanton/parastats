@@ -1,22 +1,22 @@
-import {Failed, failed, Result, Success, success} from "@/model/model";
+import {Either, failed, failure, success} from "@parastats/common";
 import {withPooledClient} from "./client";
-import {DescriptionPreference, PilotRow} from "./model";
+import {DescriptionPreference, PilotRow} from "@parastats/common";
 import {StravaAthleteId} from "@parastats/common";
 
 export namespace DescriptionPreferences {
 
-    export async function get(pilotId: StravaAthleteId): Promise<Result<DescriptionPreference>> {
+    export async function get(pilotId: StravaAthleteId): Promise<Either<DescriptionPreference>> {
         return withPooledClient(async (database) => {
             const result = await database.query<DescriptionPreference>("select * from description_preferences", [pilotId])
             if (result.rows.length === 1) {
-                return new Success(result.rows[0].reify())
+                return success(result.rows[0].reify())
             } else {
-                return new Failed(`No pilots for pilotId=${pilotId}`)
+                return failure(`No pilots for pilotId=${pilotId}`)
             }
         });
     }
 
-    export async function upsert(preferences: DescriptionPreference[]): Promise<Result<void>> {
+    export async function upsert(preferences: DescriptionPreference[]): Promise<Either<void>> {
         return withPooledClient(async (database) => {
             try {
                 const errors: string[] = []

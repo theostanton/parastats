@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import {Request, Response} from "express";
-import {Pilots} from "./model/database/Pilots";
-import {PilotRow} from "./model/database/model";
-import {failed, Result, success} from "./model/model";
+import {Pilots, PilotRow, failed, Either, success, isSuccess} from "@parastats/common";
 
 export function generateJwt(userId: number): string {
     console.log(`generateJwt process.env.SESSION_SECRET=${process.env.SESSION_SECRET}`)
@@ -29,7 +27,7 @@ export function sign(userId: number, res: Response): string {
     return jwtToken
 }
 
-export async function verifyJwt(req: Request, res: Response): Promise<Result<PilotRow>> {
+export async function verifyJwt(req: Request, res: Response): Promise<Either<PilotRow>> {
 
     if (!process.env.SESSION_SECRET?.length) {
         throw new Error('Session Secret required');
@@ -43,8 +41,9 @@ export async function verifyJwt(req: Request, res: Response): Promise<Result<Pil
         console.log(`verifyJwt userId ${userId}`);
         const result = await Pilots.get(userId);
         console.log('result', result);
-        if (result.success) {
-            return success(result.value)
+        if (isSuccess(result)) {
+            const [pilot] = result;
+            return success(pilot)
         }
         res.status(401).end()
     } catch {
@@ -57,8 +56,9 @@ export async function extractPilotFromJwt(req: Request): Promise<PilotRow> {
     const payload = jwt.verify(req.cookies.sid, process.env.SESSION_SECRET!);
     const userId = payload.sub as unknown as number
     const result = await Pilots.get(userId);
-    if (result.success) {
-        return result.value
+    if (isSuccess(result)) {
+        const [pilot] = result;
+        return pilot
     }
     throw "Tried to extractUserFromJwt on unverified jwt"
 }

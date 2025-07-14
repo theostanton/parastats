@@ -5,10 +5,10 @@ import handler from "./index";
 const app = express();
 const jsonParser = bodyParser.json()
 
-if (!process.env.PORT) {
-    throw new Error('PORT environment variable is required');
+if (!process.env.WEBHOOKS_PORT) {
+    throw new Error('WEBHOOKS_PORT environment variable is required');
 }
-const PORT = process.env.PORT
+const PORT = process.env.WEBHOOKS_PORT
 
 app.get('/', jsonParser, async (req: Request, res: Response) => {
     await handler(req, res);

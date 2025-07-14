@@ -1,5 +1,6 @@
-import { withPooledClient } from './client';
-import { createFailure, createSuccess, type Failed, type Success, type StravaAthleteId } from '@parastats/common';
+import {withPooledClient} from './client';
+import {createFailure, createSuccess, StravaAthleteId} from '@parastats/common';
+import {Either} from "@model/Either";
 
 export type DescriptionPreference = {
     pilot_id: StravaAthleteId
@@ -11,14 +12,14 @@ export type DescriptionPreference = {
 }
 
 export namespace DescriptionPreferences {
-    export async function get(pilotId: StravaAthleteId): Promise<Success<DescriptionPreference> | Failed> {
+    export async function get(pilotId: StravaAthleteId): Promise<Either<DescriptionPreference>> {
         return withPooledClient(async (database) => {
             try {
                 const result = await database.query<DescriptionPreference>(
-                    "select * from description_preferences where pilot_id = $1", 
+                    "select * from description_preferences where pilot_id = $1",
                     [pilotId]
                 );
-                
+
                 if (result.rows.length === 1) {
                     return createSuccess(result.rows[0].reify());
                 } else {
@@ -39,16 +40,16 @@ export namespace DescriptionPreferences {
         });
     }
 
-    export async function upsert(preferences: DescriptionPreference): Promise<Success<void> | Failed> {
+    export async function upsert(preferences: DescriptionPreference): Promise<Either<void>> {
         return withPooledClient(async (database) => {
             try {
                 await database.query(`
                     insert into description_preferences(pilot_id,
-                                                       include_sites,
-                                                       include_wind,
-                                                       include_wing_aggregate,
-                                                       include_year_aggregate,
-                                                       include_all_time_aggregate)
+                                                        include_sites,
+                                                        include_wind,
+                                                        include_wing_aggregate,
+                                                        include_year_aggregate,
+                                                        include_all_time_aggregate)
                     values ($1, $2, $3, $4, $5, $6)
                     on conflict(pilot_id)
                         do update set include_sites=$2,
@@ -64,7 +65,7 @@ export namespace DescriptionPreferences {
                     preferences.include_year_aggregate,
                     preferences.include_all_time_aggregate
                 ]);
-                
+
                 return createSuccess(undefined);
             } catch (error) {
                 return createFailure(`Failed to update description preferences: ${error}`);

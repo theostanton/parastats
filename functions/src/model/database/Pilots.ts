@@ -1,8 +1,13 @@
 import {withPooledClient} from "./client";
-import {Success, Failed, Result, failed, success} from "@/model/model";
-import {PilotRow, PilotRowFull} from "./model";
+import {
+    failed,
+    success,
+    PilotRow,
+    PilotRowFull,
+    StravaAthleteId,
+    Either, failure
+} from "@parastats/common";
 import axios from "axios";
-import {StravaAthleteId} from "@parastats/common";
 
 export namespace Pilots {
     export async function insert(pilot: PilotRowFull): Promise<void> {
@@ -12,29 +17,29 @@ export namespace Pilots {
         });
     }
 
-    export async function get(pilotId: StravaAthleteId): Promise<Result<PilotRow>> {
+    export async function get(pilotId: StravaAthleteId): Promise<Either<PilotRow>> {
         return withPooledClient(async (database) => {
             const result = await database.query<PilotRow>("select pilot_id,first_name,profile_image_url from pilots where pilot_id = $1", [pilotId])
             if (result.rows.length === 1) {
-                return new Success(result.rows[0].reify())
+                return success(result.rows[0].reify())
             } else {
-                return new Failed(`No pilots for pilotId=${pilotId}`)
+                return failure(`No pilots for pilotId=${pilotId}`)
             }
         });
     }
 
-    export async function getFull(pilotId: StravaAthleteId): Promise<Result<PilotRowFull>> {
+    export async function getFull(pilotId: StravaAthleteId): Promise<Either<PilotRowFull>> {
         return withPooledClient(async (database) => {
             const result = await database.query<PilotRowFull>("select pilot_id,first_name,strava_access_token, strava_refresh_token, strava_expires_at, profile_image_url from pilots where pilot_id = $1", [pilotId])
             if (result.rows.length === 1) {
-                return new Success(result.rows[0].reify())
+                return success(result.rows[0].reify())
             } else {
-                return new Failed(`No pilots for pilotId=${pilotId}`)
+                return failure(`No pilots for pilotId=${pilotId}`)
             }
         });
     }
 
-    export async function getAccessToken(pilotId: StravaAthleteId): Promise<Result<string>> {
+    export async function getAccessToken(pilotId: StravaAthleteId): Promise<Either<string>> {
         console.log(`Pilots.getAccessToken() pilotId=${pilotId}`);
         return withPooledClient(async (database) => {
             const result = await database.query<PilotRowFull>(

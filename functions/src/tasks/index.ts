@@ -1,32 +1,60 @@
 import {Request, Response} from "express";
-import {TaskBody, taskHandlers} from "./model";
+import {TaskBody, isSuccess} from "@parastats/common";
+import {taskHandlers} from "@/tasks/model";
 
 export default async function handler(req: Request, res: Response): Promise<void> {
-    console.log("Received task body=", JSON.stringify(req.body));
+    console.log("Received task request:", {
+        body: req.body,
+        headers: req.headers,
+        method: req.method
+    });
 
-    const task: TaskBody = req.body;
+    try {
+        const task: TaskBody = req.body;
 
-    if (!task.name) {
-        const errorMessage = `No task name provided in body=${JSON.stringify(req.body)}`
-        console.error(errorMessage);
-        res.status(400).send(errorMessage);
-        return
-    }
+        if (!task || !task.name) {
+            const errorMessage = `No task name provided in body=${JSON.stringify(req.body)}`;
+            console.error(errorMessage);
+            res.status(400).json({
+                status: "error",
+                message: errorMessage
+            });
+            return;
+        }
 
-    if (!taskHandlers.hasOwnProperty(task.name)) {
-        const errorMessage = `No task handler for ${task.name}`
-        console.error(errorMessage)
-        res.status(400).send(errorMessage);
-        return
-    }
-    const taskHandler = taskHandlers[task.name];
-    const result = await taskHandler(task)
+        console.log(`Executing task: ${task.name}`);
 
-    if (result.success) {
-        console.log(`${task.name} succeeded for body=${JSON.stringify(task)}`);
-        res.status(200).send({status: "OK", task: task.name});
-    } else {
-        console.error(`${task.name} failed. Message=${result.message}`);
-        res.status(500).send({status: "Failed", task: task.name, message: result.message});
+        // Execute task (monitoring temporarily disabled)
+        const taskHandler = taskHandlers[task.name as keyof typeof taskHandlers];
+        if (!taskHandler) {
+            throw new Error(`No handler found for task: ${task.name}`);
+        }
+
+        const result = await taskHandler(task);
+
+        if (result.success) {
+            console.log(`Task ${task.name} completed successfully`);
+            res.status(200).json({
+                status: "success",
+                task: task.name,
+                message: "Task completed successfully"
+            });
+        } else {
+            console.error(`Task ${task.name} failed: ${result.message}`);
+            res.status(500).json({
+                status: "failed",
+                task: task.name,
+                message: result.message
+            });
+        }
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Error in task handler:", error);
+
+        res.status(500).json({
+            status: "error",
+            message: errorMessage
+        });
     }
 }

@@ -1,4 +1,4 @@
-import { Windsock, failure, Either, success } from '../model';
+import {failure, Either, success, Windsock} from '../model';
 import { withPooledClient, Client } from '../database';
 
 export namespace Windsocks {

@@ -1,3 +1,4 @@
+import {isSuccess} from "@parastats/common";
 import {expect, test} from "vitest";
 import {StravaActivity, StravaActivityId, StravaAthleteId} from "../../model/stravaApi/model";
 import {StravaActivityToFlightConverter} from "./StravaActivityToFlightConverter";
@@ -29,7 +30,7 @@ test('StravaActivityToFlightConverter.convert() ', async () => {
 
     expect(result.success).toBe(true)
 
-    if (result.success) {
+    if (isSuccess(result)) {
         const value = result.value
         expect(value.pilot_id).toEqual(pilotId)
         expect(value.wing).toEqual("Wing name")

@@ -1,11 +1,8 @@
 import {TaskBody, TaskResult} from "@/tasks/model";
 import {StravaApi} from "@/stravaApi";
-import {withPooledClient} from "@/database/client";
-import {Pilots} from "@/database/Pilots";
-import {Flights} from "@/database/Flights";
+import {withPooledClient, Pilots, Flights, FlightRow, isSuccess} from "@parastats/common";
 import {StravaActivity, StravaActivityId} from "@/stravaApi/model";
 import axios, {AxiosHeaders} from "axios";
-import {FlightRow} from "@/database/model";
 import {StravaActivityToFlightConverter} from "./StravaActivityToFlightConverter";
 
 
@@ -30,13 +27,13 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
     // Get pilot from database
     const pilotResult = await Pilots.get(task.pilotId)
-    if (!pilotResult.success) {
+    if (!isSuccess(pilotResult)) {
         return {
             success: false,
             message: `No pilot with id ${task.pilotId}`,
         }
     }
-    const pilot = pilotResult.value
+    const [pilot] = pilotResult
 
     const api = await StravaApi.fromUserId(pilot.pilot_id)
 
@@ -57,13 +54,13 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     // Fetch activities
     const paraglidingActivityIdsResult = await api.fetchParaglidingActivityIds(1000, existingActivityIds)
 
-    if (!paraglidingActivityIdsResult.success) {
+    if (!isSuccess(paraglidingActivityIdsResult)) {
         return {
             success: false,
-            message: `fetchParaglidingActivityIds failed: ${paraglidingActivityIdsResult.error}`
+            message: `fetchParaglidingActivityIds failed: ${paraglidingActivityIdsResult[1]}`
         }
     }
-    const paraglidingActivityIds: StravaActivityId[] = paraglidingActivityIdsResult.value
+    const [paraglidingActivityIds] = paraglidingActivityIdsResult
 
     // Process paragliding activity IDs
     // 1. Fetch full Strava Activity
@@ -86,19 +83,19 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
         const stravaActivity = result.data;
         const conversionResult = await StravaActivityToFlightConverter.convert(pilot.pilot_id, stravaActivity)
-        if (conversionResult.success) {
-            const flightRow = conversionResult.value
+        if (isSuccess(conversionResult)) {
+            const [flightRow] = conversionResult
             const upsertResult = await Flights.upsert([flightRow])
-            if (!upsertResult.success) {
+            if (!isSuccess(upsertResult)) {
                 return {
                     success: false,
-                    message: `Flights.upsert failed for row=${JSON.stringify(flightRow)} error=${upsertResult.error}`
+                    message: `Flights.upsert failed for row=${JSON.stringify(flightRow)} error=${upsertResult[1]}`
                 }
             }
             storedFlights.push(flightRow)
             console.log(`Appended ${storedFlights.length}/${paraglidingActivityIds.length}`);
         } else {
-            console.log(`Failed id=${stravaActivity.id} title=${stravaActivity.name} error=${conversionResult.error}`);
+            console.log(`Failed id=${stravaActivity.id} title=${stravaActivity.name} error=${conversionResult[1]}`);
         }
     }
 

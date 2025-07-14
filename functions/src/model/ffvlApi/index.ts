@@ -1,6 +1,6 @@
-import {FfvlReport, WindDirection, WindsockReport} from "./model";
-import {Result} from "@/model/model";
+import {Either, failure, success, WindDirection} from "@parastats/common";
 import axios from "axios";
+import {FfvlReport, WindsockReport} from "@/ffvlApi/model";
 
 export namespace FFVL {
 
@@ -56,16 +56,13 @@ export namespace FFVL {
         }
     }
 
-    export async function getReport(baliseId: string, date: Date): Promise<Result<WindsockReport>> {
+    export async function getReport(baliseId: string, date: Date): Promise<Either<WindsockReport>> {
 
         const now = new Date()
         const hours = (now.getTime() - date.getTime()) / (60 * 60 * 1000);
 
         if (hours > 72) {
-            return {
-                success: false,
-                error: `Flight was too many hours ago hours=${hours}`
-            }
+            return failure(`Flight was too many hours ago hours=${hours}`)
         }
 
         const response = await axios.get<FfvlReport[]>(BaseUrl, {
@@ -89,18 +86,10 @@ export namespace FFVL {
         }
 
         if (closest == null) {
-            return {
-                success: false,
-                error: "Couldn't get a close enough report"
-            }
+            return failure("Couldn't get a close enough report")
         }
 
         const value = convertToWindsockReport(closest[0])
-        return {
-            success: true,
-            value
-        }
+        return success(value)
     }
 }
-export {FfvlSite} from "./model";
-export {FfvlBalise} from "./model";

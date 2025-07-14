@@ -1,12 +1,12 @@
-import { SyncSitesTask, TaskResult } from '@parastats/common/src/model';
-import { Site, SiteType, Windsock, LatLng } from '../model/database/model';
-import { Flights } from '../model/database/Flights';
-import { Sites } from '../model/database/Sites';
-import { Windsocks } from '../model/database/Windsocks';
-import { Result, success, failed } from '../model/model';
+import {Either, failed, isSuccess, success, SyncSitesTask} from "@parastats/common";
+import {Site, SiteType, Windsock, LatLng} from '@/database/model';
+import {Flights} from '@/database/Flights';
+import {Sites} from '@/database/Sites';
+import {Windsocks} from '@/database/Windsocks';
 import axios from 'axios';
 import getDistance from '@turf/distance';
-import { Coord, Units } from '@turf/helpers';
+import {Coord, Units} from '@turf/helpers';
+import {TaskResult} from "@/tasks/model";
 
 export async function executeSyncSitesTask(
     task: SyncSitesTask
@@ -22,53 +22,53 @@ export async function executeSyncSitesTask(
 
     // Fetch and process windsocks (balises)
     const balisesResult = await getBalises();
-    if (!balisesResult.success) {
+    if (!isSuccess(balisesResult)) {
         return {
             success: false,
-            message: `Failed to fetch balises: ${balisesResult.error}`
+            message: `Failed to fetch balises: ${balisesResult[1]}`
         };
     }
 
-    const windsocks = balisesResult.value.map((ffvlBalise: any) => convertToWindsock(ffvlBalise));
+    const windsocks = balisesResult[0].map((ffvlBalise: any) => convertToWindsock(ffvlBalise));
 
     const upsertWindsocksResult = await Windsocks.upsert(windsocks);
-    if (!upsertWindsocksResult.success) {
+    if (!isSuccess(upsertWindsocksResult)) {
         return {
             success: false,
-            message: `Failed to upsert windsocks: ${upsertWindsocksResult.error}`
+            message: `Failed to upsert windsocks: ${upsertWindsocksResult[1]}`
         };
     }
 
     // Fetch and process sites
     const sitesResult = await getSites();
-    if (!sitesResult.success) {
+    if (!isSuccess(sitesResult)) {
         return {
             success: false,
-            message: `Failed to fetch sites: ${sitesResult.error}`
+            message: `Failed to fetch sites: ${sitesResult[1]}`
         };
     }
 
-    const sites = sitesResult.value.map((ffvlSite: any) => convertToSite(ffvlSite, windsocks));
+    const sites = sitesResult[0].map((ffvlSite: any) => convertToSite(ffvlSite, windsocks));
 
     const upsertSitesResult = await Sites.upsert(sites);
-    if (!upsertSitesResult.success) {
+    if (!isSuccess(upsertSitesResult)) {
         return {
             success: false,
-            message: `Failed to upsert sites: ${upsertSitesResult.error}`
+            message: `Failed to upsert sites: ${upsertSitesResult[1]}`
         };
     }
 
     // Update existing flights with new site associations
     // Note: Using a test pilot ID - in production this might be different
     const flightsResult = await Flights.getAll(4142500);
-    if (!flightsResult.success) {
+    if (!isSuccess(flightsResult)) {
         return {
             success: false,
-            message: `Failed to get flights for site association: ${flightsResult.error}`
+            message: `Failed to get flights for site association: ${flightsResult[1]}`
         };
     }
 
-    const flights = flightsResult.value;
+    const flights = flightsResult[0];
     for (const flight of flights) {
         let updated = false;
 
@@ -99,7 +99,7 @@ export async function executeSyncSitesTask(
 }
 
 // FFVL API functions
-async function getBalises(): Promise<Result<any[]>> {
+async function getBalises(): Promise<Either<any[]>> {
     try {
         const response = await axios.get("https://data.ffvl.fr/api", {
             params: {
@@ -114,7 +114,7 @@ async function getBalises(): Promise<Result<any[]>> {
     }
 }
 
-async function getSites(): Promise<Result<any[]>> {
+async function getSites(): Promise<Either<any[]>> {
     try {
         const response = await axios.get("https://data.ffvl.fr/api", {
             params: {
@@ -144,7 +144,7 @@ export function convertToWindsock(ffvlBalise: any): Windsock {
 
 export function convertToSite(ffvlSite: any, windsocks: Windsock[]): Site {
     console.log(`Converting site: ${JSON.stringify(ffvlSite)}`);
-    
+
     let type: SiteType | null = null;
     if (ffvlSite.flying_functions_text && ffvlSite.flying_functions_text.includes("atterrissage")) {
         type = SiteType.Landing;
@@ -178,7 +178,7 @@ export function convertToSite(ffvlSite: any, windsocks: Windsock[]): Site {
 
 export function getNearestWindsock(lat: number, lng: number, windsocks: Windsock[], limitMeters: number = 2000): Windsock | null {
     const from: Coord = [lat, lng];
-    const options: { units: Units } = { units: "meters" };
+    const options: { units: Units } = {units: "meters"};
 
     let closest: [Windsock, number] | null = null;
 
@@ -190,7 +190,7 @@ export function getNearestWindsock(lat: number, lng: number, windsocks: Windsock
             closest = [windsock, distanceMeters];
         }
     }
-    
+
     return closest === null ? null : closest[0];
 }
 

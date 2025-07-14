@@ -1,8 +1,7 @@
-import {DescriptionPreference, FlightRow, SiteType} from "@/database/model";
+import {DescriptionPreference, FlightRow, isSuccess, SiteType, WindDirection} from "@parastats/common";
 import {withPooledClient, Client} from "@parastats/common";
 import {FFVL} from "@/ffvlApi";
-import {WindDirection} from "@/ffvlApi/model";
-import {DescriptionPreferences} from "@/database/DescriptionPreferences";
+import {DescriptionPreferences} from "@parastats/common";
 import {StravaAthleteId} from "@parastats/common";
 import {formatSiteName} from "@/utils/formatSiteName";
 
@@ -15,8 +14,8 @@ export type AggregationResult = {
 
 async function getPreferenceForPilotOrDefaults(pilotId: StravaAthleteId): Promise<DescriptionPreference> {
     const result = await DescriptionPreferences.get(pilotId)
-    if (result.success) {
-        return result.value
+    if (isSuccess(result)) {
+        return result[0]
     } else {
         return {
             pilot_id: pilotId,
@@ -80,8 +79,8 @@ export class DescriptionFormatter {
         if (baliseId && this.preference.include_wind) {
             const result = await FFVL.getReport(baliseId, date)
 
-            if (result.success) {
-                const report = result.value
+            if (isSuccess(result)) {
+                const report = result[0]
                 return `${prefix} ${formattedSiteName} ${report.windKmh}kmh/${report.gustKmh}kmh ${WindDirection[report.direction]}`
             }
         }

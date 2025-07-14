@@ -1,13 +1,12 @@
-import { FlightRow } from '@parastats/common/src/model';
-import { Sites } from '../../model/database/Sites';
-import { StravaActivity } from '../../model/stravaApi/model';
-import { Result, success, failed } from '../../model/model';
+import {Either, failed, FlightRow, success} from '@parastats/common/src/model';
+import { Sites } from '@/database/Sites';
+import { StravaActivity } from '@/stravaApi/model';
 import { decode, LatLngTuple } from '@googlemaps/polyline-codec';
 
 /**
  * Convert Strava activity to flight record using Result pattern
  */
-export async function convertStravaActivityToFlight(pilotId: number, stravaActivity: StravaActivity): Promise<Result<FlightRow>> {
+export async function convertStravaActivityToFlight(pilotId: number, stravaActivity: StravaActivity): Promise<Either<FlightRow>> {
     try {
         // Extract wing from description
         const matches = stravaActivity.description

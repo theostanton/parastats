@@ -1,5 +1,4 @@
-import {TaskBody, TaskName} from "./model";
-import {failed, Result, success} from "@/model/model";
+import {TaskBody, TaskName, failed, Either, success} from "@parastats/common";
 
 const {CloudTasksClient} = require('@google-cloud/tasks').v2;
 
@@ -15,11 +14,11 @@ function getQueueId(taskName: TaskName): string | null {
 
 }
 
-export default async function (task: TaskBody): Promise<Result<void>> {
+export default async function (task: TaskBody): Promise<Either<void>> {
     const client = new CloudTasksClient({})
 
     try {
-        const queueId = getQueueId(task.name);
+        const queueId = getQueueId(task.name as TaskName);
         if (!queueId) {
             return failed(`No queue id found for =${task.name}`)
         }

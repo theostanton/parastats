@@ -1,7 +1,6 @@
 import axios, {AxiosHeaders} from "axios";
-import {StravaActivityId, StravaActivitySummary, StravaAthlete, StravaActivity} from "./model";
-import {failed, Result, success} from "@/model/model";
-import {Pilots} from "@/database/Pilots";
+import {StravaActivityId, failed, Either, success, Pilots, isSuccess} from "@parastats/common";
+import {StravaActivity, StravaActivitySummary, StravaAthlete} from "@/stravaApi/model";
 
 export class StravaApi {
 
@@ -10,8 +9,9 @@ export class StravaApi {
 
     static async fromUserId(userId: number): Promise<StravaApi> {
         const result = await Pilots.getAccessToken(userId);
-        if (result.success) {
-            return new StravaApi(result.value)
+        if (isSuccess(result)) {
+            const [accessToken] = result;
+            return new StravaApi(accessToken)
         }
         throw new Error(`No access token for userId=${userId}`)
     }
@@ -32,7 +32,7 @@ export class StravaApi {
         return response.data
     }
 
-    async updateDescription(activityId: StravaActivityId, description: string): Promise<Result<void>> {
+    async updateDescription(activityId: StravaActivityId, description: string): Promise<Either<void>> {
         console.log(`Update description ${activityId} to ${description} this.headers=${this.headers}`);
         try {
             const url = `https://www.strava.com/api/v3/activities/${activityId}`;
@@ -55,7 +55,7 @@ export class StravaApi {
         }
     }
 
-    async fetchParaglidingActivityIds(limit: number = 10000, ignoreActivityIds: StravaActivityId[] = []): Promise<Result<StravaActivityId[]>> {
+    async fetchParaglidingActivityIds(limit: number = 10000, ignoreActivityIds: StravaActivityId[] = []): Promise<Either<StravaActivityId[]>> {
         console.log(`fetchWingedActivityIds() limit=${limit} ignoreActivityIds=${ignoreActivityIds}`);
         try {
             let relevantActivityIds: StravaActivityId[] = []
@@ -71,7 +71,10 @@ export class StravaApi {
                     params,
                     headers: this.headers
                 });
-                const relevantActivityIdsToAppend = response.data.filter(activity => activity.type === 'Kitesurf' || activity.type === "Workout").map(activity => activity.id);
+
+                const relevantActivityIdsToAppend = response.data
+                    .filter(activity => activity.type === 'Kitesurf' || activity.type === "Workout")
+                    .map(activity => activity.id);
                 console.log(`Got page=${page} activities=${response.data.length} relevantActivityIds=${relevantActivityIdsToAppend.length}`);
                 let didIgnore = false
                 relevantActivityIdsToAppend.some((relevantActivityId, index) => {
@@ -99,13 +102,13 @@ export class StravaApi {
 
     }
 
-    async fetchActivity(activityId: StravaActivityId): Promise<Result<StravaActivity>> {
+    async fetchActivity(activityId: StravaActivityId): Promise<Either<StravaActivity>> {
         console.log(`fetchActivity() activityId=${activityId}`);
         try {
             const response = await axios.get<StravaActivity>(`https://www.strava.com/api/v3/activities/${activityId}`, {
                 headers: this.headers
             });
-            
+
             if (response.status === 200) {
                 return success(response.data);
             } else {

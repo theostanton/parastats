@@ -1,13 +1,13 @@
 import {TaskBody, TaskResult} from "@/tasks/model";
 import axios from "axios";
-import {LatLng, Site, SiteType, Windsock} from "@/database/model";
-import {Sites} from "@/database/Sites";
-import {Windsocks} from "@/database/Windsocks";
+import {LatLng, Site, SiteType, Windsock, isSuccess, isFailure} from "@parastats/common";
+import {Sites} from "@parastats/common";
+import {Windsocks} from "@parastats/common";
 
 import getDistance from "@turf/distance"
 import {Coord, Units} from "@turf/helpers"
-import {FfvlBalise, FfvlSite} from "@/ffvlApi";
-import {Flights} from "@/database/Flights";
+import {Flights} from "@parastats/common";
+import {FfvlBalise, FfvlSite} from "@/ffvlApi/model";
 
 export type SyncSitesTask = {
     name: "SyncSites";
@@ -117,10 +117,10 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
     const upsertWindsocksResult = await Windsocks.upsert(windsocks)
 
-    if (!upsertWindsocksResult.success) {
+    if (isFailure(upsertWindsocksResult)) {
         return {
             success: false,
-            message: `Failed to upsert windsocks=${upsertWindsocksResult.error}`
+            message: `Failed to upsert windsocks=${upsertWindsocksResult[1]}`
         }
     }
 
@@ -136,7 +136,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
     const upsertResult = await Sites.upsert(sites)
 
-    // if (!upsertResult.success) {
+    // if (!isSuccess(upsertResult)) {
     //     return {
     //         success: false,
     //         message: `Faield to upsert sites error=${upsertResult.error}`
@@ -144,14 +144,14 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     // }
 
     const flightsResult = await Flights.getAll(4142500)
-    if (!flightsResult.success) {
+    if (isFailure(flightsResult)) {
         return {
             success: false,
-            message: `Failed to update flights error=${flightsResult.error}`
+            message: `Failed to update flights error=${flightsResult[1]}`
         }
     }
 
-    for await (const flight of flightsResult.value) {
+    for await (const flight of flightsResult[0]) {
         const takeoffId = await Sites.getIdOfCloset(flight.polyline[0])
         if (takeoffId) {
             flight.takeoff_id = takeoffId

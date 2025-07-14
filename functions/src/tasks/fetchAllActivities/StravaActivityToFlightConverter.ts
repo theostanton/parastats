@@ -1,8 +1,6 @@
 import {StravaActivity, StravaAthleteId} from "@/stravaApi/model";
-import {FlightRow, LatLng, Polyline} from "@/database/model";
+import {FlightRow, LatLng, Polyline, isSuccess, Either, Sites, failure, isFailure, success} from "@parastats/common";
 import {decode, LatLngTuple} from "@googlemaps/polyline-codec";
-import {Result} from "@/model/model";
-import {Sites} from "@/database/Sites";
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
@@ -11,7 +9,7 @@ type FlightRowGeoData = Pick<FlightRow, 'polyline'>
 type FlightRowSiteIds = Pick<FlightRow, 'takeoff_id' | 'landing_id'>
 
 export class StravaActivityToFlightConverter {
-    static async convert(pilotId: StravaAthleteId, stravaActivity: StravaActivity): Promise<Result<FlightRow>> {
+    static async convert(pilotId: StravaAthleteId, stravaActivity: StravaActivity): Promise<Either<FlightRow>> {
 
         const matches = stravaActivity.description
             .split("\n")
@@ -20,10 +18,7 @@ export class StravaActivityToFlightConverter {
             .map((line) => line!![0].replace("🪂 ", ""))
 
         if (matches.length == 0) {
-            return {
-                success: false,
-                error: `Couldn't extract wing from description=${stravaActivity.description}`
-            }
+            return failure(`Couldn't extract wing from description=${stravaActivity.description}`)
         }
 
         const wing = matches[0]
@@ -42,25 +37,19 @@ export class StravaActivityToFlightConverter {
 
         const geoResult = extractGeoData(stravaActivity)
 
-        if (!geoResult.success) {
-            return {
-                success: false,
-                error: `Couldn't extractGeoData error=${geoResult.error}`
-            }
+        if (isFailure(geoResult)) {
+            return failure(`Couldn't extractGeoData error=${geoResult[1]}`)
         }
 
-        const takeoffLandingIds = await associateSiteIds(geoResult.value.polyline)
+        const takeoffLandingIds = await associateSiteIds(geoResult[0].polyline)
 
         const value: FlightRow = {
             ...initial,
-            ...geoResult.value,
+            ...geoResult[0],
             ...takeoffLandingIds
         }
 
-        return {
-            success: true,
-            value
-        }
+        return success(value)
 
     }
 
@@ -82,14 +71,11 @@ export async function associateSiteIds(polyline: Polyline): Promise<FlightRowSit
 
 }
 
-export function extractGeoData(stravaActivity: StravaActivity): Result<FlightRowGeoData> {
+export function extractGeoData(stravaActivity: StravaActivity): Either<FlightRowGeoData> {
     const tuples: LatLngTuple[] = decode(stravaActivity.map.polyline)
 
     if (tuples.length < 2) {
-        return {
-            success: false,
-            error: `Not enough points on polyline=${JSON.stringify(stravaActivity.map.polyline)} tuples=${JSON.stringify(tuples)}`
-        }
+        return failure(`Not enough points on polyline=${JSON.stringify(stravaActivity.map.polyline)} tuples=${JSON.stringify(tuples)}`)
     }
 
     const polyline: LatLng[] = tuples.map(tuple => {
@@ -97,8 +83,5 @@ export function extractGeoData(stravaActivity: StravaActivity): Result<FlightRow
         return latLng
     })
 
-    return {
-        success: true,
-        value: {polyline}
-    }
+    return success({polyline})
 }

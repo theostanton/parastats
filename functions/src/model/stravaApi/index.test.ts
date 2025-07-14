@@ -1,3 +1,4 @@
+import {isSuccess} from "@parastats/common";
 import {beforeAll, expect, it, test} from "vitest";
 import {StravaApi} from "./index";
 import {Pilots} from "../database/Pilots";
@@ -8,7 +9,7 @@ let token: string | undefined;
 
 beforeAll(async () => {
     const result = await getToken(4142500)
-    if (result.success) {
+    if (isSuccess(result)) {
         token = result.value
     } else {
         throw new Error("Failed to get token from server")
@@ -19,7 +20,7 @@ test.skip('Test fetchWingedActivities', async () => {
     const api = StravaApi.fromAccessToken(token!!)
     const result = await api.fetchParaglidingActivityIds()
     expect(result.success).toEqual(true)
-    if (result.success) {
+    if (isSuccess(result)) {
         expect(result.value.length).toEqual(5)
     }
 }, {timeout: 60_000})

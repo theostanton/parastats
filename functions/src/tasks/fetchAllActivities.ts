@@ -1,9 +1,11 @@
+import {isSuccess} from "@parastats/common";
 import { FetchAllActivitiesTask, TaskResult, StravaActivityId, StravaAthleteId, FlightRow } from '@parastats/common/src/model';
 import { withPooledClient } from '@parastats/common';
-import { Pilots } from '../model/database/Pilots';
-import { Flights } from '../model/database/Flights';
-import { StravaApi } from '../model/stravaApi';
+import { Pilots } from '@/database/Pilots';
+import { Flights } from '@/database/Flights';
+import { StravaApi } from '@/stravaApi';
 import { convertStravaActivityToFlight } from './utils/stravaConverter';
+import {StravaActivity} from "@/stravaApi/model";
 
 export async function executeFetchAllActivitiesTask(
     task: FetchAllActivitiesTask
@@ -12,13 +14,13 @@ export async function executeFetchAllActivitiesTask(
 
     // Get pilot from database
     const pilotResult = await Pilots.get(task.pilotId);
-    if (!pilotResult.success) {
+    if (!isSuccess(pilotResult)) {
         return {
             success: false,
-            message: `No pilot with id ${task.pilotId}: ${pilotResult.error}`,
+            message: `No pilot with id ${task.pilotId}: ${pilotResult[1]}`,
         };
     }
-    const pilot = pilotResult.value;
+    const pilot = pilotResult[0];
 
     // Create Strava API instance
     const api = await StravaApi.fromUserId(pilot.pilot_id);
@@ -40,13 +42,13 @@ export async function executeFetchAllActivitiesTask(
     // Fetch activities from Strava
     const paraglidingActivityIdsResult = await api.fetchParaglidingActivityIds(1000, existingActivityIds);
 
-    if (!paraglidingActivityIdsResult.success) {
+    if (!isSuccess(paraglidingActivityIdsResult)) {
         return {
             success: false,
-            message: `fetchParaglidingActivityIds failed: ${paraglidingActivityIdsResult.error}`
+            message: `fetchParaglidingActivityIds failed: ${paraglidingActivityIdsResult[1]}`
         };
     }
-    const paraglidingActivityIds: StravaActivityId[] = paraglidingActivityIdsResult.value;
+    const paraglidingActivityIds: StravaActivityId[] = paraglidingActivityIdsResult[0];
 
     // Process paragliding activity IDs
     // 1. Fetch full Strava Activity
@@ -57,11 +59,11 @@ export async function executeFetchAllActivitiesTask(
     for (const activityId of paraglidingActivityIds) {
         try {
             const activityResult = await api.fetchActivity(activityId);
-            if (!activityResult.success) {
-                console.log(`Failed to fetch activity ${activityId}: ${activityResult.error}`);
+            if (!isSuccess(activityResult)) {
+                console.log(`Failed to fetch activity ${activityId}: ${activityResult[1]}`);
                 
                 // Check for rate limiting
-                if (activityResult.error === 'Rate limited') {
+                if (activityResult[1] === 'Rate limited') {
                     const errorMessage = `Got rate limited after ${storedFlights.length} activities`;
                     console.log(errorMessage);
                     return {
@@ -72,22 +74,22 @@ export async function executeFetchAllActivitiesTask(
                 continue;
             }
             
-            const stravaActivity = activityResult.value;
+            const stravaActivity:StravaActivity = activityResult[0];
 
             const conversionResult = await convertStravaActivityToFlight(pilot.pilot_id, stravaActivity);
-            if (conversionResult.success) {
-                const flightRow = conversionResult.value;
+            if (isSuccess(conversionResult)) {
+                const flightRow = conversionResult[0];
                 const upsertResult = await Flights.upsert([flightRow]);
-                if (!upsertResult.success) {
+                if (!isSuccess(upsertResult)) {
                     return {
                         success: false,
-                        message: `Flights.upsert failed for row=${JSON.stringify(flightRow)} error=${upsertResult.error}`
+                        message: `Flights.upsert failed for row=${JSON.stringify(flightRow)} error=${upsertResult[1]}`
                     };
                 }
                 storedFlights.push(flightRow);
                 console.log(`Processed ${storedFlights.length}/${paraglidingActivityIds.length}`);
             } else {
-                console.log(`Failed to convert activity id=${activityId} error=${conversionResult.error}`);
+                console.log(`Failed to convert activity id=${activityId} error=${conversionResult[1]}`);
             }
         } catch (error) {
             console.error(`Error processing activity ${activityId}:`, error);

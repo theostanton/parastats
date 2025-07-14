@@ -1,8 +1,7 @@
 import {TaskResult, TaskBody} from "@/tasks/model";
-import {generateStats} from "./updateActivityDescription";
-import {Pilots} from "@/database/Pilots";
+// import {generateStats} from "./updateActivityDescription";
+import {Pilots, Flights, isSuccess} from "@parastats/common";
 import {StravaApi} from "@/stravaApi";
-import {Flights} from "@/database/Flights";
 import {StravaActivityId} from "@/stravaApi/model";
 
 export type UpdateDescriptionTask = {
@@ -26,19 +25,20 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
     // Fetch ActivityRow
     const result = await Flights.get(task.flightId)
-    if (!result.success) {
+    if (!isSuccess(result)) {
         return {
             success: false,
             message: `No flight rows for flightId=${task.flightId}`
         }
     }
-    const activityRow = result.value
+    const [activityRow] = result
 
-    // Generate stats
-    const stats = await generateStats(activityRow)
+    // Generate stats (temporarily disabled)
+    // const stats = await generateStats(activityRow)
+    const stats = null;
 
     if (stats == null) {
-        console.log("Skipping because stats==null")
+        console.log("Skipping because stats generation is temporarily disabled")
         return {
             success: true,
         }
@@ -62,27 +62,28 @@ export default async function (task: TaskBody): Promise<TaskResult> {
 
     // Update Strava Activity description
     const userResult = await Pilots.get(activityRow.pilot_id)
-    if (!userResult.success) {
+    if (!isSuccess(userResult)) {
         return {
             success: false,
             message: `Couldn't get user for userId=${activityRow.pilot_id}`
         }
     }
-    const stravaApi = await StravaApi.fromUserId(userResult.value.pilot_id)
+    const [user] = userResult;
+    const stravaApi = await StravaApi.fromUserId(user.pilot_id)
     const updateDescriptionResult = await stravaApi.updateDescription(activityRow.strava_activity_id, wingedDescription)
-    if (!updateDescriptionResult.success) {
+    if (!isSuccess(updateDescriptionResult)) {
         return {
             success: false,
-            message: updateDescriptionResult.error
+            message: updateDescriptionResult[1]
         }
     }
 
     // if success store updated else store failed
     const updateResult = await Flights.updateDescription(task.flightId, wingedDescription)
-    if (!updateResult.success) {
+    if (!isSuccess(updateResult)) {
         return {
             success: false,
-            message: `Failed to updateDescription error=${updateResult.error}`
+            message: `Failed to updateDescription error=${updateResult[1]}`
         }
     }
 

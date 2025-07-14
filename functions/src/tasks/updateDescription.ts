@@ -1,9 +1,10 @@
-import { UpdateDescriptionTask, TaskResult, StravaActivityId, FlightRow } from '@parastats/common/src/model';
-import { DescriptionFormatter, PreferencesProvider, withPooledClient } from '@parastats/common';
-import { Pilots } from '../model/database/Pilots';
-import { Flights } from '../model/database/Flights';
-import { DescriptionPreferences } from '../model/database/DescriptionPreferences';
-import { StravaApi } from '../model/stravaApi';
+import {isSuccess} from "@parastats/common";
+import {UpdateDescriptionTask, TaskResult, StravaActivityId, FlightRow} from '@parastats/common/src/model';
+import {DescriptionFormatter, PreferencesProvider, withPooledClient} from '@parastats/common';
+import {Pilots} from '@/database/Pilots';
+import {Flights} from '@/database/Flights';
+import {DescriptionPreferences} from '@/database/DescriptionPreferences';
+import {StravaApi} from '@/stravaApi';
 
 export async function executeUpdateDescriptionTask(
     task: UpdateDescriptionTask
@@ -11,14 +12,19 @@ export async function executeUpdateDescriptionTask(
     console.log(`Executing UpdateDescription for flightId=${task.flightId}`);
 
     // Fetch flight from database
-    const flightResult = await Flights.get(task.flightId);
-    if (!flightResult.success) {
+    const [flight, flightError] = await Flights.get(task.flightId);
+    if (flightError) {
         return {
             success: false,
-            message: `No flight rows for flightId=${task.flightId}: ${flightResult.error}`
+            message: `No flight rows for flightId=${task.flightId}: ${flightError}`
         };
     }
-    const flight = flightResult.value;
+    if (!flight) {
+        return {
+            success: false,
+            message: `No flight rows for flightId=${task.flightId}: ${flightError}`
+        };
+    }
 
     // Generate description with preferences snapshot
     const statsResult = await generateStatsWithPreferences(flight);
@@ -51,32 +57,32 @@ export async function executeUpdateDescriptionTask(
     console.log();
 
     // Update Strava activity description
-    const pilotResult = await Pilots.get(flight.pilot_id);
-    if (!pilotResult.success) {
+    const [pilot, error] = await Pilots.get(flight.pilot_id);
+    if (error) {
         return {
             success: false,
-            message: `Couldn't get pilot for pilotId=${flight.pilot_id}: ${pilotResult.error}`
+            message: `Couldn't get pilot for pilotId=${flight.pilot_id}: ${error}`
         };
     }
 
-    const stravaApi = await StravaApi.fromUserId(pilotResult.value.pilot_id);
+    const stravaApi = await StravaApi.fromUserId(pilot!!.pilot_id);
     const updateResult = await stravaApi.updateDescription(flight.strava_activity_id, updatedDescription);
-    if (!updateResult.success) {
+    if (!isSuccess(updateResult)) {
         return {
             success: false,
-            message: updateResult.error || 'Failed to update Strava description'
+            message: updateResult[1] || 'Failed to update Strava description'
         };
     }
 
     // Store updated description in database
     const dbUpdateResult = await Flights.updateDescription(
-        task.flightId, 
+        task.flightId,
         updatedDescription
     );
-    if (!dbUpdateResult.success) {
+    if (!isSuccess(dbUpdateResult)) {
         return {
             success: false,
-            message: `Failed to update database: ${dbUpdateResult.error}`
+            message: `Failed to update database: ${dbUpdateResult[1]}`
         };
     }
 
@@ -89,26 +95,29 @@ export async function executeUpdateDescriptionTask(
 /**
  * Generate description stats with preferences using Result pattern
  */
-async function generateStatsWithPreferences(flight: FlightRow): Promise<{ description: string | null; preferences: any }> {
+async function generateStatsWithPreferences(flight: FlightRow): Promise<{
+    description: string | null;
+    preferences: any
+}> {
     return withPooledClient(async (client) => {
         // Create preferences provider that adapts the Result pattern
         const preferencesProvider: PreferencesProvider = {
             get: async (pilotId) => {
-                const result = await DescriptionPreferences.get(pilotId);
-                if (result.success) {
-                    return { success: true, value: result.value };
+                const [value, error] = await DescriptionPreferences.get(pilotId);
+                if (value) {
+                    return {success: true, value: value};
                 } else {
-                    return { success: false, error: result.error };
+                    return {success: false, error: error};
                 }
             }
         };
 
         // Create formatter
         const formatter = await DescriptionFormatter.create(flight, preferencesProvider);
-        
+
         // Generate description 
         const description = await formatter.generate(client);
-        
+
         return {
             description,
             preferences: null // TODO: expose preferences from formatter or handle differently

@@ -1,9 +1,9 @@
-import {Windsock} from "./model";
-import {failed, Result, success} from "@/model/model";
+import {Either, Windsock} from "@parastats/common";
+import {failed, success} from "@parastats/common";
 import {withPooledClient, Client} from "./client";
 
 export namespace Windsocks {
-    export async function upsert(windsocks: Windsock[]): Promise<Result<void>> {
+    export async function upsert(windsocks: Windsock[]): Promise<Either<void>> {
         return withPooledClient(async (database: Client) => {
             try {
                 const errors: string[] = []
