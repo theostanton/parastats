@@ -4,6 +4,7 @@ import {Flights} from "@database/flights";
 import {getPilotWingStats} from "@database/stats";
 import {Sites} from "@database/Sites";
 import {DescriptionPreferences} from "@database/descriptionPreferences";
+import {isSuccess} from "@parastats/common";
 import styles from "@styles/Page.module.css";
 import detailStyles from "@ui/DetailPages.module.css";
 import dashboardStyles from "./Dashboard.module.css";
@@ -78,7 +79,7 @@ export default async function Dashboard() {
     const totalLandings = stats.landings.filter(item => item.site).length;
 
     // Get description preferences (with defaults if not found)
-    const preferences = descriptionPreferencesResult.success ? descriptionPreferencesResult.data : {
+    const preferences = isSuccess(descriptionPreferencesResult) ? descriptionPreferencesResult[0] : {
         pilot_id: pilotId,
         include_sites: true,
         include_wind: true,
