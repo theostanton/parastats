@@ -24,6 +24,89 @@ export default function Login() {
                 </p>
             </div>
 
+            <div className={styles.loginFeatures} style={{ marginBottom: 'var(--space-6)' }}>
+                <h3 style={{ marginBottom: 'var(--space-3)', fontSize: 'var(--font-size-base)', fontWeight: 'var(--font-weight-semibold)' }}>
+                    How Parastats enhances your Strava activities:
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                        <div style={{ 
+                            backgroundColor: 'var(--color-primary)', 
+                            color: 'var(--color-text-inverse)', 
+                            borderRadius: '50%', 
+                            width: '24px', 
+                            height: '24px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            fontSize: 'var(--font-size-sm)', 
+                            fontWeight: 'var(--font-weight-semibold)',
+                            flexShrink: 0
+                        }}>
+                            1
+                        </div>
+                        <div>
+                            <strong style={{ color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' }}>
+                                Sync your flights
+                            </strong>
+                            <p style={{ margin: '0', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                We automatically detect paragliding activities from your Strava account
+                            </p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                        <div style={{ 
+                            backgroundColor: 'var(--color-primary)', 
+                            color: 'var(--color-text-inverse)', 
+                            borderRadius: '50%', 
+                            width: '24px', 
+                            height: '24px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            fontSize: 'var(--font-size-sm)', 
+                            fontWeight: 'var(--font-weight-semibold)',
+                            flexShrink: 0
+                        }}>
+                            2
+                        </div>
+                        <div>
+                            <strong style={{ color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' }}>
+                                AI generates descriptions
+                            </strong>
+                            <p style={{ margin: '0', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                Our AI analyzes your flight data and creates detailed, personalized descriptions
+                            </p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                        <div style={{ 
+                            backgroundColor: 'var(--color-primary)', 
+                            color: 'var(--color-text-inverse)', 
+                            borderRadius: '50%', 
+                            width: '24px', 
+                            height: '24px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            fontSize: 'var(--font-size-sm)', 
+                            fontWeight: 'var(--font-weight-semibold)',
+                            flexShrink: 0
+                        }}>
+                            3
+                        </div>
+                        <div>
+                            <strong style={{ color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' }}>
+                                Descriptions added to Strava
+                            </strong>
+                            <p style={{ margin: '0', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                Enhanced descriptions are automatically added back to your Strava activities
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div style={{ marginBottom: 'var(--space-6)' }}>
                 <a className={styles.stravaButton}
                    href="https://www.strava.com/oauth/authorize?client_id=155420&redirect_uri=https%3A%2F%2Fwebhooks.paragliderstats.com&response_type=code&approval_prompt=force&scope=read_all,activity:write,activity:read_all">
