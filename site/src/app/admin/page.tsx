@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { WebhookEvent, TaskExecution, MonitoringStats } from './types';
+import { WebhookEvent, TaskExecution, MonitoringStats } from '@model/admin';
 
 export default function AdminMonitoringPage() {
     const [stats, setStats] = useState<MonitoringStats | null>(null);
