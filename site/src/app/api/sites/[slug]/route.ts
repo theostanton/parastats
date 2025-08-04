@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error }, { status: 404 });
     }
 
-    return NextResponse.json({ name: site.name });
+    return NextResponse.json(site);
   } catch (error) {
     console.error('Error fetching site:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
