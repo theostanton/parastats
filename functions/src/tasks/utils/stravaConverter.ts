@@ -1,4 +1,4 @@
-import {Either, failed, FlightRow, success} from '@parastats/common/src/model';
+import {Either, failed, FlightRow, success} from '@parastats/common';
 import { Sites } from '@/database/Sites';
 import { StravaActivity } from '@/stravaApi/model';
 import { decode, LatLngTuple } from '@googlemaps/polyline-codec';

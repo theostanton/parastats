@@ -14,11 +14,7 @@ resource "google_sql_database_instance" "instance" {
       ipv4_enabled = true
       authorized_networks {
         name  = "Chamonix"
-        value = "83.204.51.218/32"
-      }
-      authorized_networks {
-        name  = "5G"
-        value = "92.184.140.183/32"
+        value = "79.88.5.26/32"
       }
       authorized_networks {
         name  = "Losserands"

@@ -1,4 +1,4 @@
-import { HelloWorldTask, TaskResult } from '@parastats/common/src/model';
+import { HelloWorldTask, TaskResult } from '@parastats/common';
 
 export async function executeHelloWorldTask(
     task: HelloWorldTask
