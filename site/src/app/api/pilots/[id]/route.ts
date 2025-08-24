@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error }, { status: 404 });
     }
 
-    return NextResponse.json({ first_name: pilot.first_name });
+    return NextResponse.json(pilot);
   } catch (error) {
     console.error('Error fetching pilot:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
