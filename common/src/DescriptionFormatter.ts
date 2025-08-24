@@ -3,17 +3,11 @@ import {
     FlightRow, 
     SiteType, 
     AggregationResult, 
-    WindReport,
-    WindDirection,
-    StravaAthleteId 
+    StravaAthleteId
 } from './types';
 import { formatSiteName, formatAggregationResult } from './utils';
 import { Client } from './database';
-
-// Dependency injection interfaces
-export interface WindProvider {
-    getReport(baliseId: string, date: Date): Promise<{ success: true; value: WindReport } | { success: false; error: string }>;
-}
+import { isSuccess, WindReport, WindDirection } from './model';
 
 export interface PreferencesProvider {
     get(pilotId: StravaAthleteId): Promise<{ success: true; value: DescriptionPreference } | { success: false; error: string }>;
@@ -91,25 +85,26 @@ export class DescriptionFormatter {
         siteType: SiteType, 
         siteName: string, 
         baliseId: string | undefined,
-        windProvider?: WindProvider
+        getWindReport?: (baliseId: string, date: Date) => Promise<WindReport | null>
     ): Promise<string> {
         const prefix = siteType == SiteType.TakeOff ? "↗️" : "↘️"
         const date = this.flightRow.start_date
         const formattedSiteName = formatSiteName(siteName)
 
-        if (baliseId && this.preference.include_wind && windProvider) {
-            const result = await windProvider.getReport(baliseId, date)
+        console.log(`DescriptionFormatter::generateSiteLine baliseId=${baliseId}: include_wind=${this.preference.include_wind}`)
 
-            if (result.success) {
-                const report = result.value
-                return `${prefix} ${formattedSiteName} ${report.windKmh}kmh/${report.gustKmh}kmh ${WindDirection[report.direction]}`
+        if (baliseId && this.preference.include_wind && getWindReport) {
+            const windReport = await getWindReport(baliseId, date);
+
+            if (windReport) {
+                return `${prefix} ${formattedSiteName} ${windReport.windKmh}kmh/${windReport.gustKmh}kmh ${WindDirection[windReport.direction]}`
             }
         }
 
         return `${prefix} ${formattedSiteName}`
     }
 
-    async appendSites(client: Client, windProvider?: WindProvider) {
+    async appendSites(client: Client, getWindReport?: (baliseId: string, date: Date) => Promise<WindReport | null>) {
         if (!this.preference.include_sites) {
             return
         }
@@ -137,10 +132,10 @@ export class DescriptionFormatter {
 
         const row = result.rows[0].reify()
 
-        const takeoffLine = await this.generateSiteLine(SiteType.TakeOff, row.takeoff_name, row.takeoff_balise_id, windProvider)
+        const takeoffLine = await this.generateSiteLine(SiteType.TakeOff, row.takeoff_name, row.takeoff_balise_id, getWindReport)
         this.lines.push(takeoffLine)
 
-        const landingLine = await this.generateSiteLine(SiteType.Landing, row.landing_name, row.landing_balise_id, windProvider)
+        const landingLine = await this.generateSiteLine(SiteType.Landing, row.landing_name, row.landing_balise_id, getWindReport)
         this.lines.push(landingLine)
     }
 
@@ -183,9 +178,9 @@ export class DescriptionFormatter {
         this.lines.push(`${this.allTimePrefix.padEnd(this.maxLength, " ")}  ${formatAggregationResult(values)}`)
     }
 
-    async generate(client: Client, windProvider?: WindProvider): Promise<string | null> {
+    async generate(client: Client, getWindReport?: (baliseId: string, date: Date) => Promise<WindReport | null>): Promise<string | null> {
         if (this.lines.length == 0) {
-            await this.appendSites(client, windProvider)
+            await this.appendSites(client, getWindReport)
             await this.appendWingAggregation(client)
             await this.appendYearAggregation(client)
             await this.appendAllTimeAggregation(client)

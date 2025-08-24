@@ -81,21 +81,4 @@ export type AggregationResult = {
     total_distance_meters: number
 }
 
-// Wind direction enum (for FFVL integration)
-export enum WindDirection {
-    N,
-    NE, 
-    E,
-    SE,
-    S,
-    SW,
-    W,
-    NW
-}
-
-// FFVL wind report type
-export type WindReport = {
-    windKmh: number
-    gustKmh: number
-    direction: WindDirection
-}
+// WindReport is now in model.ts to avoid duplicates

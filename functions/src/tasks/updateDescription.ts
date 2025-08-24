@@ -1,10 +1,8 @@
-import {isSuccess} from "@parastats/common";
-import {UpdateDescriptionTask, TaskResult, StravaActivityId, FlightRow} from '@parastats/common/src/model';
-import {DescriptionFormatter, PreferencesProvider, withPooledClient} from '@parastats/common';
+import {isSuccess, UpdateDescriptionTask, TaskResult, StravaActivityId, FlightRow} from "@parastats/common";
 import {Pilots} from '@/database/Pilots';
 import {Flights} from '@/database/Flights';
-import {DescriptionPreferences} from '@/database/DescriptionPreferences';
 import {StravaApi} from '@/stravaApi';
+import {DescriptionFormatter} from './updateDescription/DescriptionFormatterAdapter';
 
 export async function executeUpdateDescriptionTask(
     task: UpdateDescriptionTask
@@ -26,18 +24,15 @@ export async function executeUpdateDescriptionTask(
         };
     }
 
-    // Generate description with preferences snapshot
-    const statsResult = await generateStatsWithPreferences(flight);
+    // Generate description with preferences snapshot  
+    const newStats = await DescriptionFormatter.generateDescription(flight);
 
-    if (statsResult.description === null) {
+    if (newStats === null) {
         console.log("Skipping because description is null");
         return {
             success: true,
         };
     }
-
-    const newStats = statsResult.description;
-    const preferencesSnapshot = statsResult.preferences;
 
     // Check if description is already formatted
     const alreadyFormatted = flight.description.includes("🌐 paragliderstats.com");
@@ -92,35 +87,3 @@ export async function executeUpdateDescriptionTask(
     };
 }
 
-/**
- * Generate description stats with preferences using Result pattern
- */
-async function generateStatsWithPreferences(flight: FlightRow): Promise<{
-    description: string | null;
-    preferences: any
-}> {
-    return withPooledClient(async (client) => {
-        // Create preferences provider that adapts the Result pattern
-        const preferencesProvider: PreferencesProvider = {
-            get: async (pilotId) => {
-                const [value, error] = await DescriptionPreferences.get(pilotId);
-                if (value) {
-                    return {success: true, value: value};
-                } else {
-                    return {success: false, error: error};
-                }
-            }
-        };
-
-        // Create formatter
-        const formatter = await DescriptionFormatter.create(flight, preferencesProvider);
-
-        // Generate description 
-        const description = await formatter.generate(client);
-
-        return {
-            description,
-            preferences: null // TODO: expose preferences from formatter or handle differently
-        };
-    });
-}

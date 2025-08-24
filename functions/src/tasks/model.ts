@@ -2,7 +2,7 @@ import { executeFetchAllActivitiesTask } from "./fetchAllActivities";
 import { executeUpdateDescriptionTask } from "./updateDescription";
 import { executeHelloWorldTask } from "./helloWorld";
 import { executeSyncSitesTask } from "./syncSites";
-import { FetchAllActivitiesTask, UpdateDescriptionTask, HelloWorldTask, SyncSitesTask } from "@parastats/common/src/model";
+import { FetchAllActivitiesTask, UpdateDescriptionTask, HelloWorldTask, SyncSitesTask } from "@parastats/common";
 
 export type TaskResult = TaskSuccess | TaskFailure
 

@@ -1,5 +1,5 @@
 import {isSuccess} from "@parastats/common";
-import { FetchAllActivitiesTask, TaskResult, StravaActivityId, StravaAthleteId, FlightRow } from '@parastats/common/src/model';
+import { FetchAllActivitiesTask, TaskResult, StravaActivityId, StravaAthleteId, FlightRow } from '@parastats/common';
 import { withPooledClient } from '@parastats/common';
 import { Pilots } from '@/database/Pilots';
 import { Flights } from '@/database/Flights';

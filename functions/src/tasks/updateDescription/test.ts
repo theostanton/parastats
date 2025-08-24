@@ -1,7 +1,7 @@
 import {isSuccess} from "@parastats/common";
 import {expect, test} from "vitest";
 import handler from "./index";
-import {FetchAllActivitiesTask, UpdateDescriptionTask} from "@parastats/common/src/model";
+import {FetchAllActivitiesTask, UpdateDescriptionTask} from "@parastats/common";
 
 test("updateDescription success", async () => {
     const input: UpdateDescriptionTask = {
