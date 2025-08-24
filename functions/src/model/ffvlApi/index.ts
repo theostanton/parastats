@@ -49,7 +49,7 @@ export namespace FFVL {
         const date = new Date(ffvlReport.date)
         return {
             idbalise: ffvlReport.idbalise,
-            windKmh: parseInt(ffvlReport.vitesseVentMin),
+            windKmh: parseInt(ffvlReport.vitesseVentMoy),
             gustKmh: parseInt(ffvlReport.vitesseVentMax),
             direction: convertToWindsockDirection(direction),
             date,
@@ -60,6 +60,8 @@ export namespace FFVL {
 
         const now = new Date()
         const hours = (now.getTime() - date.getTime()) / (60 * 60 * 1000);
+
+        console.log(`getReport date=${date} hours=${hours}`)
 
         if (hours > 72) {
             return failure(`Flight was too many hours ago hours=${hours}`)
@@ -73,21 +75,26 @@ export namespace FFVL {
                 hours: Math.max(72, hours + 5),
                 mode: "json",
                 key: process.env.FFVL_KEY
-            }
+            },
+            timeout: 10000
         })
 
         let closest: [FfvlReport, number] | null = null
         for (const report of response.data) {
-            const reportDate = new Date(report.date)
-            const diffMillis = Math.abs(reportDate.getTime() - date.getTime())
+            const localDate = new Date(report.date)
+            const reportDateUtc = new Date(localDate.getTime() - 2 * 60 * 60 * 1000)
+            const diffMillis = Math.abs(reportDateUtc.getTime() - date.getTime())
+            console.log(`getReport diffMillis=${diffMillis} reportDate=${reportDateUtc}`)
             if (diffMillis < 30 * 60 * 1000 && (closest == null || diffMillis < closest[1])) {
                 closest = [report, diffMillis]
             }
         }
 
+
         if (closest == null) {
             return failure("Couldn't get a close enough report")
         }
+        console.log(`getReport closest diffMillis=${closest[1]} report=${JSON.stringify(closest[0])}`)
 
         const value = convertToWindsockReport(closest[0])
         return success(value)

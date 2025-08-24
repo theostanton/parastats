@@ -73,7 +73,7 @@ export class DescriptionFormatter {
     async generateSiteLine(siteType: SiteType, siteName: string, baliseId: string | undefined): Promise<string> {
 
         const prefix = siteType == SiteType.TakeOff ? "↗️" : "↘️"
-        const date = siteType == SiteType.TakeOff ? this.flightRow.start_date : this.flightRow.start_date
+        const date = siteType == SiteType.TakeOff ? this.flightRow.start_date : new Date(this.flightRow.start_date.getTime() + this.flightRow.duration_sec / 1000)
         const formattedSiteName = formatSiteName(siteName)
 
         if (baliseId && this.preference.include_wind) {
