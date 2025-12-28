@@ -22,7 +22,7 @@ export const createFailure = failure
 
 // Type guards
 export function isSuccess<V>(either: Either<V>): either is Success<V> {
-    return either[0] !== undefined
+    return either[1] === undefined
 }
 
 export function isFailure<V>(either: Either<V>): either is Failure {
