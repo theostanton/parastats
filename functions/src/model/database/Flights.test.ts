@@ -1,7 +1,6 @@
 import {expect, test} from "vitest";
-import {FlightRow, PilotRow, PilotRowFull, isSuccess} from "@parastats/common";
+import {FlightRow, PilotRow, PilotRowFull, isSuccess, Success} from "@parastats/common";
 import {Pilots} from "./Pilots";
-import {Success} from "../model";
 import {end, getDatabase} from "./client";
 import {TestContainer} from "./generateContainer.test";
 import {Mocks} from "./Mocks.test";

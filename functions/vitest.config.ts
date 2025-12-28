@@ -18,7 +18,7 @@ export default defineConfig({
     test: {
         disableConsoleIntercept: true,
         silent: false,
-        exclude: [],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/.{idea,git,cache,output,temp}/**'],
         env: {
             FFVL_KEY: ""
         },

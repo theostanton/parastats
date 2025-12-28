@@ -16,14 +16,14 @@ beforeAll(async () => {
     }
 })
 
-test.skip('Test fetchWingedActivities', async () => {
+test.skip('Test fetchWingedActivities', {timeout: 60_000}, async () => {
     const api = StravaApi.fromAccessToken(token!!)
     const result = await api.fetchParaglidingActivityIds()
     expect(result.success).toEqual(true)
     if (isSuccess(result)) {
         expect(result.value.length).toEqual(5)
     }
-}, {timeout: 60_000})
+})
 
 test.skip('Test fetchAthlete', async () => {
     const api = StravaApi.fromAccessToken(token!!)

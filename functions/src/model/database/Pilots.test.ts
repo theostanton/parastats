@@ -1,8 +1,7 @@
 import {expect, test} from "vitest";
 import {end} from "./client";
 import {Pilots} from "./Pilots";
-import {Success} from "../model";
-import {PilotRow, PilotRowFull} from "@parastats/common";
+import {PilotRow, PilotRowFull, Success} from "@parastats/common";
 import {TestContainer} from "./generateContainer.test";
 
 test('Test insert() / get() / getToken()', async () => {

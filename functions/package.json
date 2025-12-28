@@ -15,31 +15,31 @@
     "devWebhooks": "tsc -p dev.tsconfig.json && nodemon --exec \"node --inspect -r ts-node/register -r tsconfig-paths/register\" src/webhooks/dev.ts"
   },
   "dependencies": {
-    "@google-cloud/tasks": "^6.0.1",
+    "@google-cloud/tasks": "^6.2.1",
     "@googlemaps/polyline-codec": "^1.0.28",
     "@parastats/common": "file:../common",
-    "@turf/distance": "^7.2.0",
-    "@turf/helpers": "^7.2.0",
+    "@turf/distance": "^7.3.1",
+    "@turf/helpers": "^7.3.1",
     "@types/generic-pool": "^3.8.3",
-    "axios": "^1.8.4",
+    "axios": "^1.13.2",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7",
-    "express": "^5.0.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "generic-pool": "^3.9.0",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "ts-postgres": "^2.0.4"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "^10.24.2",
-    "@types/cookie-parser": "^1.4.8",
-    "@types/express": "^5.0.1",
+    "@testcontainers/postgresql": "^11.11.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.9",
-    "nodemon": "^3.0.3",
-    "testcontainers": "^11.0.0",
+    "nodemon": "^3.1.11",
+    "testcontainers": "^11.11.0",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.1"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   }
 }
