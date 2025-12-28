@@ -1,9 +1,9 @@
 import {afterAll, afterEach, beforeAll, beforeEach, expect, it, test} from "vitest";
-import {TestContainer} from "@parastats/common/generateContainer.test";
+import {TestContainer} from "../../model/database/generateContainer.test";
 import {StartedPostgreSqlContainer} from "@testcontainers/postgresql";
 import {end} from "@parastats/common";
 import {DescriptionPreference, FlightRow, DescriptionFormatter, withPooledClient} from "@parastats/common";
-import {Mocks} from "@parastats/common/Mocks.test";
+import {Mocks} from "../../model/database/Mocks.test";
 
 let container: StartedPostgreSqlContainer
 
