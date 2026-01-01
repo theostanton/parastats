@@ -32,6 +32,24 @@ resource "google_cloud_tasks_queue" "wing_activity" {
   }
 }
 
+resource "google_cloud_tasks_queue" "update_single_activity" {
+  name     = "update-single-activity"
+  location = local.region
+
+  retry_config {
+    max_attempts = 3
+  }
+
+  stackdriver_logging_config {
+    sampling_ratio = 1.0
+  }
+
+  rate_limits {
+    max_concurrent_dispatches = 10
+    max_dispatches_per_second = 5
+  }
+}
+
 resource "google_cloudfunctions2_function" "tasks" {
   name     = "tasks"
   location = local.region

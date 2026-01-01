@@ -9,8 +9,7 @@ function getQueueId(taskName: TaskName): string | null {
         case "UpdateDescription":
             return process.env.QUEUE_ID_WING_ACTIVITY!!
         case "UpdateSingleActivity":
-            // Use wing_activity queue for now; dedicated queue will be added in infrastructure update
-            return process.env.QUEUE_ID_WING_ACTIVITY!!
+            return process.env.QUEUE_ID_UPDATE_SINGLE_ACTIVITY!!
         default:
             return null
     }
