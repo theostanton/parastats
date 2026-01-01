@@ -1,6 +1,7 @@
-import {isSuccess} from "@parastats/common";
+import {isSuccess, isFailure} from "@parastats/common";
 import { Request, Response } from "express";
 import triggerTask from "../tasks/trigger";
+import { Flights } from "../model/database/Flights";
 
 /**
  * Simple Strava webhook event handler without monitoring
@@ -48,25 +49,46 @@ async function processWebhookEventAsync(payload: any, startTime: number): Promis
             return;
         }
 
-        // Skip deleted activities
+        // Handle activity deletion
         if (payload.aspect_type === 'delete') {
-            console.log('Ignoring activity deletion events');
+            console.log(`Deleting activity ${payload.object_id}`);
+            const deleteResult = await Flights.deleteByActivityId(payload.object_id.toString());
+
+            if (isFailure(deleteResult)) {
+                throw new Error(`Failed to delete flight: ${deleteResult[1]}`);
+            }
+
+            console.log(`Successfully deleted activity ${payload.object_id}`);
             return;
         }
 
-        // For both create and update events, trigger a FetchAllActivities task
+        // Use UpdateSingleActivity task for efficient single-activity sync
         const taskBody = {
-            name: "FetchAllActivities" as const,
-            pilotId: payload.owner_id
+            name: "UpdateSingleActivity" as const,
+            pilotId: payload.owner_id,
+            activityId: payload.object_id.toString()
         };
 
-        console.log(`Triggering FetchAllActivities task for pilot ${payload.owner_id}`);
-        
+        console.log(`Triggering UpdateSingleActivity task for activity ${payload.object_id}`);
+
         // Trigger the task
         const taskResult = await triggerTask(taskBody);
-        
+
         if (!isSuccess(taskResult)) {
-            throw new Error(`Failed to trigger FetchAllActivities task: ${taskResult[1]}`);
+            throw new Error(`Failed to trigger UpdateSingleActivity task: ${taskResult[1]}`);
+        }
+
+        // Chain description update task for automatic stats updates
+        const descriptionTaskBody = {
+            name: "UpdateDescription" as const,
+            flightId: payload.object_id.toString()
+        };
+
+        const descriptionTaskResult = await triggerTask(descriptionTaskBody);
+
+        if (!isSuccess(descriptionTaskResult)) {
+            console.error(`Failed to trigger UpdateDescription task: ${descriptionTaskResult[1]}`);
+            // Don't throw - description update is optional, activity sync already succeeded
         }
 
         const processingTime = Date.now() - startTime;
@@ -80,10 +102,32 @@ async function processWebhookEventAsync(payload: any, startTime: number): Promis
 }
 
 /**
- * Verify Strava webhook signature (implement when we have the signing secret)
+ * Verify Strava webhook signature using HMAC-SHA256
  */
 export function verifyStravaSignatureSimple(req: Request): boolean {
-    // TODO: Implement signature verification
-    // For now, return true - we'll implement this when we set up webhook subscriptions
-    return true;
+    const signature = req.headers['x-hub-signature-256'] as string;
+    const secret = process.env.STRAVA_WEBHOOK_SECRET;
+
+    if (!signature || !secret) {
+        console.error("Missing signature or webhook secret");
+        return false;
+    }
+
+    try {
+        const crypto = require('crypto');
+
+        // Compute HMAC-SHA256 of raw request body
+        const hmac = crypto.createHmac('sha256', secret);
+        hmac.update(JSON.stringify(req.body));
+        const computedSignature = `sha256=${hmac.digest('hex')}`;
+
+        // Constant-time comparison to prevent timing attacks
+        return crypto.timingSafeEqual(
+            Buffer.from(signature),
+            Buffer.from(computedSignature)
+        );
+    } catch (error) {
+        console.error("Error verifying signature:", error);
+        return false;
+    }
 }

@@ -7,10 +7,12 @@ import {
     WebhookEvents,
     TaskExecutions,
     withPooledClient,
-    Pilots,
+    Pilots as PilotsCommon,
     isSuccess, isFailure
 } from "@parastats/common";
 import triggerTask from "../tasks/trigger";
+import { Flights } from "../model/database/Flights";
+import { Pilots } from "../model/database/Pilots";
 
 /**
  * Handle incoming Strava webhook events
@@ -160,24 +162,18 @@ async function shouldProcessEvent(payload: StravaWebhookEvent): Promise<{
         };
     }
 
-    // Skip deleted activities - we could implement cleanup later
-    if (payload.aspect_type === 'delete') {
-        return {
-            process: false,
-            reason: 'Activity deletion events not implemented'
-        };
-    }
+    // Check if pilot exists in our system (skip this check for delete events)
+    if (payload.aspect_type !== 'delete') {
+        const pilotResult = await withPooledClient(async (client) => {
+            return await PilotsCommon.get(payload.owner_id);
+        });
 
-    // Check if pilot exists in our system
-    const pilotResult = await withPooledClient(async (client) => {
-        return await Pilots.get(payload.owner_id);
-    });
-
-    if (!isSuccess(pilotResult)) {
-        return {
-            process: false,
-            reason: `Pilot ${payload.owner_id} not found in our system`
-        };
+        if (!isSuccess(pilotResult)) {
+            return {
+                process: false,
+                reason: `Pilot ${payload.owner_id} not found in our system`
+            };
+        }
     }
 
     return {
@@ -190,30 +186,43 @@ async function shouldProcessEvent(payload: StravaWebhookEvent): Promise<{
  * Process activity-related webhook events
  */
 async function processActivityEvent(
-    webhookEventId: string, 
+    webhookEventId: string,
     payload: StravaWebhookEvent
 ): Promise<string | null> {
     console.log(`Processing activity event: ${payload.aspect_type} for activity ${payload.object_id}`);
 
     try {
-        // For both create and update events, we'll trigger a FetchAllActivities task
-        // This ensures we get the latest activity data and process it properly
+        // Handle activity deletion
+        if (payload.aspect_type === 'delete') {
+            console.log(`Deleting activity ${payload.object_id}`);
+            const deleteResult = await Flights.deleteByActivityId(payload.object_id.toString());
+
+            if (isFailure(deleteResult)) {
+                throw new Error(`Failed to delete flight: ${deleteResult[1]}`);
+            }
+
+            console.log(`Successfully deleted activity ${payload.object_id}`);
+            return null; // No task triggered for deletion
+        }
+
+        // Use UpdateSingleActivity task for efficient single-activity sync
         const taskBody = {
-            name: "FetchAllActivities" as const,
-            pilotId: payload.owner_id
+            name: "UpdateSingleActivity" as const,
+            pilotId: payload.owner_id,
+            activityId: payload.object_id.toString()
         };
 
         // Trigger the task
         const taskResult = await triggerTask(taskBody);
-        
+
         if (isFailure(taskResult)) {
-            throw new Error(`Failed to trigger FetchAllActivities task: ${taskResult[1]}`);
+            throw new Error(`Failed to trigger UpdateSingleActivity task: ${taskResult[1]}`);
         }
 
         // Log task execution to monitoring
         const taskExecutionResult = await withPooledClient(async (client) => {
             return await TaskExecutions.create(client, {
-                task_name: "FetchAllActivities",
+                task_name: "UpdateSingleActivity",
                 task_payload: taskBody,
                 triggered_by: `webhook_event`,
                 triggered_by_webhook_id: webhookEventId,
@@ -227,8 +236,34 @@ async function processActivityEvent(
         }
 
         const taskExecution = taskExecutionResult[0];
-        console.log(`Triggered FetchAllActivities task with execution ID: ${taskExecution.id}`);
-        
+        console.log(`Triggered UpdateSingleActivity task with execution ID: ${taskExecution.id}`);
+
+        // Chain description update task for automatic stats updates
+        console.log(`Triggering UpdateDescription task for activity ${payload.object_id}`);
+        const descriptionTaskBody = {
+            name: "UpdateDescription" as const,
+            flightId: payload.object_id.toString()
+        };
+
+        const descriptionTaskResult = await triggerTask(descriptionTaskBody);
+
+        if (isFailure(descriptionTaskResult)) {
+            console.error(`Failed to trigger UpdateDescription task: ${descriptionTaskResult[1]}`);
+            // Don't throw - description update is optional, activity sync already succeeded
+        } else {
+            // Log description update task execution
+            await withPooledClient(async (client) => {
+                return await TaskExecutions.create(client, {
+                    task_name: "UpdateDescription",
+                    task_payload: descriptionTaskBody,
+                    triggered_by: `webhook_event`,
+                    triggered_by_webhook_id: webhookEventId,
+                    pilot_id: payload.owner_id
+                });
+            });
+            console.log(`Triggered UpdateDescription task for activity ${payload.object_id}`);
+        }
+
         return taskExecution.id;
 
     } catch (error) {
@@ -241,7 +276,7 @@ async function processActivityEvent(
  * Process athlete-related webhook events (e.g., deauthorization)
  */
 async function processAthleteEvent(
-    webhookEventId: string, 
+    webhookEventId: string,
     payload: StravaWebhookEvent
 ): Promise<void> {
     console.log(`Processing athlete event: ${payload.aspect_type} for athlete ${payload.object_id}`);
@@ -249,22 +284,44 @@ async function processAthleteEvent(
     // Handle athlete deauthorization
     if (payload.aspect_type === 'update' && payload.updates?.authorized === false) {
         console.log(`Athlete ${payload.object_id} has deauthorized the application`);
-        // TODO: Implement cleanup logic for deauthorized athletes
-        // - Mark pilot as inactive
-        // - Clean up sensitive data if required
-        // - Log the deauthorization
+
+        const deauthResult = await Pilots.deauthorize(payload.owner_id);
+
+        if (isFailure(deauthResult)) {
+            throw new Error(`Failed to deauthorize pilot: ${deauthResult[1]}`);
+        }
+
+        console.log(`Successfully deauthorized pilot ${payload.owner_id}`);
     }
 }
 
 /**
- * Verify Strava webhook signature (implement when we have the signing secret)
+ * Verify Strava webhook signature using HMAC-SHA256
  */
 export function verifyStravaSignature(req: Request): boolean {
-    // TODO: Implement signature verification
-    // const signature = req.headers['x-hub-signature-256'];
-    // const secret = process.env.STRAVA_WEBHOOK_SECRET;
-    // if (!signature || !secret) return false;
-    
-    // For now, return true - we'll implement this when we set up webhook subscriptions
-    return true;
+    const signature = req.headers['x-hub-signature-256'] as string;
+    const secret = process.env.STRAVA_WEBHOOK_SECRET;
+
+    if (!signature || !secret) {
+        console.error("Missing signature or webhook secret");
+        return false;
+    }
+
+    try {
+        const crypto = require('crypto');
+
+        // Compute HMAC-SHA256 of raw request body
+        const hmac = crypto.createHmac('sha256', secret);
+        hmac.update(JSON.stringify(req.body));
+        const computedSignature = `sha256=${hmac.digest('hex')}`;
+
+        // Constant-time comparison to prevent timing attacks
+        return crypto.timingSafeEqual(
+            Buffer.from(signature),
+            Buffer.from(computedSignature)
+        );
+    } catch (error) {
+        console.error("Error verifying signature:", error);
+        return false;
+    }
 }

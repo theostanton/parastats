@@ -88,4 +88,25 @@ export namespace Pilots {
         });
 
     }
+
+    export async function deauthorize(pilotId: StravaAthleteId): Promise<Either<void>> {
+        return withPooledClient(async (database) => {
+            try {
+                // Soft delete - clear tokens but keep pilot record
+                await database.query(`
+                    UPDATE pilots
+                    SET
+                        strava_access_token = NULL,
+                        strava_refresh_token = NULL,
+                        strava_expires_at = NULL
+                    WHERE pilot_id = $1
+                `, [pilotId]);
+
+                console.log(`Deauthorized pilot ${pilotId}`);
+                return success(undefined);
+            } catch (error) {
+                return failed(`Failed to deauthorize pilot ${pilotId}: ${error}`);
+            }
+        });
+    }
 }
