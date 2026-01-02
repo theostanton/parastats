@@ -14,6 +14,8 @@ import { executeUpdateSingleActivityTask } from "../tasks/updateSingleActivity";
 import { executeUpdateDescriptionTask } from "../tasks/updateDescription";
 import { Flights } from "../model/database/Flights";
 import { Pilots } from "../model/database/Pilots";
+import { StravaApi } from "../model/stravaApi";
+import { isRelevantActivityType } from "../model/stravaApi/model";
 
 /**
  * Handle incoming Strava webhook events
@@ -132,17 +134,31 @@ async function processWebhookEvent(
 
     } catch (error) {
         console.error(`Error processing webhook event ${webhookEventId}:`, error);
-        
-        // Mark webhook as failed
+
         const processingTime = Date.now() - startTime;
-        await withPooledClient(async (client) => {
-            await WebhookEvents.updateStatus(client, webhookEventId, {
-                status: WebhookEventStatus.Failed,
-                processed_at: new Date(),
-                processing_duration_ms: processingTime,
-                error_message: error instanceof Error ? error.message : String(error)
+
+        // Check if this is an ignored activity
+        if (error instanceof Error && error.name === 'ActivityIgnoredError') {
+            console.log(`Marking webhook event ${webhookEventId} as ignored: ${error.message}`);
+            await withPooledClient(async (client) => {
+                await WebhookEvents.updateStatus(client, webhookEventId, {
+                    status: WebhookEventStatus.Ignored,
+                    processed_at: new Date(),
+                    processing_duration_ms: processingTime,
+                    error_message: error.message
+                });
             });
-        });
+        } else {
+            // Mark webhook as failed
+            await withPooledClient(async (client) => {
+                await WebhookEvents.updateStatus(client, webhookEventId, {
+                    status: WebhookEventStatus.Failed,
+                    processed_at: new Date(),
+                    processing_duration_ms: processingTime,
+                    error_message: error instanceof Error ? error.message : String(error)
+                });
+            });
+        }
     }
 }
 
@@ -182,6 +198,16 @@ async function shouldProcessEvent(payload: StravaWebhookEvent): Promise<{
 }
 
 /**
+ * Custom error class to indicate an activity should be ignored
+ */
+class ActivityIgnoredError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ActivityIgnoredError';
+    }
+}
+
+/**
  * Process activity-related webhook events
  */
 async function processActivityEvent(
@@ -202,6 +228,22 @@ async function processActivityEvent(
 
             console.log(`Successfully deleted activity ${payload.object_id}`);
             return null; // No task triggered for deletion
+        }
+
+        // Fetch activity to check if it's a relevant type before processing
+        const api = await StravaApi.fromUserId(payload.owner_id);
+        const activityResult = await api.fetchActivity(payload.object_id.toString());
+
+        if (!isSuccess(activityResult)) {
+            throw new Error(`Failed to fetch activity ${payload.object_id}: ${activityResult[1]}`);
+        }
+
+        const activity = activityResult[0];
+
+        // Check if this is a relevant activity type
+        if (!isRelevantActivityType(activity.type)) {
+            console.log(`Ignoring activity ${payload.object_id} with type '${activity.type}' - not a paragliding activity`);
+            throw new ActivityIgnoredError(`Activity type '${activity.type}' is not relevant for import`);
         }
 
         // Execute UpdateSingleActivity task directly

@@ -5,7 +5,6 @@ import {Flights} from '@/database/Flights';
 import {StravaApi} from '@/stravaApi';
 import {convertStravaActivityToFlight} from './utils/stravaConverter';
 import {StravaActivity, isRelevantActivityType} from "@/stravaApi/model";
-import {executeUpdateDescriptionTask} from "@/tasks/updateDescription";
 
 export async function executeUpdateSingleActivityTask(
     task: UpdateSingleActivityTask
