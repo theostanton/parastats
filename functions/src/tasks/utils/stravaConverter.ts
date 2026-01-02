@@ -1,4 +1,4 @@
-import {Either, failed, FlightRow, success} from '@parastats/common';
+import {Either, failed, FlightRow, Polyline, success} from '@parastats/common';
 import { Sites } from '@/database/Sites';
 import { StravaActivity } from '@/stravaApi/model';
 import { decode, LatLngTuple } from '@googlemaps/polyline-codec';
@@ -26,7 +26,7 @@ export async function convertStravaActivityToFlight(pilotId: number, stravaActiv
         const tuples: LatLngTuple[] = decode(stravaActivity.map.polyline);
 
         if(tuples.length === 0) {
-            const flightRow: FlightRow = {
+            const flightRow = {
                 pilot_id: pilotId,
                 strava_activity_id: stravaActivity.id.toString(),
                 distance_meters: stravaActivity.distance,
@@ -37,7 +37,7 @@ export async function convertStravaActivityToFlight(pilotId: number, stravaActiv
                 polyline: undefined,
                 takeoff_id: undefined,
                 landing_id: undefined
-            };
+            } as unknown as FlightRow;
 
             return success(flightRow);
         }
