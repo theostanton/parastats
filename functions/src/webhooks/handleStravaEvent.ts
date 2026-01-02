@@ -10,7 +10,8 @@ import {
     Pilots as PilotsCommon,
     isSuccess, isFailure
 } from "@parastats/common";
-import triggerTask from "../tasks/trigger";
+import { executeUpdateSingleActivityTask } from "../tasks/updateSingleActivity";
+import { executeUpdateDescriptionTask } from "../tasks/updateDescription";
 import { Flights } from "../model/database/Flights";
 import { Pilots } from "../model/database/Pilots";
 
@@ -57,14 +58,14 @@ export async function handleStravaEvent(req: Request, res: Response): Promise<vo
         const webhookEvent = webhookEventResult[0];
         console.log(`Logged webhook event with ID: ${webhookEvent.id}`);
 
-        // Respond quickly to Strava (within 2 seconds)
-        res.status(200).json({ 
-            status: "received",
+        // Process event synchronously before responding
+        await processWebhookEvent(webhookEvent.id, payload, startTime);
+
+        // Respond to Strava after processing is complete
+        res.status(200).json({
+            status: "processed",
             event_id: webhookEvent.id
         });
-
-        // Process event asynchronously
-        processWebhookEventAsync(webhookEvent.id, payload, startTime);
 
     } catch (error) {
         console.error("Error handling Strava webhook:", error);
@@ -73,15 +74,15 @@ export async function handleStravaEvent(req: Request, res: Response): Promise<vo
 }
 
 /**
- * Process webhook event asynchronously after responding to Strava
+ * Process webhook event synchronously
  */
-async function processWebhookEventAsync(
-    webhookEventId: string, 
+async function processWebhookEvent(
+    webhookEventId: string,
     payload: StravaWebhookEvent,
     startTime: number
 ): Promise<void> {
     try {
-        console.log(`Processing webhook event ${webhookEventId} asynchronously`);
+        console.log(`Processing webhook event ${webhookEventId}`);
 
         // Update status to processing
         await withPooledClient(async (client) => {
@@ -109,12 +110,10 @@ async function processWebhookEventAsync(
         }
 
         // Process the event based on type
-        let taskTriggered = false;
         let taskId: string | null = null;
 
         if (payload.object_type === 'activity') {
             taskId = await processActivityEvent(webhookEventId, payload);
-            taskTriggered = !!taskId;
         } else if (payload.object_type === 'athlete') {
             await processAthleteEvent(webhookEventId, payload);
         }
@@ -205,18 +204,18 @@ async function processActivityEvent(
             return null; // No task triggered for deletion
         }
 
-        // Use UpdateSingleActivity task for efficient single-activity sync
+        // Execute UpdateSingleActivity task directly
         const taskBody = {
             name: "UpdateSingleActivity" as const,
             pilotId: payload.owner_id,
             activityId: payload.object_id.toString()
         };
 
-        // Trigger the task
-        const taskResult = await triggerTask(taskBody);
+        // Execute the task directly (no Cloud Tasks)
+        const taskResult = await executeUpdateSingleActivityTask(taskBody);
 
-        if (isFailure(taskResult)) {
-            throw new Error(`Failed to trigger UpdateSingleActivity task: ${taskResult[1]}`);
+        if (!taskResult.success) {
+            throw new Error(`Failed to execute UpdateSingleActivity task: ${taskResult.message}`);
         }
 
         // Log task execution to monitoring
@@ -239,16 +238,16 @@ async function processActivityEvent(
         console.log(`Triggered UpdateSingleActivity task with execution ID: ${taskExecution.id}`);
 
         // Chain description update task for automatic stats updates
-        console.log(`Triggering UpdateDescription task for activity ${payload.object_id}`);
+        console.log(`Executing UpdateDescription task for activity ${payload.object_id}`);
         const descriptionTaskBody = {
             name: "UpdateDescription" as const,
             flightId: payload.object_id.toString()
         };
 
-        const descriptionTaskResult = await triggerTask(descriptionTaskBody);
+        const descriptionTaskResult = await executeUpdateDescriptionTask(descriptionTaskBody);
 
-        if (isFailure(descriptionTaskResult)) {
-            console.error(`Failed to trigger UpdateDescription task: ${descriptionTaskResult[1]}`);
+        if (!descriptionTaskResult.success) {
+            console.error(`Failed to execute UpdateDescription task: ${descriptionTaskResult.message}`);
             // Don't throw - description update is optional, activity sync already succeeded
         } else {
             // Log description update task execution
