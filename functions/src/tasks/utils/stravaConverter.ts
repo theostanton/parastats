@@ -2,6 +2,7 @@ import {Either, failed, FlightRow, success} from '@parastats/common';
 import { Sites } from '@/database/Sites';
 import { StravaActivity } from '@/stravaApi/model';
 import { decode, LatLngTuple } from '@googlemaps/polyline-codec';
+import {undiciResponseToFetchResponse} from "testcontainers/build/wait-strategies/utils/undici-response-parser";
 
 /**
  * Convert Strava activity to flight record using Result pattern
@@ -23,7 +24,24 @@ export async function convertStravaActivityToFlight(pilotId: number, stravaActiv
 
         // Decode polyline
         const tuples: LatLngTuple[] = decode(stravaActivity.map.polyline);
-        
+
+        if(tuples.length === 0) {
+            const flightRow: FlightRow = {
+                pilot_id: pilotId,
+                strava_activity_id: stravaActivity.id.toString(),
+                distance_meters: stravaActivity.distance,
+                duration_sec: stravaActivity.elapsed_time,
+                wing: wing,
+                start_date: new Date(stravaActivity.start_date),
+                description: stravaActivity.description,
+                polyline: undefined,
+                takeoff_id: undefined,
+                landing_id: undefined
+            };
+
+            return success(flightRow);
+        }
+
         if (tuples.length < 2) {
             return failed(`Not enough points on polyline=${JSON.stringify(stravaActivity.map.polyline)} tuples=${JSON.stringify(tuples)}`);
         }

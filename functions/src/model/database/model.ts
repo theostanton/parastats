@@ -1,7 +1,7 @@
 import {StravaActivityId, StravaAthleteId} from "@/stravaApi/model";
-import { LatLng, Polyline, SiteType } from '@parastats/common';
+import {LatLng, Polyline, SiteType} from '@parastats/common';
 
-export { LatLng, Polyline, SiteType };
+export {LatLng, Polyline, SiteType};
 
 export type PilotRow = {
     pilot_id: StravaAthleteId
@@ -23,7 +23,7 @@ export type     FlightRow = {
     distance_meters: number
     start_date: Date
     description: string
-    polyline: Polyline
+    polyline: Polyline | undefined
     landing_id: string | undefined
     takeoff_id: string | undefined
 }

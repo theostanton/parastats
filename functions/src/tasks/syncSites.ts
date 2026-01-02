@@ -70,6 +70,11 @@ export async function executeSyncSitesTask(
 
     const flights = flightsResult[0];
     for (const flight of flights) {
+        // Skip flights without GPS data
+        if (!flight.polyline || flight.polyline.length === 0) {
+            continue;
+        }
+
         let updated = false;
 
         // Update takeoff site association
@@ -79,7 +84,7 @@ export async function executeSyncSitesTask(
             updated = true;
         }
 
-        // Update landing site association  
+        // Update landing site association
         const landingId = await Sites.getIdOfCloset(flight.polyline[flight.polyline.length - 1]);
         if (landingId && landingId !== flight.landing_id) {
             flight.landing_id = landingId;

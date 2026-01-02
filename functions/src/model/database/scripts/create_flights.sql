@@ -11,7 +11,7 @@ create table flights
     distance_meters    integer                  not null,
     start_date         timestamp with time zone not null,
     description        text                     not null,
-    polyline           json                     not null,
-    landing_id         text                     not null,
-    takeoff_id         text                     not null
+    polyline           json,
+    landing_id         text,
+    takeoff_id         text
 );
