@@ -3,6 +3,7 @@ import {TaskResult, TaskBody} from "@/tasks/model";
 import {Pilots, Flights, isSuccess} from "@parastats/common";
 import {StravaApi} from "@/stravaApi";
 import {StravaActivityId} from "@/stravaApi/model";
+import {generateStats} from "@parastats/common/dist/DescriptionGenerator";
 
 export type UpdateDescriptionTask = {
     name: "UpdateDescription";
@@ -34,8 +35,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     const [activityRow] = result
 
     // Generate stats (temporarily disabled)
-    // const stats = await generateStats(activityRow)
-    const stats = null;
+    const stats = await generateStats(activityRow)
 
     if (stats == null) {
         console.log("Skipping because stats generation is temporarily disabled")
@@ -51,7 +51,7 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     let wingedDescription: string
     if (alreadyWinged) {
         console.log("Updating")
-        wingedDescription = activityRow.description.replace(/(?:[🪂↘️↗️])[\s\S]*paragliderstats.com/, stats)
+        wingedDescription = activityRow.description.replace(/[🪂↗️↘️][\s\S]*paragliderstats.com/, stats)
     } else {
         console.log("Appending")
         wingedDescription = activityRow.description.replace(`🪂 ${activityRow.wing}`, stats)
