@@ -32,3 +32,11 @@ export type StravaActivitySummary = {
 export type StravaActivity = StravaActivitySummary & {
     description: string
 }
+
+/**
+ * Check if a Strava activity type should be imported as a paragliding flight
+ * Currently supports: Kitesurf and Workout (paragliding activities are logged as Workout)
+ */
+export function isRelevantActivityType(activityType: string): boolean {
+    return activityType === 'Kitesurf' || activityType === 'Workout';
+}

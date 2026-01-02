@@ -4,7 +4,7 @@ import {Pilots} from '@/database/Pilots';
 import {Flights} from '@/database/Flights';
 import {StravaApi} from '@/stravaApi';
 import {convertStravaActivityToFlight} from './utils/stravaConverter';
-import {StravaActivity} from "@/stravaApi/model";
+import {StravaActivity, isRelevantActivityType} from "@/stravaApi/model";
 import {executeUpdateDescriptionTask} from "@/tasks/updateDescription";
 
 export async function executeUpdateSingleActivityTask(
@@ -35,6 +35,14 @@ export async function executeUpdateSingleActivityTask(
     }
 
     const stravaActivity: StravaActivity = activityResult[0];
+
+    // Check if this activity type should be imported as a flight
+    if (!isRelevantActivityType(stravaActivity.type)) {
+        console.log(`Skipping activity ${task.activityId} with type '${stravaActivity.type}' - not a paragliding activity`);
+        return {
+            success: true
+        };
+    }
 
     // Convert Strava activity to flight
     const conversionResult = await convertStravaActivityToFlight(pilot.pilot_id, stravaActivity);

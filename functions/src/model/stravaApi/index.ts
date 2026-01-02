@@ -1,6 +1,6 @@
 import axios, {AxiosHeaders} from "axios";
 import {StravaActivityId, failed, Either, success, Pilots, isSuccess} from "@parastats/common";
-import {StravaActivity, StravaActivitySummary, StravaAthlete} from "@/stravaApi/model";
+import {StravaActivity, StravaActivitySummary, StravaAthlete, isRelevantActivityType} from "@/stravaApi/model";
 
 export class StravaApi {
 
@@ -73,16 +73,14 @@ export class StravaApi {
                 });
 
                 const relevantActivityIdsToAppend = response.data
-                    .filter(activity => activity.type === 'Kitesurf' || activity.type === "Workout")
+                    .filter(activity => isRelevantActivityType(activity.type))
                     .map(activity => activity.id);
                 console.log(`Got page=${page} activities=${response.data.length} relevantActivityIds=${relevantActivityIdsToAppend.length}`);
-                let didIgnore = false
                 let allIgnored = true
                 relevantActivityIdsToAppend.forEach((relevantActivityId, index) => {
                     const shouldIgnore = ignoreActivityIds.filter(ignoreActivityId => relevantActivityId == ignoreActivityId).length > 0
 
                     if (shouldIgnore) {
-                        didIgnore = true
                         console.log(`${index + 1}/${relevantActivityIdsToAppend.length} Ignoring relevantActivityId=${relevantActivityId}`)
                     } else {
                         allIgnored = false
