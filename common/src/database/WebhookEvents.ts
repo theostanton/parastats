@@ -29,7 +29,7 @@ export class WebhookEvents {
             const query = `
                 INSERT INTO webhook_events (
                     event_type, object_type, object_id, pilot_id, payload
-                ) VALUES ($1::webhook_event_type, $2::webhook_object_type, $3, $4, $5::jsonb)
+                ) VALUES ($1, $2, $3, $4, $5::jsonb)
                 RETURNING *
             `;
 
@@ -64,7 +64,7 @@ export class WebhookEvents {
             const query = `
                 UPDATE webhook_events
                 SET
-                    status = $1::webhook_event_status,
+                    status = $1,
                     processed_at = COALESCE($2, processed_at),
                     error_message = COALESCE($3, error_message),
                     processing_duration_ms = COALESCE($4, processing_duration_ms)

@@ -62,7 +62,7 @@ export class TaskExecutions {
             const query = `
                 UPDATE task_executions
                 SET
-                    status = $1::task_execution_status,
+                    status = $1,
                     completed_at = COALESCE($2, completed_at),
                     error_message = COALESCE($3, error_message),
                     execution_duration_ms = COALESCE($4, execution_duration_ms)
