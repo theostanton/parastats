@@ -60,16 +60,16 @@ export class TaskExecutions {
     ): Promise<Either<TaskExecutionRow>> {
         try {
             const query = `
-                UPDATE task_executions 
-                SET 
-                    status = $1,
+                UPDATE task_executions
+                SET
+                    status = $1::task_execution_status,
                     completed_at = COALESCE($2, completed_at),
                     error_message = COALESCE($3, error_message),
                     execution_duration_ms = COALESCE($4, execution_duration_ms)
                 WHERE id = $5
                 RETURNING *
             `;
-            
+
             const result = await client.query(query, [
                 update.status,
                 update.completed_at || null,
@@ -77,11 +77,11 @@ export class TaskExecutions {
                 update.execution_duration_ms || null,
                 executionId
             ]);
-            
+
             if (result.rows.length === 0) {
                 return failure(`Task execution not found: ${executionId}`);
             }
-            
+
             return success(result.rows[0].reify() as TaskExecutionRow);
         } catch (error) {
             return failure(`Failed to update task execution: ${error}`);

@@ -29,10 +29,10 @@ export class WebhookEvents {
             const query = `
                 INSERT INTO webhook_events (
                     event_type, object_type, object_id, pilot_id, payload
-                ) VALUES ($1, $2, $3, $4, $5)
+                ) VALUES ($1::webhook_event_type, $2::webhook_object_type, $3, $4, $5)
                 RETURNING *
             `;
-            
+
             const result = await client.query(query, [
                 event.event_type,
                 event.object_type,
@@ -40,7 +40,7 @@ export class WebhookEvents {
                 event.pilot_id,
                 JSON.stringify(event.payload)
             ]);
-            
+
             return success(result.rows[0].reify() as WebhookEventRow);
         } catch (error) {
             return failure(`Failed to create webhook event: ${error}`);
@@ -62,16 +62,16 @@ export class WebhookEvents {
     ): Promise<Either<WebhookEventRow>> {
         try {
             const query = `
-                UPDATE webhook_events 
-                SET 
-                    status = $1,
+                UPDATE webhook_events
+                SET
+                    status = $1::webhook_event_status,
                     processed_at = COALESCE($2, processed_at),
                     error_message = COALESCE($3, error_message),
                     processing_duration_ms = COALESCE($4, processing_duration_ms)
                 WHERE id = $5
                 RETURNING *
             `;
-            
+
             const result = await client.query(query, [
                 update.status,
                 update.processed_at || null,
@@ -79,11 +79,11 @@ export class WebhookEvents {
                 update.processing_duration_ms || null,
                 eventId
             ]);
-            
+
             if (result.rows.length === 0) {
                 return failure(`Webhook event not found: ${eventId}`);
             }
-            
+
             return success(result.rows[0].reify() as WebhookEventRow);
         } catch (error) {
             return failure(`Failed to update webhook event: ${error}`);
