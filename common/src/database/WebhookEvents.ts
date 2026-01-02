@@ -29,7 +29,7 @@ export class WebhookEvents {
             const query = `
                 INSERT INTO webhook_events (
                     event_type, object_type, object_id, pilot_id, payload
-                ) VALUES ($1::webhook_event_type, $2::webhook_object_type, $3, $4, $5)
+                ) VALUES ($1::webhook_event_type, $2::webhook_object_type, $3, $4, $5::jsonb)
                 RETURNING *
             `;
 

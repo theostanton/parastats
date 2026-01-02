@@ -27,10 +27,10 @@ export class TaskExecutions {
             const query = `
                 INSERT INTO task_executions (
                     task_name, task_payload, triggered_by, triggered_by_webhook_id, pilot_id
-                ) VALUES ($1, $2, $3, $4, $5)
+                ) VALUES ($1, $2::jsonb, $3, $4, $5)
                 RETURNING *
             `;
-            
+
             const result = await client.query(query, [
                 execution.task_name,
                 JSON.stringify(execution.task_payload),
