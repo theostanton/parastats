@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {handleCode} from "./handleCode";
 import {handleChallenge} from "./handleChallenge";
-import {handleStravaEventSimple, verifyStravaSignatureSimple} from "./handleStravaEventSimple";
+import {handleStravaEvent, verifyStravaSignature} from "./handleStravaEvent";
 
 export default async function handler(req: Request, res: Response): Promise<void> {
     console.log("Received webhook request:", {
@@ -26,13 +26,13 @@ export default async function handler(req: Request, res: Response): Promise<void
     // Handle Strava webhook events (POST requests with event data)
     if (req.method === 'POST' && req.body) {
         // Verify the webhook signature for security
-        if (!verifyStravaSignatureSimple(req)) {
+        if (!verifyStravaSignature(req)) {
             console.error("Invalid webhook signature");
             res.status(401).json({ error: "Invalid signature" });
             return;
         }
-        
-        await handleStravaEventSimple(req, res);
+
+        await handleStravaEvent(req, res);
         return;
     }
     

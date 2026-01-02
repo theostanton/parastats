@@ -3,7 +3,7 @@
  * This simulates a Strava webhook event to test our implementation
  */
 
-import { handleStravaEventSimple } from './handleStravaEventSimple';
+import { handleStravaEvent } from './handleStravaEvent';
 import { Request, Response } from 'express';
 
 // Mock Express request/response objects
@@ -37,12 +37,12 @@ const testWebhookPayload = {
 async function testWebhookMonitoring() {
     console.log('Testing webhook monitoring functionality...');
     console.log('Test payload:', JSON.stringify(testWebhookPayload, null, 2));
-    
+
     const req = createMockRequest(testWebhookPayload);
     const res = createMockResponse();
-    
+
     try {
-        await handleStravaEventSimple(req, res);
+        await handleStravaEvent(req, res);
         console.log('Webhook test completed successfully!');
     } catch (error) {
         console.error('Webhook test failed:', error);
