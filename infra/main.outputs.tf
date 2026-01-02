@@ -7,11 +7,12 @@ locals {
     DATABASE_PORT             = 5432
     DATABASE_USER             = google_sql_user.functions.name
     DATABASE_PASSWORD         = random_password.database.result
-    CLIENT_ID                 = local.CLIENT_ID
-    CLIENT_SECRET             = local.CLIENT_SECRET
-    QUEUE_ID_FETCH_ACTIVITIES = google_cloud_tasks_queue.fetch_activities.id
-    QUEUE_ID_WING_ACTIVITY    = google_cloud_tasks_queue.wing_activity.id
-    TASKS_URL                 = "https://tasks.${local.domain}"
+    CLIENT_ID                       = local.CLIENT_ID
+    CLIENT_SECRET                   = local.CLIENT_SECRET
+    QUEUE_ID_FETCH_ACTIVITIES       = google_cloud_tasks_queue.fetch_activities.id
+    QUEUE_ID_WING_ACTIVITY          = google_cloud_tasks_queue.wing_activity.id
+    QUEUE_ID_UPDATE_SINGLE_ACTIVITY = google_cloud_tasks_queue.update_single_activity.id
+    TASKS_URL                       = "https://tasks.${local.domain}"
     API_URL                   = "https://api.${local.domain}"
     SITE_PORT                 = 80
     TASKS_PORT                = 3000

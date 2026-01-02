@@ -23,3 +23,8 @@ tasks:
     desc: View tasks logs
     cmds:
       - open https://console.cloud.google.com/run/detail/us-east1/parastats-tasks/logs?authuser=1&project=para-stats
+
+  tasks:tail:
+    desc: Tail tasks logs in terminal
+    cmds:
+      - gcloud logging tail "resource.type=cloud_run_revision AND resource.labels.service_name=parastats-tasks" --project=para-stats

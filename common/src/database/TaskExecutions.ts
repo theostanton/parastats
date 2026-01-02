@@ -27,10 +27,10 @@ export class TaskExecutions {
             const query = `
                 INSERT INTO task_executions (
                     task_name, task_payload, triggered_by, triggered_by_webhook_id, pilot_id
-                ) VALUES ($1, $2, $3, $4, $5)
+                ) VALUES ($1, $2::jsonb, $3, $4, $5)
                 RETURNING *
             `;
-            
+
             const result = await client.query(query, [
                 execution.task_name,
                 JSON.stringify(execution.task_payload),
@@ -60,8 +60,8 @@ export class TaskExecutions {
     ): Promise<Either<TaskExecutionRow>> {
         try {
             const query = `
-                UPDATE task_executions 
-                SET 
+                UPDATE task_executions
+                SET
                     status = $1,
                     completed_at = COALESCE($2, completed_at),
                     error_message = COALESCE($3, error_message),
@@ -69,7 +69,7 @@ export class TaskExecutions {
                 WHERE id = $5
                 RETURNING *
             `;
-            
+
             const result = await client.query(query, [
                 update.status,
                 update.completed_at || null,
@@ -77,11 +77,11 @@ export class TaskExecutions {
                 update.execution_duration_ms || null,
                 executionId
             ]);
-            
+
             if (result.rows.length === 0) {
                 return failure(`Task execution not found: ${executionId}`);
             }
-            
+
             return success(result.rows[0].reify() as TaskExecutionRow);
         } catch (error) {
             return failure(`Failed to update task execution: ${error}`);

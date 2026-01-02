@@ -152,6 +152,11 @@ export default async function (task: TaskBody): Promise<TaskResult> {
     }
 
     for await (const flight of flightsResult[0]) {
+        // Skip flights without GPS data
+        if (!flight.polyline || flight.polyline.length === 0) {
+            continue
+        }
+
         const takeoffId = await Sites.getIdOfCloset(flight.polyline[0])
         if (takeoffId) {
             flight.takeoff_id = takeoffId

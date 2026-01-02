@@ -24,7 +24,9 @@ resource "google_cloudfunctions2_function" "webhooks" {
     ingress_settings   = "ALLOW_ALL"
     max_instance_count = 1
     environment_variables = merge(local.functions_variables, {
-      DATABASE_HOST = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
+      DATABASE_HOST                  = "/cloudsql/${google_sql_database_instance.instance.connection_name}"
+      STRAVA_WEBHOOK_SECRET          = var.strava_webhook_secret
+      STRAVA_WEBHOOK_VERIFY_TOKEN    = var.strava_webhook_verify_token
     })
   }
 }

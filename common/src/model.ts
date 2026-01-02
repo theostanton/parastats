@@ -229,6 +229,12 @@ export interface UpdateDescriptionTask extends BaseTask {
     flightId: StravaActivityId;
 }
 
+export interface UpdateSingleActivityTask extends BaseTask {
+    name: "UpdateSingleActivity";
+    pilotId: StravaAthleteId;
+    activityId: StravaActivityId;
+}
+
 export interface SyncSitesTask extends BaseTask {
     name: "SyncSites";
 }
@@ -238,11 +244,11 @@ export interface HelloWorldTask extends BaseTask {
 }
 
 // Union type of all tasks
-export type Task = FetchAllActivitiesTask | UpdateDescriptionTask | SyncSitesTask | HelloWorldTask;
+export type Task = FetchAllActivitiesTask | UpdateDescriptionTask | UpdateSingleActivityTask | SyncSitesTask | HelloWorldTask;
 
 // General task framework types
 export type TaskBody = BaseTask
-export type TaskName = "SyncSites" | "FetchAllActivities" | "UpdateDescription" | "HelloWorld"
+export type TaskName = "SyncSites" | "FetchAllActivities" | "UpdateDescription" | "UpdateSingleActivity" | "HelloWorld"
 
 // Generic task executor function type (to be implemented by functions package)
 export type TaskExecutor = (task: TaskBody) => Promise<TaskResult>

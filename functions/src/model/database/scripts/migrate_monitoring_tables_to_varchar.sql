@@ -1,50 +1,48 @@
--- Monitoring tables for webhook events and task executions
+-- Migration: Convert enum types to VARCHAR with CHECK constraints
+-- This fixes ts-postgres compatibility issues with custom enum types
+
+-- Drop existing tables and types
+DROP VIEW IF EXISTS recent_monitoring_activity CASCADE;
+DROP VIEW IF EXISTS webhook_events_with_tasks CASCADE;
+DROP TABLE IF EXISTS task_executions CASCADE;
+DROP TABLE IF EXISTS webhook_events CASCADE;
+DROP TYPE IF EXISTS webhook_event_status CASCADE;
+DROP TYPE IF EXISTS task_execution_status CASCADE;
+DROP TYPE IF EXISTS webhook_event_type CASCADE;
+DROP TYPE IF EXISTS webhook_object_type CASCADE;
 
 -- Enable UUID extension for generating UUIDs
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Enum for webhook event status
-CREATE TYPE webhook_event_status AS ENUM ('pending', 'processing', 'completed', 'failed', 'ignored');
-
--- Enum for task execution status  
-CREATE TYPE task_execution_status AS ENUM ('pending', 'running', 'completed', 'failed', 'cancelled');
-
--- Enum for webhook event types from Strava
-CREATE TYPE webhook_event_type AS ENUM ('create', 'update', 'delete');
-
--- Enum for webhook object types from Strava
-CREATE TYPE webhook_object_type AS ENUM ('activity', 'athlete');
-
 -- Table to track all incoming webhook events
 CREATE TABLE webhook_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    event_type webhook_event_type NOT NULL,
-    object_type webhook_object_type NOT NULL,
-    object_id VARCHAR(255) NOT NULL, -- Strava activity/athlete ID
+    event_type VARCHAR(20) NOT NULL CHECK (event_type IN ('create', 'update', 'delete')),
+    object_type VARCHAR(20) NOT NULL CHECK (object_type IN ('activity', 'athlete')),
+    object_id VARCHAR(255) NOT NULL,
     pilot_id INTEGER REFERENCES public.pilots(pilot_id) ON DELETE SET NULL,
     received_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     processed_at TIMESTAMP WITH TIME ZONE,
-    status webhook_event_status NOT NULL DEFAULT 'pending',
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'ignored')),
     error_message TEXT,
-    payload JSONB NOT NULL, -- Full webhook payload from Strava
+    payload JSONB NOT NULL,
     processing_duration_ms INTEGER,
     retry_count INTEGER NOT NULL DEFAULT 0,
     last_retry_at TIMESTAMP WITH TIME ZONE,
-    
-    -- Indexes for common queries
+
     CONSTRAINT webhook_events_object_id_type_idx UNIQUE (object_id, event_type, received_at)
 );
 
 -- Table to track all task executions
 CREATE TABLE task_executions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    task_name VARCHAR(100) NOT NULL, -- TaskName from your existing types
+    task_name VARCHAR(100) NOT NULL,
     task_payload JSONB NOT NULL,
-    triggered_by VARCHAR(255), -- webhook_event_id UUID, 'manual', 'scheduled', etc.
+    triggered_by VARCHAR(255),
     triggered_by_webhook_id UUID REFERENCES webhook_events(id) ON DELETE SET NULL,
     started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMP WITH TIME ZONE,
-    status task_execution_status NOT NULL DEFAULT 'pending',
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'running', 'completed', 'failed', 'cancelled')),
     error_message TEXT,
     execution_duration_ms INTEGER,
     pilot_id INTEGER REFERENCES pilots(pilot_id) ON DELETE SET NULL,
@@ -67,43 +65,41 @@ CREATE INDEX idx_task_executions_triggered_by_webhook_id ON task_executions(trig
 
 -- View for webhook events with task execution counts
 CREATE VIEW webhook_events_with_tasks AS
-SELECT 
+SELECT
     we.*,
     COUNT(te.id) as triggered_tasks_count,
     COUNT(CASE WHEN te.status = 'completed' THEN 1 END) as completed_tasks_count,
     COUNT(CASE WHEN te.status = 'failed' THEN 1 END) as failed_tasks_count
 FROM webhook_events we
 LEFT JOIN task_executions te ON te.triggered_by_webhook_id = we.id
-GROUP BY we.id, we.event_type, we.object_type, we.object_id, we.pilot_id, 
-         we.received_at, we.processed_at, we.status, we.error_message, 
-         we.payload, we.processing_duration_ms, we.retry_count, we.last_retry_at;
+GROUP BY we.id;
 
 -- View for recent monitoring activity (last 24 hours)
 CREATE VIEW recent_monitoring_activity AS
-SELECT 
+SELECT
     'webhook' as type,
     id::text as entity_id,
-    event_type::text as action,
-    status::text as status,
+    event_type as action,
+    status,
     received_at as timestamp,
     pilot_id,
     error_message,
     processing_duration_ms as duration_ms
-FROM webhook_events 
+FROM webhook_events
 WHERE received_at > NOW() - INTERVAL '24 hours'
 
 UNION ALL
 
-SELECT 
+SELECT
     'task' as type,
     id::text as entity_id,
     task_name as action,
-    status::text as status,
+    status,
     started_at as timestamp,
     pilot_id,
     error_message,
     execution_duration_ms as duration_ms
-FROM task_executions 
+FROM task_executions
 WHERE started_at > NOW() - INTERVAL '24 hours'
 
 ORDER BY timestamp DESC;

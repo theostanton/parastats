@@ -8,6 +8,8 @@ function getQueueId(taskName: TaskName): string | null {
             return process.env.QUEUE_ID_FETCH_ACTIVITIES!!
         case "UpdateDescription":
             return process.env.QUEUE_ID_WING_ACTIVITY!!
+        case "UpdateSingleActivity":
+            return process.env.QUEUE_ID_UPDATE_SINGLE_ACTIVITY!!
         default:
             return null
     }
@@ -15,7 +17,10 @@ function getQueueId(taskName: TaskName): string | null {
 }
 
 export default async function (task: TaskBody): Promise<Either<void>> {
-    const client = new CloudTasksClient({})
+    const client = new CloudTasksClient({
+        // Add timeout to fail faster instead of waiting 40+ seconds
+        timeout: 10000 // 10 seconds
+    })
 
     try {
         const queueId = getQueueId(task.name as TaskName);
@@ -38,7 +43,7 @@ export default async function (task: TaskBody): Promise<Either<void>> {
         console.log(`Triggered task=${task} response=${JSON.stringify(response)}`)
         return success(undefined)
     } catch (err) {
-        console.log(err)
-        return failed(`Failed to create task body=${task} err=${err}`)
+        console.error(`Failed to create Cloud Task:`, err)
+        return failed(`Failed to create task body=${JSON.stringify(task)} err=${err}`)
     }
 }

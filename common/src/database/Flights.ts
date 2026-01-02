@@ -101,18 +101,18 @@ export namespace Flights {
                                 flight.distance_meters,
                                 flight.start_date,
                                 flight.description,
-                                flight.polyline,
-                                flight.landing_id,
-                                flight.takeoff_id,
+                                flight.polyline ?? null,
+                                flight.landing_id ?? null,
+                                flight.takeoff_id ?? null,
 
                                 flight.wing,
                                 flight.duration_sec,
                                 flight.distance_meters,
                                 flight.start_date,
                                 flight.description,
-                                flight.polyline,
-                                flight.landing_id,
-                                flight.takeoff_id,
+                                flight.polyline ?? null,
+                                flight.landing_id ?? null,
+                                flight.takeoff_id ?? null,
                             ])
                     } catch (error) {
                         console.log(`Failed:${error}`)

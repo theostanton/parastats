@@ -47,6 +47,28 @@ export namespace Flights {
         });
     }
 
+    export async function deleteByActivityId(activityId: StravaActivityId): Promise<Either<void>> {
+        return withPooledClient(async (database: Client) => {
+            try {
+                const result = await database.query(`
+                    DELETE FROM flights
+                    WHERE strava_activity_id = $1
+                    RETURNING strava_activity_id
+                `, [activityId]);
+
+                if (result.rows.length === 0) {
+                    console.log(`No flight found to delete for activityId=${activityId}`);
+                } else {
+                    console.log(`Deleted flight with activityId=${activityId}`);
+                }
+
+                return success(undefined);
+            } catch (error) {
+                return failed(`Failed to delete flight activityId=${activityId} error=${error}`);
+            }
+        });
+    }
+
     export async function upsert(flights: FlightRow[]): Promise<Either<void>> {
         return withPooledClient(async (database: Client) => {
             try {
@@ -84,18 +106,18 @@ export namespace Flights {
                                 flight.distance_meters,
                                 flight.start_date,
                                 flight.description,
-                                flight.polyline,
-                                flight.landing_id,
-                                flight.takeoff_id,
+                                flight.polyline ?? null,
+                                flight.landing_id ?? null,
+                                flight.takeoff_id ?? null,
 
                                 flight.wing,
                                 flight.duration_sec,
                                 flight.distance_meters,
                                 flight.start_date,
                                 flight.description,
-                                flight.polyline,
-                                flight.landing_id,
-                                flight.takeoff_id,
+                                flight.polyline ?? null,
+                                flight.landing_id ?? null,
+                                flight.takeoff_id ?? null,
                             ])
                     } catch (error) {
                         console.log(`Failed:${error}`)
