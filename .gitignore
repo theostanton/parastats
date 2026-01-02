@@ -50,3 +50,4 @@ site/.next
 /infra/.terraform
 /infra/.terraform.tfstate.lock.info
 /infra/.terraform.lock.hcl
+coverage/
