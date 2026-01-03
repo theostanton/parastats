@@ -32,7 +32,7 @@ export default async function PagePilot({params}: {
     params: Promise<Params>
 }) {
     const pilotId = parseInt((await params).pilot_id)
-    
+
     // Run all database calls in parallel to reduce connection time
     const [
         [pilot, pilotErrorMessage],
@@ -49,7 +49,7 @@ export default async function PagePilot({params}: {
         Flights.getPilotFlightCount(pilotId),
         Flights.getAllForPilotWithPolylines(pilotId)
     ]);
-    
+
     if (pilotErrorMessage) {
         return <h1>pilotErrorMessage={pilotErrorMessage}</h1>
     }
@@ -77,31 +77,18 @@ export default async function PagePilot({params}: {
     return <div className={styles.page}>
         <div className={styles.container}>
             {/* Header Section */}
-            <div className={detailStyles.header}>
-                <div className={detailStyles.headerContent}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '1.5rem'}}>
-                        {pilot.profile_image_url && (
-                            <img 
-                                src={pilot.profile_image_url} 
-                                alt={pilot.first_name}
-                                style={{
-                                    width: '4rem',
-                                    height: '4rem',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    border: '2px solid var(--color-border)'
-                                }}
-                            />
-                        )}
-                        <div>
-                            <h1 className={detailStyles.title}>🪂 {pilot.first_name}</h1>
-                            <div className={detailStyles.subtitle}>
-                                Paragliding Pilot
-                            </div>
-                        </div>
-                    </div>
+            <header className={styles.pageHeaderWithProfile}>
+                {pilot.profile_image_url && (
+                    <img
+                        src={pilot.profile_image_url}
+                        alt={pilot.first_name}
+                        className={styles.profileImage}
+                    />
+                )}
+                <div>
+                    <h1 className={styles.title}>{pilot.first_name}</h1>
                 </div>
-            </div>
+            </header>
 
             {/* Pilot Statistics Grid */}
             <div className={detailStyles.grid}>
@@ -130,11 +117,11 @@ export default async function PagePilot({params}: {
 
                 {/* Wings Card */}
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>🪂 Wings</h3>
+                    <h3 className={detailStyles.infoTitle}>Wings</h3>
                     <div className={detailStyles.statsList}>
                         {wingStats.wingStats.slice(0, 5).map(item => (
-                            <Link 
-                                key={item.wing} 
+                            <Link
+                                key={item.wing}
                                 href={`/pilots/${pilotId}/${encodeURIComponent(item.wing.toLowerCase())}`}
                                 className={detailStyles.statsItem}
                             >
@@ -147,14 +134,14 @@ export default async function PagePilot({params}: {
 
                 {/* Takeoffs Card */}
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>↗️ Favorite Takeoffs</h3>
+                    <h3 className={detailStyles.infoTitle}>Favorite Takeoffs</h3>
                     <div className={detailStyles.statsList}>
                         {stats.takeoffs
                             .filter(item => item.site)
                             .slice(0, 5)
                             .map(item => (
-                                <Link 
-                                    key={item.site.slug} 
+                                <Link
+                                    key={item.site.slug}
                                     href={`/sites/${item.site.slug}`}
                                     className={detailStyles.statsItem}
                                 >
@@ -167,14 +154,14 @@ export default async function PagePilot({params}: {
 
                 {/* Landings Card */}
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>↘️ Favorite Landings</h3>
+                    <h3 className={detailStyles.infoTitle}>Favorite Landings</h3>
                     <div className={detailStyles.statsList}>
                         {stats.landings
                             .filter(item => item.site)
                             .slice(0, 5)
                             .map(item => (
-                                <Link 
-                                    key={item.site.slug} 
+                                <Link
+                                    key={item.site.slug}
                                     href={`/sites/${item.site.slug}`}
                                     className={detailStyles.statsItem}
                                 >
@@ -189,7 +176,7 @@ export default async function PagePilot({params}: {
             {/* Pilot Activity Map Section */}
             <div className={detailStyles.infoCard}>
                 <h3 className={detailStyles.infoTitle}>Flying Activity Map</h3>
-                <PilotMap 
+                <PilotMap
                     flights={allFlights || []}
                     pilotName={pilot.first_name}
                     className={mapStyles.mapContainer}
@@ -201,7 +188,7 @@ export default async function PagePilot({params}: {
                 <h3 className={detailStyles.infoTitle}>Recent Flights</h3>
                 <div className={detailStyles.flightsList}>
                     {flights.map(flight => (
-                        <FlightItem key={flight.strava_activity_id} flight={flight} />
+                        <FlightItem key={flight.strava_activity_id} flight={flight}/>
                     ))}
                 </div>
             </div>

@@ -19,11 +19,11 @@ export const metadata: Metadata = createMetadata('Dashboard')
 
 export default async function Dashboard() {
     const pilotId = await Auth.getSelfPilotId();
-    
+
     // Run all database calls in parallel to reduce connection time
     const [
         [pilot, pilotErrorMessage],
-        [wingStats, wingStatsErrorMessage], 
+        [wingStats, wingStatsErrorMessage],
         [stats, takeoffStatsErrorMessage],
         [recentFlights, flightsErrorMessage],
         [totalFlightCount, flightCountErrorMessage],
@@ -36,14 +36,14 @@ export default async function Dashboard() {
         Flights.getPilotFlightCount(pilotId),
         DescriptionPreferences.get(pilotId)
     ]);
-    
+
     // Check for any errors and display them
     const errors = [
-        { error: pilotErrorMessage, description: "pilot data" },
-        { error: wingStatsErrorMessage, description: "wing statistics" },
-        { error: takeoffStatsErrorMessage, description: "site statistics" },
-        { error: flightsErrorMessage, description: "recent flights" },
-        { error: flightCountErrorMessage, description: "flight count" }
+        {error: pilotErrorMessage, description: "pilot data"},
+        {error: wingStatsErrorMessage, description: "wing statistics"},
+        {error: takeoffStatsErrorMessage, description: "site statistics"},
+        {error: flightsErrorMessage, description: "recent flights"},
+        {error: flightCountErrorMessage, description: "flight count"}
     ].filter(item => item.error);
 
     if (errors.length > 0) {
@@ -61,11 +61,11 @@ export default async function Dashboard() {
                     </div>
                     <div className={detailStyles.statsList}>
                         <Link href="/login" className={detailStyles.statsItem}>
-                            <span className={detailStyles.statsItemName}>🔄 Try logging in again</span>
+                            <span className={detailStyles.statsItemName}>Try logging in again</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                         <Link href="/" className={detailStyles.statsItem}>
-                            <span className={detailStyles.statsItemName}>🏠 Return to home</span>
+                            <span className={detailStyles.statsItemName}>Return to home</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                     </div>
@@ -73,7 +73,7 @@ export default async function Dashboard() {
             </div>
         </div>
     }
-    
+
     const totalWings = wingStats.wingStats.length;
     const totalTakeoffs = stats.takeoffs.filter(item => item.site).length;
     const totalLandings = stats.landings.filter(item => item.site).length;
@@ -107,25 +107,19 @@ export default async function Dashboard() {
     return <div className={styles.page}>
         <div className={styles.container}>
             {/* Welcome Header */}
-            <div className={detailStyles.header}>
-                <div className={detailStyles.headerContent}>
-                    <div className={dashboardStyles.headerFlex}>
-                        {pilot.profile_image_url && (
-                            <img 
-                                src={pilot.profile_image_url} 
-                                alt={pilot.first_name}
-className={dashboardStyles.profileImage}
-                            />
-                        )}
-                        <div>
-                            <h1 className={detailStyles.title}>Welcome back, {pilot.first_name}! ✈️</h1>
-                            <div className={detailStyles.subtitle}>
-                                Your paragliding dashboard
-                            </div>
-                        </div>
-                    </div>
+            <header className={styles.pageHeaderWithProfile}>
+                {pilot.profile_image_url && (
+                    <img
+                        src={pilot.profile_image_url}
+                        alt={pilot.first_name}
+                        className={styles.profileImage}
+                    />
+                )}
+                <div>
+                    <h1 className={styles.title}>{pilot.first_name}</h1>
+                    <p className={styles.description}>Your paragliding dashboard</p>
                 </div>
-            </div>
+            </header>
 
             {/* Quick Stats Overview */}
             <div className={detailStyles.grid}>
@@ -156,19 +150,19 @@ className={dashboardStyles.profileImage}
                     <h3 className={detailStyles.infoTitle}>Quick Actions</h3>
                     <div className={detailStyles.statsList}>
                         <Link href={`/pilots/${pilotId}`} className={detailStyles.statsItem}>
-                            <span className={detailStyles.statsItemName}>👤 View Your Profile</span>
+                            <span className={detailStyles.statsItemName}>View Your Profile</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                         <Link href="/flights" className={detailStyles.statsItem}>
-                            <span className={detailStyles.statsItemName}>🗂️ Browse All Flights</span>
+                            <span className={detailStyles.statsItemName}>Browse All Flights</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                         <Link href="/sites" className={detailStyles.statsItem}>
-                            <span className={detailStyles.statsItemName}>🏔️ Explore Sites</span>
+                            <span className={detailStyles.statsItemName}>Explore Sites</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                         <Link href="/pilots" className={detailStyles.statsItem}>
-                            <span className={detailStyles.statsItemName}>👥 Community Pilots</span>
+                            <span className={detailStyles.statsItemName}>Community Pilots</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                     </div>
@@ -176,7 +170,7 @@ className={dashboardStyles.profileImage}
             </div>
 
             {/* Description Preferences */}
-            <DescriptionPreferencesComponent 
+            <DescriptionPreferencesComponent
                 initialPreferences={preferences}
                 sampleFlight={sampleFlight}
             />
@@ -184,24 +178,18 @@ className={dashboardStyles.profileImage}
             {/* Your Equipment */}
             {wingStats.wingStats.length > 0 && (
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>🪂 Your Wings</h3>
+                    <h3 className={detailStyles.infoTitle}>Your Wings</h3>
                     <div className={detailStyles.statsList}>
-                        {wingStats.wingStats.slice(0, 3).map(item => (
-                            <Link 
-                                key={item.wing} 
+                        {wingStats.wingStats.map(item => (
+                            <Link
+                                key={item.wing}
                                 href={`/pilots/${pilotId}/${encodeURIComponent(item.wing.toLowerCase())}`}
                                 className={detailStyles.statsItem}
                             >
-                                <span className={detailStyles.statsItemName}>{item.wing}</span>
+                                <span className={detailStyles.statsItemName}>🪂 {item.wing}</span>
                                 <span className={detailStyles.statsItemCount}>{item.flights} flights</span>
                             </Link>
                         ))}
-                        {wingStats.wingStats.length > 3 && (
-                            <Link href={`/pilots/${pilotId}`} className={detailStyles.statsItem}>
-                                <span className={detailStyles.statsItemName}>View all wings...</span>
-                                <span className={detailStyles.statsItemCount}>+{wingStats.wingStats.length - 3} more</span>
-                            </Link>
-                        )}
                     </div>
                 </div>
             )}
@@ -209,27 +197,21 @@ className={dashboardStyles.profileImage}
             {/* Your Favorite Sites */}
             {stats.takeoffs.filter(item => item.site).length > 0 && (
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>↗️ Your Favorite Takeoffs</h3>
+                    <h3 className={detailStyles.infoTitle}>Your Takeoffs</h3>
                     <div className={detailStyles.statsList}>
                         {stats.takeoffs
                             .filter(item => item.site)
-                            .slice(0, 3)
                             .map(item => (
-                                <Link 
-                                    key={item.site.slug} 
+                                <Link
+                                    key={item.site.slug}
                                     href={`/sites/${item.site.slug}`}
                                     className={detailStyles.statsItem}
                                 >
-                                    <span className={detailStyles.statsItemName}>{formatSiteName(item.site.name)}</span>
+                                    <span
+                                        className={detailStyles.statsItemName}>↗️ {formatSiteName(item.site.name)}</span>
                                     <span className={detailStyles.statsItemCount}>{item.flights} flights</span>
                                 </Link>
                             ))}
-                        {stats.takeoffs.filter(item => item.site).length > 3 && (
-                            <Link href={`/pilots/${pilotId}`} className={detailStyles.statsItem}>
-                                <span className={detailStyles.statsItemName}>View all sites...</span>
-                                <span className={detailStyles.statsItemCount}>→</span>
-                            </Link>
-                        )}
                     </div>
                 </div>
             )}
@@ -237,10 +219,10 @@ className={dashboardStyles.profileImage}
             {/* Recent Flights */}
             {recentFlights.length > 0 && (
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>📅 Your Recent Flights</h3>
+                    <h3 className={detailStyles.infoTitle}>Your Recent Flights</h3>
                     <div className={detailStyles.flightsList}>
                         {recentFlights.map(flight => (
-                            <FlightItem key={flight.strava_activity_id} flight={flight} />
+                            <FlightItem key={flight.strava_activity_id} flight={flight}/>
                         ))}
                     </div>
                     <div className={dashboardStyles.flightsSection}>
@@ -255,11 +237,11 @@ className={dashboardStyles.profileImage}
             {/* No flights message */}
             {recentFlights.length === 0 && (
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>📅 Your Flights</h3>
+                    <h3 className={detailStyles.infoTitle}>Your Flights</h3>
                     <div className={dashboardStyles.noFlightsContainer}>
                         <p>No flights recorded yet. Start flying and sync your Strava activities to see them here!</p>
                         <Link href="/sites" className={`${detailStyles.statsItem} ${dashboardStyles.noFlightsAction}`}>
-                            <span className={detailStyles.statsItemName}>🏔️ Explore flying sites</span>
+                            <span className={detailStyles.statsItemName}>Explore flying sites</span>
                             <span className={detailStyles.statsItemCount}>→</span>
                         </Link>
                     </div>

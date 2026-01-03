@@ -6,20 +6,6 @@
     margin-bottom: var(--space-2);
 }
 
-.headerFlex {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-}
-
-.profileImage {
-    width: 4rem;
-    height: 4rem;
-    border-radius: var(--border-radius-full);
-    object-fit: cover;
-    border: 2px solid var(--color-border);
-}
-
 .flightsSection {
     margin-top: var(--space-4);
     text-align: center;

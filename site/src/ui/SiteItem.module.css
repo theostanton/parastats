@@ -28,7 +28,7 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    background: var(--color-secondary);
     opacity: 0;
     transition: opacity var(--transition-base);
 }

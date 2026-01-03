@@ -15,13 +15,15 @@ export default async function PageActivities() {
         const latestFlights = flights.toSpliced(20, Infinity)
         return <div className={styles.page}>
             <div className={styles.container}>
-                <h1 className={styles.title}>All Flights</h1>
-                <p className={styles.description}>
-                    Paragliding flight tracking with detailed statistics and maps.
-                </p>
+                <header className={styles.pageHeader}>
+                    <h1 className={styles.title}>All Flights</h1>
+                    <p className={styles.description}>
+                        Paragliding flight tracking with detailed statistics and maps.
+                    </p>
+                </header>
 
                 {/* Flights Overview Map */}
-                <div className={detailStyles.infoCard} style={{marginTop: 'var(--space-8)'}}>
+                <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>Flight Paths Overview</h3>
                     <FlightsMap
                         flights={flights}

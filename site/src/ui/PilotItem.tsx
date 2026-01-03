@@ -8,8 +8,8 @@ export default function PilotItem({pilot}: { pilot: Pilot }) {
             <div className={styles.header}>
                 <div className={styles.pilotInfo}>
                     {pilot.profile_image_url ? (
-                        <img 
-                            src={pilot.profile_image_url} 
+                        <img
+                            src={pilot.profile_image_url}
                             alt={pilot.first_name}
                             className={styles.pilotAvatar}
                         />
@@ -20,9 +20,6 @@ export default function PilotItem({pilot}: { pilot: Pilot }) {
                     )}
                     <div className={styles.pilotDetails}>
                         <h3 className={styles.pilotName}>🪂 {pilot.first_name}</h3>
-                        <div className={styles.pilotSubtitle}>
-                            Paragliding Pilot
-                        </div>
                     </div>
                 </div>
                 <div className={styles.arrow}>

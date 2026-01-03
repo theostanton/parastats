@@ -27,13 +27,15 @@ export default async function PagePilots() {
     
     return <div className={styles.page}>
         <div className={styles.container}>
-            <h1 className={styles.title}>Community Pilots</h1>
-            <p className={styles.description}>
-                Discover the paragliding community and connect with fellow pilots.
-            </p>
+            <header className={styles.pageHeader}>
+                <h1 className={styles.title}>Community Pilots</h1>
+                <p className={styles.description}>
+                    Discover the paragliding community and connect with fellow pilots.
+                </p>
+            </header>
 
             {/* Pilots List */}
-            <div className={detailStyles.infoCard} style={{marginTop: 'var(--space-8)'}}>
+            <div className={detailStyles.infoCard}>
                 <h3 className={detailStyles.infoTitle}>Active Pilots ({pilots.length})</h3>
                 <div className={pilotsStyles.pilotsList}>
                     {pilots.map(pilot => (
