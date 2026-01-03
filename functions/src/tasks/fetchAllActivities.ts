@@ -40,7 +40,7 @@ export async function executeFetchAllActivitiesTask(
     });
 
     // Fetch activities from Strava
-    const paraglidingActivityIdsResult = await api.fetchParaglidingActivityIds(1000, existingActivityIds);
+    const paraglidingActivityIdsResult = await api.fetchParaglidingActivityIds(10_000, existingActivityIds);
 
     if (!isSuccess(paraglidingActivityIdsResult)) {
         return {

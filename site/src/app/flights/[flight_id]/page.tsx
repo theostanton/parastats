@@ -1,6 +1,6 @@
 import {Flights} from "@database/flights";
 import styles from "@styles/Page.module.css";
-import flightStyles from "./FlightDetail.module.css";
+import detailStyles from "@ui/DetailPages.module.css";
 import {Stat} from "@ui/stats/model";
 import {StravaActivityId} from "@parastats/common";
 import Stats from "@ui/stats/Stats";
@@ -51,16 +51,14 @@ export default async function FlightDetail({params}: {
     return <div className={styles.page}>
         <div className={styles.container}>
             {/* Header Section */}
-            <div className={flightStyles.header}>
-                <div className={flightStyles.headerContent}>
-                    <h1 className={flightStyles.title}>
-                        🪂 {flight.wing} {flight.pilot && `by ${flight.pilot.first_name}`}
-                    </h1>
-                    <div className={flightStyles.subtitle}>
-                        <ClientOnlyDate date={flight.start_date} format="full"/>
-                    </div>
-                </div>
-            </div>
+            <header className={styles.pageHeader}>
+                <h1 className={styles.title}>
+                    {flight.wing} {flight.pilot && `by ${flight.pilot.first_name}`}
+                </h1>
+                <p className={styles.description}>
+                    <ClientOnlyDate date={flight.start_date} format="full"/>
+                </p>
+            </header>
 
             {/* Stats Section */}
             <div className={styles.section}>
@@ -68,36 +66,36 @@ export default async function FlightDetail({params}: {
             </div>
 
             {/* Flight Information Grid */}
-            <div className={flightStyles.grid}>
+            <div className={detailStyles.grid}>
                 {/* Flight Details Card */}
-                <div className={flightStyles.infoCard}>
-                    <h3 className={flightStyles.infoTitle}>Flight Details</h3>
-                    <div className={flightStyles.infoGrid}>
-                        <div className={flightStyles.infoItem}>
-                            <span className={flightStyles.infoLabel}>Wing</span>
+                <div className={detailStyles.infoCard}>
+                    <h3 className={detailStyles.infoTitle}>Flight Details</h3>
+                    <div className={detailStyles.infoGrid}>
+                        <div className={detailStyles.infoItem}>
+                            <span className={detailStyles.infoLabel}>Wing</span>
                             <Link href={`/pilots/${flight.pilot_id}/${encodeURIComponent(flight.wing.toLowerCase())}`}
-                                  className={flightStyles.infoValue}
+                                  className={detailStyles.infoValue}
                                   style={{textDecoration: 'none', color: 'var(--color-primary)', cursor: 'pointer'}}>
                                 {flight.wing}
                             </Link>
                         </div>
-                        <div className={flightStyles.infoItem}>
-                            <span className={flightStyles.infoLabel}>Duration</span>
-                            <span className={flightStyles.infoValue}>{formatDuration(flight.duration_sec)}</span>
+                        <div className={detailStyles.infoItem}>
+                            <span className={detailStyles.infoLabel}>Duration</span>
+                            <span className={detailStyles.infoValue}>{formatDuration(flight.duration_sec)}</span>
                         </div>
-                        <div className={flightStyles.infoItem}>
-                            <span className={flightStyles.infoLabel}>Distance</span>
-                            <span className={flightStyles.infoValue}>{formatDistance(flight.distance_meters)}</span>
+                        <div className={detailStyles.infoItem}>
+                            <span className={detailStyles.infoLabel}>Distance</span>
+                            <span className={detailStyles.infoValue}>{formatDistance(flight.distance_meters)}</span>
                         </div>
-                        <div className={flightStyles.infoItem}>
-                            <span className={flightStyles.infoLabel}>Start Time</span>
-                            <span className={flightStyles.infoValue}>
+                        <div className={detailStyles.infoItem}>
+                            <span className={detailStyles.infoLabel}>Start Time</span>
+                            <span className={detailStyles.infoValue}>
                                 <ClientOnlyDate date={flight.start_date} format="time"/>
                             </span>
                         </div>
                         {flight.pilot && (
-                            <div className={flightStyles.infoItem}>
-                                <span className={flightStyles.infoLabel}>Pilot</span>
+                            <div className={detailStyles.infoItem}>
+                                <span className={detailStyles.infoLabel}>Pilot</span>
                                 <Link href={`/pilots/${flight.pilot.pilot_id}`} style={{
                                     textDecoration: 'none',
                                     color: 'var(--color-primary)',
@@ -111,48 +109,48 @@ export default async function FlightDetail({params}: {
                 </div>
 
                 {/* Sites Information Card */}
-                <div className={flightStyles.infoCard}>
-                    <h3 className={flightStyles.infoTitle}>Flight Path</h3>
-                    <div className={flightStyles.siteGrid}>
+                <div className={detailStyles.infoCard}>
+                    <h3 className={detailStyles.infoTitle}>Flight Path</h3>
+                    <div className={detailStyles.siteGrid}>
                         {flight.takeoff?.slug ? (
-                            <Link href={`/sites/${flight.takeoff.slug}`} className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>↗️</div>
-                                <div className={flightStyles.siteLabel}>Takeoff</div>
-                                <div className={flightStyles.siteName}>
+                            <Link href={`/sites/${flight.takeoff.slug}`} className={detailStyles.site}>
+                                <div className={detailStyles.siteIcon}>↗️</div>
+                                <div className={detailStyles.siteLabel}>Takeoff</div>
+                                <div className={detailStyles.siteName}>
                                     {formatSiteName(flight.takeoff.name)}
                                 </div>
                                 {flight.takeoff.alt && (
-                                    <div className={flightStyles.siteAlt}>
+                                    <div className={detailStyles.siteAlt}>
                                         {formatAltitude(flight.takeoff.alt)}
                                     </div>
                                 )}
                             </Link>
                         ) : (
-                            <div className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>↗️</div>
-                                <div className={flightStyles.siteLabel}>Takeoff</div>
-                                <div className={flightStyles.siteName}>Unknown</div>
+                            <div className={detailStyles.site}>
+                                <div className={detailStyles.siteIcon}>↗️</div>
+                                <div className={detailStyles.siteLabel}>Takeoff</div>
+                                <div className={detailStyles.siteName}>Unknown</div>
                             </div>
                         )}
-                        <div className={flightStyles.arrow}>→</div>
+                        <div className={detailStyles.arrow}>→</div>
                         {flight.landing?.slug ? (
-                            <Link href={`/sites/${flight.landing.slug}`} className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>↘️</div>
-                                <div className={flightStyles.siteLabel}>Landing</div>
-                                <div className={flightStyles.siteName}>
+                            <Link href={`/sites/${flight.landing.slug}`} className={detailStyles.site}>
+                                <div className={detailStyles.siteIcon}>↘️</div>
+                                <div className={detailStyles.siteLabel}>Landing</div>
+                                <div className={detailStyles.siteName}>
                                     {formatSiteName(flight.landing.name)}
                                 </div>
                                 {flight.landing.alt && (
-                                    <div className={flightStyles.siteAlt}>
+                                    <div className={detailStyles.siteAlt}>
                                         {formatAltitude(flight.landing.alt)}
                                     </div>
                                 )}
                             </Link>
                         ) : (
-                            <div className={flightStyles.site}>
-                                <div className={flightStyles.siteIcon}>↘️</div>
-                                <div className={flightStyles.siteLabel}>Landing</div>
-                                <div className={flightStyles.siteName}>Unknown</div>
+                            <div className={detailStyles.site}>
+                                <div className={detailStyles.siteIcon}>↘️</div>
+                                <div className={detailStyles.siteLabel}>Landing</div>
+                                <div className={detailStyles.siteName}>Unknown</div>
                             </div>
                         )}
                     </div>
@@ -160,8 +158,8 @@ export default async function FlightDetail({params}: {
             </div>
 
             {/* Flight Map Section */}
-            <div className={flightStyles.infoCard}>
-                <h3 className={flightStyles.infoTitle}>Flight Path</h3>
+            <div className={detailStyles.infoCard}>
+                <h3 className={detailStyles.infoTitle}>Flight Map</h3>
                 <FlightMap
                     polyline={flight.polyline}
                     takeoffSite={flight.takeoff ? {
@@ -180,8 +178,8 @@ export default async function FlightDetail({params}: {
 
             {/* Description Section */}
             {flight.description && (
-                <div className={flightStyles.infoCard}>
-                    <h3 className={flightStyles.infoTitle}>Flight Description</h3>
+                <div className={detailStyles.infoCard}>
+                    <h3 className={detailStyles.infoTitle}>Flight Description</h3>
                     <div style={{
                         whiteSpace: 'pre-wrap',
                         marginBottom: 'var(--space-4)',
@@ -189,9 +187,8 @@ export default async function FlightDetail({params}: {
                     }}>
                         {flight.description}
                     </div>
-                    <div style={{display: 'flex', gap: 'var(--space-4)', alignItems: 'center'}}>
+                    <div className={detailStyles.linksContainer}>
                         <ViewOnStrava flightId={flight.strava_activity_id}/>
-                        <div className={styles.actionButton}>Update</div>
                     </div>
                 </div>
             )}

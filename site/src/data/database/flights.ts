@@ -36,6 +36,17 @@ export namespace Flights {
         });
     }
 
+    export async function getLatest(): Promise<Either<FlightWithSites[]>> {
+        return withPooledClient(async (database: Client) => {
+            const result = await database.query<FlightWithSites>(generateQuery("", 20))
+            if (result.rows) {
+                return success(result.rows.map(row => row.reify()))
+            } else {
+                return failure(`No flights`)
+            }
+        });
+    }
+
     export async function getForPilot(pilotId: StravaAthleteId, limit: number = 1000): Promise<Either<FlightWithSites[]>> {
         return withPooledClient(async (database: Client) => {
             const result = await database.query<FlightWithSites>(

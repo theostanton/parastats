@@ -1,45 +1,4 @@
-.header {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-    color: white;
-    padding: var(--space-8) 0;
-    margin-bottom: var(--space-8);
-    border-radius: var(--border-radius-lg);
-}
-
-.headerContent {
-    max-width: 1024px;
-    margin: 0 auto;
-    padding: 0 var(--space-4);
-    text-align: center;
-    width: 100%;
-}
-
-@media (min-width: 768px) {
-    .headerContent {
-        padding: 0 var(--space-6);
-    }
-}
-
-@media (min-width: 1024px) {
-    .headerContent {
-        max-width: 1024px;
-        padding: 0 var(--space-8);
-    }
-}
-
-.title {
-    font-size: var(--font-size-4xl);
-    font-weight: var(--font-weight-bold);
-    margin-bottom: var(--space-2);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.subtitle {
-    font-size: var(--font-size-xl);
-    opacity: 0.9;
-    font-weight: var(--font-weight-medium);
-}
-
+/* Content Grid */
 .grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -53,12 +12,7 @@
     }
 }
 
-@media (min-width: 1024px) {
-    .grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
+/* Info Cards */
 .infoCard {
     background: var(--color-surface-elevated);
     border: 1px solid var(--color-border);
@@ -100,6 +54,7 @@
     font-weight: var(--font-weight-semibold);
 }
 
+/* Stats List */
 .statsList {
     display: flex;
     flex-direction: column;
@@ -138,6 +93,7 @@
     font-weight: var(--font-weight-medium);
 }
 
+/* Coordinates Display */
 .coordinates {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-sm);
@@ -147,12 +103,91 @@
     border: 1px solid var(--color-border);
 }
 
+/* Flights List */
 .flightsList {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
 }
 
+/* Flight Path Site Grid (Takeoff -> Landing) */
+.siteGrid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: var(--space-4);
+    align-items: center;
+    margin-top: var(--space-4);
+}
+
+@media (max-width: 640px) {
+    .siteGrid {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .arrow {
+        transform: rotate(90deg);
+    }
+}
+
+.arrow {
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    text-align: center;
+}
+
+.site {
+    text-align: center;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.site:hover {
+    background: var(--color-surface-elevated);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.siteIcon {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-2);
+}
+
+.siteLabel {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-1);
+}
+
+.siteName {
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-semibold);
+}
+
+.siteAlt {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--space-1);
+}
+
+/* Links Container */
+.linksContainer {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+/* Loading State */
 .loading {
     text-align: center;
     padding: var(--space-12);

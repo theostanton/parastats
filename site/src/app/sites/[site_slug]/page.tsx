@@ -37,14 +37,10 @@ export default async function SiteDetail({params}: {
     return <div className={styles.page}>
         <div className={styles.container}>
             {/* Header Section */}
-            <div className={detailStyles.header}>
-                <div className={detailStyles.headerContent}>
-                    <h1 className={detailStyles.title}>🏔️ {formatSiteName(site.name)}</h1>
-                    <div className={detailStyles.subtitle}>
-                        Flying Site
-                    </div>
-                </div>
-            </div>
+            <header className={styles.pageHeader}>
+                <h1 className={styles.title}>{formatSiteName(site.name)}</h1>
+                <p className={styles.description}>Flying Site</p>
+            </header>
 
             {/* Site Information Grid */}
             <div className={detailStyles.grid}>

@@ -1,8 +1,9 @@
 .container {
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-surface) 100%);
+    background-color: var(--color-surface-elevated);
     border: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
     border-radius: var(--border-radius-xl);
     box-shadow: var(--shadow-base);
     transition: all var(--transition-base);
@@ -14,23 +15,7 @@
 .container:hover {
     box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
-    border-color: var(--color-primary);
-}
-
-.container:hover::before {
-    opacity: 1;
-}
-
-.container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-    opacity: 0;
-    transition: opacity var(--transition-base);
+    background: var(--color-secondary);
 }
 
 .mainContent {

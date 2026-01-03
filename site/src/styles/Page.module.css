@@ -326,3 +326,43 @@
     height: 1em;
     width: auto;
 }
+
+/* Unified Page Header Styles */
+.pageHeader {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.pageHeaderWithProfile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+}
+
+@media (max-width: 640px) {
+    .pageHeaderWithProfile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+}
+
+.profileImage {
+    width: 4rem;
+    height: 4rem;
+    border-radius: var(--border-radius-full);
+    object-fit: cover;
+    border: 2px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+    .profileImage {
+        width: 3rem;
+        height: 3rem;
+    }
+}

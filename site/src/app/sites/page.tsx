@@ -11,14 +11,14 @@ export default async function SitesPage() {
     if (sites) {
         return <div className={styles.page}>
             <div className={styles.container}>
-                <h1 className={styles.title}>Flying Sites</h1>
-                <p className={styles.description}>
-                    Discover paragliding sites with detailed location information and flight data.
-                </p>
-                
-                <div style={{marginTop: 'var(--space-8)'}}>
-                    <SitesList sites={sites} />
-                </div>
+                <header className={styles.pageHeader}>
+                    <h1 className={styles.title}>Flying Sites</h1>
+                    <p className={styles.description}>
+                        Discover paragliding sites with detailed location information and flight data.
+                    </p>
+                </header>
+
+                <SitesList sites={sites} />
             </div>
         </div>
     } else {

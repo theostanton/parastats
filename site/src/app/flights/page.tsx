@@ -12,22 +12,20 @@ export const metadata: Metadata = createMetadata('Flights')
 export default async function PageActivities() {
     const [flights, errorMessage] = await Flights.getAll();
     if (flights) {
+        const latestFlights = flights.toSpliced(20, Infinity)
         return <div className={styles.page}>
             <div className={styles.container}>
-                {/* Header Section */}
-                <div className={detailStyles.header}>
-                    <div className={detailStyles.headerContent}>
-                        <h1 className={detailStyles.title}>✈️ All Flights</h1>
-                        <div className={detailStyles.subtitle}>
-                            Paragliding flight tracking
-                        </div>
-                    </div>
-                </div>
+                <header className={styles.pageHeader}>
+                    <h1 className={styles.title}>All Flights</h1>
+                    <p className={styles.description}>
+                        Paragliding flight tracking with detailed statistics and maps.
+                    </p>
+                </header>
 
                 {/* Flights Overview Map */}
                 <div className={detailStyles.infoCard}>
                     <h3 className={detailStyles.infoTitle}>Flight Paths Overview</h3>
-                    <FlightsMap 
+                    <FlightsMap
                         flights={flights}
                         className={mapStyles.mapContainer}
                     />
@@ -35,9 +33,9 @@ export default async function PageActivities() {
 
                 {/* Flights List */}
                 <div className={detailStyles.infoCard}>
-                    <h3 className={detailStyles.infoTitle}>Recent Flights ({flights.length})</h3>
+                    <h3 className={detailStyles.infoTitle}>Recent Flights</h3>
                     <div className={detailStyles.flightsList}>
-                        {flights.map(flight =>
+                        {latestFlights.map(flight =>
                             <FlightItem key={flight.strava_activity_id} flight={flight}/>
                         )}
                     </div>
