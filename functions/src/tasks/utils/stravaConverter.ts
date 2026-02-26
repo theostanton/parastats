@@ -20,7 +20,7 @@ export async function convertStravaActivityToFlight(pilotId: number, stravaActiv
             return failed(`Couldn't extract wing from description=${stravaActivity.description}`);
         }
 
-        const wing = matches[0];
+        const wing = matches[0].trim();
 
         // Decode polyline
         const tuples: LatLngTuple[] = decode(stravaActivity.map.polyline);
