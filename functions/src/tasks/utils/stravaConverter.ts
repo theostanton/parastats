@@ -12,15 +12,15 @@ export async function convertStravaActivityToFlight(pilotId: number, stravaActiv
         // Extract wing from description
         const matches = stravaActivity.description
             .split("\n")
-            .map((line) => line.match(/^🪂 ([a-zA-Z ]*)/g))
-            .filter(match => match != null && match.length > 0)
-            .map((line) => line!![0].replace("🪂 ", ""));
+            .map((line) => line.match(/^🪂 (.+?)(?:\s{2,}\d|\s+\d+ flights?|$)/))
+            .filter(match => match != null)
+            .map((match) => match!![1].trim());
 
         if (matches.length === 0) {
             return failed(`Couldn't extract wing from description=${stravaActivity.description}`);
         }
 
-        const wing = matches[0].trim();
+        const wing = matches[0];
 
         // Decode polyline
         const tuples: LatLngTuple[] = decode(stravaActivity.map.polyline);
