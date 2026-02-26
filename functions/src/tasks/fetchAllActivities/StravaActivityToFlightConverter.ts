@@ -21,7 +21,7 @@ export class StravaActivityToFlightConverter {
             return failure(`Couldn't extract wing from description=${stravaActivity.description}`)
         }
 
-        const wing = matches[0]
+        const wing = matches[0].trim()
 
         const initial: FlightRowInitial = {
             pilot_id: parseInt(pilotId.toString()),
