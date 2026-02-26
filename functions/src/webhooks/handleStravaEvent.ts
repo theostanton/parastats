@@ -230,60 +230,72 @@ async function processActivityEvent(
             return null; // No task triggered for deletion
         }
 
-        // Fetch activity to check if it's a relevant type before processing
-        const api = await StravaApi.fromUserId(payload.owner_id);
-        const activityResult = await api.fetchActivity(payload.object_id.toString());
+        // For "update" events, check if the flight already exists in the DB.
+        // If it does, skip UpdateSingleActivity to avoid re-extracting the wing
+        // from the already-formatted description (which corrupts the wing name
+        // due to padding spaces and causes the flight count to drop to 1).
+        const activityId = payload.object_id.toString();
+        const existingFlight = await Flights.get(activityId);
+        const flightAlreadyExists = isSuccess(existingFlight);
+        let taskExecutionId: string | null = null;
 
-        if (!isSuccess(activityResult)) {
-            throw new Error(`Failed to fetch activity ${payload.object_id}: ${activityResult[1]}`);
-        }
+        if (payload.aspect_type === 'update' && flightAlreadyExists) {
+            console.log(`Flight already exists for activity ${activityId}, skipping UpdateSingleActivity on update event`);
+        } else {
+            // Fetch activity to check if it's a relevant type before processing
+            const api = await StravaApi.fromUserId(payload.owner_id);
+            const activityResult = await api.fetchActivity(activityId);
 
-        const activity = activityResult[0];
+            if (!isSuccess(activityResult)) {
+                throw new Error(`Failed to fetch activity ${payload.object_id}: ${activityResult[1]}`);
+            }
 
-        // Check if this is a relevant activity type
-        if (!isRelevantActivityType(activity.type)) {
-            console.log(`Ignoring activity ${payload.object_id} with type '${activity.type}' - not a paragliding activity`);
-            throw new ActivityIgnoredError(`Activity type '${activity.type}' is not relevant for import`);
-        }
+            const activity = activityResult[0];
 
-        // Execute UpdateSingleActivity task directly
-        const taskBody = {
-            name: "UpdateSingleActivity" as const,
-            pilotId: payload.owner_id,
-            activityId: payload.object_id.toString()
-        };
+            // Check if this is a relevant activity type
+            if (!isRelevantActivityType(activity.type)) {
+                console.log(`Ignoring activity ${payload.object_id} with type '${activity.type}' - not a paragliding activity`);
+                throw new ActivityIgnoredError(`Activity type '${activity.type}' is not relevant for import`);
+            }
 
-        // Execute the task directly (no Cloud Tasks)
-        const taskResult = await executeUpdateSingleActivityTask(taskBody);
+            // Execute UpdateSingleActivity task directly
+            const taskBody = {
+                name: "UpdateSingleActivity" as const,
+                pilotId: payload.owner_id,
+                activityId: activityId
+            };
 
-        if (!taskResult.success) {
-            throw new Error(`Failed to execute UpdateSingleActivity task: ${taskResult.message}`);
-        }
+            const taskResult = await executeUpdateSingleActivityTask(taskBody);
 
-        // Log task execution to monitoring
-        const taskExecutionResult = await withPooledClient(async (client) => {
-            return await TaskExecutions.create(client, {
-                task_name: "UpdateSingleActivity",
-                task_payload: taskBody,
-                triggered_by: `webhook_event`,
-                triggered_by_webhook_id: webhookEventId,
-                pilot_id: payload.owner_id
+            if (!taskResult.success) {
+                throw new Error(`Failed to execute UpdateSingleActivity task: ${taskResult.message}`);
+            }
+
+            // Log task execution to monitoring
+            const taskExecutionResult = await withPooledClient(async (client) => {
+                return await TaskExecutions.create(client, {
+                    task_name: "UpdateSingleActivity",
+                    task_payload: taskBody,
+                    triggered_by: `webhook_event`,
+                    triggered_by_webhook_id: webhookEventId,
+                    pilot_id: payload.owner_id
+                });
             });
-        });
 
-        if (!taskExecutionResult[0]) {
-            console.error("Failed to log task execution:", taskExecutionResult[1]);
-            return null;
+            if (!taskExecutionResult[0]) {
+                console.error("Failed to log task execution:", taskExecutionResult[1]);
+                return null;
+            }
+
+            taskExecutionId = taskExecutionResult[0].id;
+            console.log(`Triggered UpdateSingleActivity task with execution ID: ${taskExecutionId}`);
         }
-
-        const taskExecution = taskExecutionResult[0];
-        console.log(`Triggered UpdateSingleActivity task with execution ID: ${taskExecution.id}`);
 
         // Chain description update task for automatic stats updates
         console.log(`Executing UpdateDescription task for activity ${payload.object_id}`);
         const descriptionTaskBody = {
             name: "UpdateDescription" as const,
-            flightId: payload.object_id.toString()
+            flightId: activityId
         };
 
         const descriptionTaskResult = await executeUpdateDescriptionTask(descriptionTaskBody);
@@ -305,7 +317,7 @@ async function processActivityEvent(
             console.log(`Triggered UpdateDescription task for activity ${payload.object_id}`);
         }
 
-        return taskExecution.id;
+        return taskExecutionId;
 
     } catch (error) {
         console.error("Error processing activity event:", error);
