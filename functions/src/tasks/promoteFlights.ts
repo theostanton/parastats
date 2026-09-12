@@ -7,6 +7,7 @@ import {
     Wing,
     Wings,
     extractWingName,
+    matchWingByName,
     isSuccess,
 } from "@ploufbag/common";
 import { StravaApi } from "@/stravaApi";
@@ -53,23 +54,26 @@ export type PromotionSummary = {
 const DEFAULT_BATCH = 40
 
 /**
- * The wing named on the old 🪂 description line, if it names one we know.
+ * The wing named on the old 🪂 description line: the row it matches, and the
+ * name itself.
  *
  * The convention still works, and is still the strongest signal there is: the
  * pilot said it themselves. It is no longer the only way in, which is the whole
  * point of everything above -- but a pilot who has been typing it for years
  * should find it still being read.
+ *
+ * Both halves are returned because they answer different questions. The row is
+ * the attribution; the name is what the pilot said, and it stands whether or not
+ * there is a row behind it. Returning only the row made "no row" and "said
+ * nothing" the same answer, and a pilot who wrote a glider we had never been
+ * told about was treated as though they had written nothing at all.
  */
-function wingFromDescription(description: string, wings: Wing[]): Wing | null {
+function wingFromDescription(
+    description: string,
+    wings: Wing[]
+): { wing: Wing | null; named: string | null } {
     const named = extractWingName(description)
-    if (!named) {
-        return null
-    }
-    // Same folding the wings table uses for identity: pilots type "Zeno 2",
-    // "zeno2" and "Zeno  2" for one glider.
-    const key = (value: string) => value.toLowerCase().replace(/\s+/g, '')
-    const wanted = key(named)
-    return wings.find(wing => key(wing.name) === wanted) ?? null
+    return { wing: matchWingByName(named, wings), named }
 }
 
 export async function promotePilotFlights(
@@ -123,8 +127,11 @@ export async function promotePilotFlights(
         // wrote, then their only wing, then the wing whose period covers the
         // date. Failing all three, the flight is created with no wing -- an
         // unattributed flight is a flight, where before it was one thrown away.
-        let wing = wingFromDescription(stravaActivity.description ?? '', wings)
-        if (!wing) {
+        let { wing, named } = wingFromDescription(stravaActivity.description ?? '', wings)
+        // Only when the pilot named nothing. A name we have no row for is still
+        // their answer, and beats a date range -- see updateSingleActivity,
+        // where the same order costs the same pilot the same wing line.
+        if (!wing && !named) {
             const resolved = await Wings.resolveForDate(pilotId, activity.start_date)
             wing = isSuccess(resolved) ? resolved[0] : null
         }
@@ -143,7 +150,11 @@ export async function promotePilotFlights(
         const flight: FlightRow = {
             pilot_id: pilotId,
             strava_activity_id: activity.strava_activity_id,
-            wing: wing?.name ?? null,
+            // Published as the pilot wrote it when no row matches, with a null
+            // wing_id. The per-wing pages resolve on this text, so an
+            // unmatched name still groups, and adding the wing on the site
+            // attributes it properly later.
+            wing: wing?.name ?? named ?? null,
             wing_id: wing?.wing_id ?? null,
             duration_sec: shape.durationSec,
             distance_meters: shape.distanceMeters,

@@ -6,6 +6,7 @@ export * from './DescriptionFormatterClient';
 export * from './model';
 export * from './trackColours';
 export * from './wingCatalogue';
+export * from './wingMatch';
 export * from './classify';
 export * from './flightWindow';
 export * from './sqlStatements';
