@@ -112,8 +112,48 @@ const DOMAIN_ALTERNATION = ALL_DESCRIPTION_DOMAINS
  * that follow ↗/↘), and matching starts at a real stats glyph.
  */
 export function formattedStatsPattern(): RegExp {
-    return new RegExp(`[🪂↗️↘️][\\s\\S]*(?:${DOMAIN_ALTERNATION})`, 'u');
+    return new RegExp(`${BLOCK_START}[\\s\\S]*(?:${DOMAIN_ALTERNATION})`, 'u');
 }
+
+/**
+ * The glyphs, written as code points rather than as themselves.
+ *
+ * `\u{1FA82}` needs the `u` flag, which every pattern here already carries, and
+ * it is the same character as a literal 🪂 without depending on the source file
+ * surviving a round trip through a tool that mangles astral pairs — which is the
+ * failure mode the comment above spends fifteen lines on. The variation selector
+ * after each arrow is optional because it is invisible: a description typed by
+ * hand may well not have one, and a block of ours always does.
+ */
+const GLYPH_WING = '\\u{1FA82}';
+const GLYPH_TAKEOFF = '\\u2197\\uFE0F?';
+const GLYPH_LANDING = '\\u2198\\uFE0F?';
+
+/**
+ * The columns we print after a prefix: `15 flights / 18h 45min`. What tells our
+ * own wing line apart from the pilot's.
+ */
+const AGGREGATE_COLUMNS = '\\d+\\s+flights?';
+
+/**
+ * Where a block of ours is allowed to start.
+ *
+ * A site line, or a wing line *with our columns on it*. The wing glyph on its
+ * own is not enough, and that is the whole point: `🪂 Epic` on a line by itself
+ * is the pilot naming their glider — the convention this project was built
+ * around — and it sits above our block rather than inside it whenever we have
+ * no wing of our own to publish (see withStatsBlock, which deliberately leaves
+ * it there).
+ *
+ * While the start was any stats glyph, the greedy match that follows began at
+ * *their* line and ran to the footer, so the next update swallowed it. The first
+ * write kept the pilot's wing; the second one, provoked by our own write coming
+ * back as a Strava update event, deleted it. An unattributed flight thereby ate
+ * the only statement of which wing it was flown on, and did not self-heal —
+ * the third pass had nothing left to take.
+ */
+const BLOCK_START =
+    `(?:${GLYPH_TAKEOFF}|${GLYPH_LANDING}|${GLYPH_WING}[^\\n]*${AGGREGATE_COLUMNS})`;
 
 /**
  * True when this description already carries a stats block we wrote, under the
@@ -155,7 +195,36 @@ export function isFormattedDescription(description: string | null | undefined): 
  * `u` flag on a regex literal, and a bare surrogate pair in a pattern is the
  * kind of thing that works until it does not.
  */
-const WING_LINE = new RegExp('^\\s*🪂', 'u');
+const WING_LINE = new RegExp(`^\\s*${GLYPH_WING}`, 'u');
+
+/**
+ * A wing line the pilot wrote, as opposed to one of ours.
+ *
+ * Ours carries the aggregate columns -- `🪂 BGD Epic  15 flights / 22h 30min`
+ * -- and theirs is the glider's name and nothing else. The same distinction
+ * BLOCK_START draws, and it has to be drawn the same way in both places or a
+ * line one of them calls ours is a line the other calls theirs.
+ */
+function isPilotWingLine(line: string): boolean {
+    return WING_LINE.test(line) && !new RegExp(AGGREGATE_COLUMNS).test(line);
+}
+
+/**
+ * The pilot's own wing line removed, for the one case where it is redundant
+ * rather than theirs to keep: we are publishing a wing line of our own.
+ *
+ * Only reachable through a description written while we could not attribute the
+ * flight -- their line above, our wingless block below -- which is then updated
+ * once we can. Leaving it produces two wings stacked on one activity, the bare
+ * one first. Everywhere else their line stands: the guard in withStatsBlock is
+ * that our block names a wing, which is the same condition under which the
+ * unformatted branch takes their line over.
+ */
+function withoutPilotWingLine(description: string): string {
+    const lines = description.split('\n');
+    const kept = lines.filter(line => !isPilotWingLine(line));
+    return kept.length === lines.length ? description : kept.join('\n');
+}
 
 /**
  * A description with our stats block in it, wherever it belongs.
@@ -195,10 +264,6 @@ export function withStatsBlock(
 ): string {
     const existing = description ?? '';
 
-    if (isFormattedDescription(existing)) {
-        return existing.replace(formattedStatsPattern(), stats);
-    }
-
     // The pilot's 🪂 line is theirs, and we only take it over when we are
     // putting a better one back: our block opens with its own 🪂 line whenever
     // the flight has a wing. When it does not -- an unattributed flight, or one
@@ -206,6 +271,16 @@ export function withStatsBlock(
     // one thing the pilot did tell us about it. Then the stats go underneath and
     // the annotation stays.
     const statsNamesTheWing = stats.split('\n').some(line => WING_LINE.test(line));
+
+    if (isFormattedDescription(existing)) {
+        const replaced = existing.replace(formattedStatsPattern(), stats);
+        // Their line survives our block being replaced -- BLOCK_START no longer
+        // starts a match on it -- so it is still above us on the second pass and
+        // every pass after. Taken out only once we are naming the wing
+        // ourselves, on the same terms as the branch below.
+        return statsNamesTheWing ? withoutPilotWingLine(replaced) : replaced;
+    }
+
     if (statsNamesTheWing) {
         const lines = existing.split('\n');
         const wingLine = lines.findIndex(line => WING_LINE.test(line));

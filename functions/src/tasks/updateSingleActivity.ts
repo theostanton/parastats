@@ -8,6 +8,7 @@ import {
     Wings,
     classifyActivity,
     extractWingName,
+    matchWingByName,
     isSuccess,
     Pilots as PilotsCommon,
 } from "@ploufbag/common";
@@ -151,14 +152,23 @@ export async function executeUpdateSingleActivityTask(
     // may fail, and an unattributed flight is still a flight.
     const wingsResult = await Wings.getForPilot(pilot.pilot_id)
     const wings = isSuccess(wingsResult) ? wingsResult[0] : []
-    const key = (value: string) => value.toLowerCase().replace(/\s+/g, '')
-    let wing = namedWing
-        ? wings.find(candidate => key(candidate.name) === key(namedWing)) ?? null
-        : null
-    if (!wing) {
+    let wing = matchWingByName(namedWing, wings)
+    // Only when the pilot said nothing. A 🪂 line naming a glider we have no row
+    // for used to fall through to here, and the date resolver would either
+    // answer with a different wing or -- for a pilot flying two -- with none at
+    // all, so the flight came out unattributed and the wing line vanished off
+    // the description they had annotated themselves. What they wrote on the
+    // activity outranks anything we infer from a date range.
+    if (!wing && !namedWing) {
         const resolved = await Wings.resolveForDate(pilot.pilot_id, new Date(stravaActivity.start_date))
         wing = isSuccess(resolved) ? resolved[0] : null
     }
+    // A name with no row behind it is still the pilot's answer, and is published
+    // as they wrote it. `wing_id` stays null: the per-wing pages and the
+    // dashboard tallies resolve on this text, so the flight appears under the
+    // glider either way, and adding the wing on the site later attributes it
+    // properly.
+    const wingName = wing?.name ?? namedWing ?? null
 
     // The published flight is the trimmed one. A pilot's airtime should not
     // include the walk to the landing field, and these are the numbers that end
@@ -166,7 +176,7 @@ export async function executeUpdateSingleActivityTask(
     const flight: FlightRow = {
         pilot_id: pilot.pilot_id,
         strava_activity_id: task.activityId,
-        wing: wing?.name ?? null,
+        wing: wingName,
         wing_id: wing?.wing_id ?? null,
         duration_sec: shape.durationSec,
         distance_meters: shape.distanceMeters,

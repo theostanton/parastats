@@ -393,3 +393,108 @@ describe("withStatsBlock", () => {
         expect(withStatsBlock("🪂 Ronin12", STATS)).toBe(STATS);
     });
 });
+
+// ---------------------------------------------------------------------------
+// The pilot's own wing line, across repeated updates.
+//
+// Reported from a live account: a pilot wrote `🪂 Epic` on an activity, it was
+// recognised as a flight on the strength of that line, and the description came
+// back with the stats block and without the wing.
+//
+// One write is not the test. Our own write to Strava comes back as an update
+// event, which runs the whole pipeline again -- and by then the description is
+// one of ours, so it takes the replace branch. The block start used to be any
+// stats glyph, and the pilot's 🪂 was the first one in the description, so the
+// greedy match ran from their line to the footer and replaced the lot. Pass one
+// kept their wing; pass two deleted it; there was nothing left for pass three to
+// heal.
+// ---------------------------------------------------------------------------
+
+describe("a pilot's wing line we cannot attribute", () => {
+    const WINGLESS_STATS = [
+        "↗️ Planfait",
+        "↘️ Doussard",
+        "2026        42 flights / 52h 30min",
+        "All Time    87 flights / 124h 15min",
+        `🌐 ${DESCRIPTION_DOMAIN}/a45nz`,
+    ].join("\n");
+
+    it("survives the first write", () => {
+        expect(withStatsBlock("🪂 Epic", WINGLESS_STATS)).toBe(`🪂 Epic\n${WINGLESS_STATS}`);
+    });
+
+    it("survives the write our own write provokes", () => {
+        const first = withStatsBlock("🪂 Epic", WINGLESS_STATS);
+
+        expect(withStatsBlock(first, WINGLESS_STATS)).toBe(`🪂 Epic\n${WINGLESS_STATS}`);
+    });
+
+    it("survives any number of updates", () => {
+        let description = "🪂 Epic";
+        for (let update = 0; update < 5; update++) {
+            description = withStatsBlock(description, WINGLESS_STATS);
+        }
+
+        expect(description).toBe(`🪂 Epic\n${WINGLESS_STATS}`);
+        expect(description.split("🪂").length - 1).toBe(1);
+    });
+
+    it("survives with the pilot's prose around it", () => {
+        const theirs = ["Sledder before the rain", "🪂 Epic"].join("\n");
+        const once = withStatsBlock(theirs, WINGLESS_STATS);
+
+        expect(withStatsBlock(once, WINGLESS_STATS)).toBe(`${theirs}\n${WINGLESS_STATS}`);
+    });
+
+    it("is not left stranded once we can name the wing ourselves", () => {
+        // What happens after the wing is added on the site: the block gains a
+        // 🪂 line of its own, and the pilot's bare one would otherwise sit above
+        // it as a second, staler wing.
+        const named = [
+            "↗️ Planfait",
+            "🪂 BGD Epic  15 flights / 22h 30min",
+            `🌐 ${DESCRIPTION_DOMAIN}/a45nz`,
+        ].join("\n");
+        const wingless = withStatsBlock("🪂 Epic", WINGLESS_STATS);
+
+        const updated = withStatsBlock(wingless, named);
+
+        expect(updated).toBe(named);
+        expect(updated.split("🪂").length - 1).toBe(1);
+    });
+
+    it("keeps prose when the pilot's wing line is taken over", () => {
+        const named = ["🪂 BGD Epic  15 flights / 22h 30min", `🌐 ${DESCRIPTION_DOMAIN}/a45nz`].join("\n");
+        const wingless = withStatsBlock("Sledder before the rain\n🪂 Epic", WINGLESS_STATS);
+
+        expect(withStatsBlock(wingless, named)).toBe(`Sledder before the rain\n${named}`);
+    });
+
+    it("still strips the whole block, and only the block, when the flight is undone", () => {
+        const published = withStatsBlock("Sledder before the rain\n🪂 Epic", WINGLESS_STATS);
+
+        expect(withoutStatsBlock(published)).toBe("Sledder before the rain\n🪂 Epic");
+    });
+});
+
+describe("formattedStatsPattern anchoring", () => {
+    it("does not start a match on a bare wing line", () => {
+        const bare = ["🪂 Epic", "↗️ Planfait", `🌐 ${DESCRIPTION_DOMAIN}/a45nz`].join("\n");
+
+        expect(bare.replace(formattedStatsPattern(), "")).toBe("🪂 Epic\n");
+    });
+
+    it("does start a match on a wing line carrying our columns", () => {
+        const ours = ["🪂 BGD Epic  15 flights / 22h 30min", `🌐 ${DESCRIPTION_DOMAIN}/a45nz`].join("\n");
+
+        expect(ours.replace(formattedStatsPattern(), "")).toBe("");
+    });
+
+    it("matches an arrow written without its variation selector", () => {
+        // Nothing we write is missing it, but it is invisible and a pilot
+        // editing our block by hand can easily lose it.
+        const plain = ["↗ Planfait", `🌐 ${DESCRIPTION_DOMAIN}/a45nz`].join("\n");
+
+        expect(plain.replace(formattedStatsPattern(), "")).toBe("");
+    });
+});
